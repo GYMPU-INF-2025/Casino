@@ -33,9 +33,6 @@ wheels = [
 name = "casino"
 version = "0.1.0"
 source = { virtual = "." }
-dependencies = [
-    { name = "ruff" },
-]
 
 [package.dev-dependencies]
 backend = [
@@ -46,9 +43,11 @@ dev = [
     { name = "nox" },
     { name = "pyright" },
 ]
+ruff = [
+    { name = "ruff" },
+]
 
 [package.metadata]
-requires-dist = [{ name = "ruff", specifier = ">=0.11.7" }]
 
 [package.metadata.requires-dev]
 backend = [
@@ -60,6 +59,7 @@ dev = [
     { name = "pyright", specifier = ">=1.1.400" },
 ]
 fronted = []
+ruff = [{ name = "ruff", specifier = ">=0.11.7" }]
 
 [[package]]
 name = "colorama"
