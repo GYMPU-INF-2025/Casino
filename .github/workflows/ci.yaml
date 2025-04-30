@@ -43,3 +43,20 @@ jobs:
       - name: Run pyright via nox
         run: |
           uv run nox -s pyright
+
+  ci-done:
+    needs: [ linting, pyright ]
+    if: always() && !cancelled()
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set status based on required jobs
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          for result in $RESULTS; do
+            if [ "$result" != "success" ]; then
+              exit 1
+            fi
+          done
