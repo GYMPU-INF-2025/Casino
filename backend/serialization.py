@@ -1,0 +1,88 @@
+from __future__ import annotations
+
+import functools
+import typing
+import inspect
+
+import msgspec.json
+import sanic
+
+from sanic.exceptions import BadRequest
+
+encoder = msgspec.json.Encoder()
+
+def serialize(*, status_code: int = 200) -> typing.Callable[[typing.Callable[..., typing.Awaitable[msgspec.Struct]]],
+             typing.Callable[..., typing.Awaitable[sanic.HTTPResponse]]]:
+    def decorator(func: typing.Callable[..., typing.Awaitable[msgspec.Struct]]) -> typing.Callable[..., typing.Awaitable[sanic.HTTPResponse]]:
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs) -> sanic.HTTPResponse:
+            result = await func(*args, **kwargs)
+
+            if isinstance(result, msgspec.Struct):
+                return sanic.raw(body = encoder.encode(result), status=status_code, content_type="application/json")
+
+            raise TypeError(
+                f"{func.__name__} should return msgspec.Struct, "
+                f"but returned {type(result).__name__}"
+            )
+        return wrapper
+    return decorator
+
+P = typing.ParamSpec("P")
+R = typing.TypeVar("R")
+
+
+def deserialize() -> typing.Callable[[typing.Callable[P, typing.Awaitable[R]]], typing.Callable[P, typing.Awaitable[R]]]:
+    """
+    Detects the *first* parameter annotated with a msgspec.Struct subclass,
+    decodes the request body (JSON) into that struct, and injects it
+    into **kwargs for the wrapped Sanic handler.
+    """
+    def decorator(func: typing.Callable[P, typing.Awaitable[R]]) -> typing.Callable[P, typing.Awaitable[R]]:
+        sig = inspect.signature(func)
+
+        # Find the first msgspec.Struct-typed parameter -------------------------
+        target_name: str | None = None
+        target_type: type[msgspec.Struct] | None = None
+
+        for name, param in sig.parameters.items():
+            ann = param.annotation
+            if isinstance(ann, type) and issubclass(ann, msgspec.Struct):
+                target_name, target_type = name, ann
+                break
+
+        if target_name is None or target_type is None:        
+            return func
+
+        decoder = msgspec.json.Decoder(target_type)           
+
+        @functools.wraps(func)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  
+            request: sanic.Request | None = None
+
+            if args and isinstance(args[0], sanic.Request):
+                request = args[0]                              
+            elif "request" in kwargs and isinstance(kwargs["request"], sanic.Request):
+                request = kwargs["request"]                    
+            else:
+                for value in (*args, *kwargs.values()):
+                    if isinstance(value, sanic.Request):
+                        request = value
+                        break
+
+            if request is None:                              
+                raise RuntimeError(
+                    "Could not locate a sanic.Request object to read the body from."
+                )
+
+            try:
+                struct_obj = decoder.decode(request.body)
+            except msgspec.DecodeError as exc:
+                raise BadRequest(f"Malformed JSON: {exc}") from exc
+
+            kwargs[target_name] = struct_obj
+
+            return await func(*args, **kwargs)
+
+        return wrapper
+    return decorator
