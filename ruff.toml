@@ -1,0 +1,50 @@
+line-length = 120
+target-version = "py313"
+
+[format]
+docstring-code-format = true
+docstring-code-line-length = 80
+quote-style = "double"
+line-ending = "lf"
+skip-magic-trailing-comma = true
+
+[lint]
+# https://docs.astral.sh/ruff/rules/
+select = ["ALL"]
+ignore = [
+    # "S101",    # Use of assert detected (we use it for typing and testing purposes)
+    "COM812",  # Missing trailing comma (interferes with the formatter)
+    # "TRY003",  # Avoid specifying long messages outside the exception class (has false positives)
+    # "D105",    # Missing docstring in magic method
+    # "SLOT000", # Subclasses of X should define `__slots__` (too many false positives, we use slotscheck instead)
+    # "PLR2004", # Usage of "magic value" (consider removing in the future)
+    # "SIM105",  # Use `contextlib.suppress` (worst for performance)
+    # "SIM110",  # Use `any`/`all` (worst for performance)
+    "TD002",   # Missing issue link for todo
+    "TD003",   # Line contains todo
+    "FIX002",  # Line contains todo
+    "FBT003",  # Boolean positional argument in function call (more false positives than real ones)
+    "EM101",   # Exceptions  must not use a string literal (unnecesarry complexity)
+    "EM102",   # Exceptions  must not use a f-string literal (unnecesarry complexity)
+    "TRY003",  # Avoid specifying long messages outside the exception class (unnecesarry complexity)
+
+]
+
+[lint.per-file-ignores]
+"noxfile.py" = [
+    "D", # Missing docstrings
+    "S101" # Use of assert detected
+]
+
+[lint.isort]
+required-imports = ["from __future__ import annotations"]
+force-single-line = true
+
+[lint.pydocstyle]
+convention = "numpy"
+
+[lint.pylint]
+max-args = 20
+
+[lint.mccabe]
+max-complexity = 20

@@ -10,6 +10,25 @@ on:
 
 jobs:
 
+  linting:
+    runs-on: ubuntu-latest
+    name: "Run linting via nox"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.9"
+          python-version: "3.13"
+
+      - name: Run ruff via nox
+        run: |
+          uv run nox -s ruff_check
+
+      - name: Run whitespace check via nox
+        run: |
+          uv run nox -s check_trailing_whitespaces
+
   pyright:
     runs-on: ubuntu-latest
     name: "Run pyright via nox"
@@ -24,3 +43,20 @@ jobs:
       - name: Run pyright via nox
         run: |
           uv run nox -s pyright
+
+  ci-done:
+    needs: [ linting, pyright ]
+    if: always() && !cancelled()
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set status based on required jobs
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          for result in $RESULTS; do
+            if [ "$result" != "success" ]; then
+              exit 1
+            fi
+          done
