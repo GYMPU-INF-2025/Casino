@@ -56,7 +56,6 @@ def deserialize() -> typing.Callable[
     def decorator(func: typing.Callable[P, typing.Awaitable[R]]) -> typing.Callable[P, typing.Awaitable[R]]:
         sig = inspect.signature(func)
 
-        # Find the first msgspec.Struct-typed parameter -------------------------
         target_name: str | None = None
         target_type: type[msgspec.Struct] | None = None
 

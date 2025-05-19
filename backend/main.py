@@ -5,12 +5,14 @@ from __future__ import annotations
 import sanic
 from sanic.log import logger
 
+from backend.internal.serialization import deserialize
+from backend.internal.serialization import serialize
+from backend.internal.websocket import WebsocketManager
 from backend.models.responses import Success
 from backend.models.responses import Test
-from backend.serialization import deserialize
-from backend.serialization import serialize
 
 app = sanic.Sanic("Casino")
+WebsocketManager(app)
 
 
 @app.post("/")
