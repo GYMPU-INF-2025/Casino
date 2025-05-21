@@ -28,6 +28,7 @@ def serialize(
     ) -> typing.Callable[P, typing.Awaitable[sanic.HTTPResponse]]:
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> sanic.HTTPResponse:
+            print(kwargs)
             result = await func(*args, **kwargs)
 
             if isinstance(result, msgspec.Struct):
@@ -55,12 +56,13 @@ def deserialize() -> typing.Callable[
 
     def decorator(func: typing.Callable[P, typing.Awaitable[R]]) -> typing.Callable[P, typing.Awaitable[R]]:
         sig = inspect.signature(func)
+        type_hints = typing.get_type_hints(func)
 
         target_name: str | None = None
         target_type: type[msgspec.Struct] | None = None
 
         for name, param in sig.parameters.items():
-            ann = param.annotation
+            ann = type_hints.get(name)
             if isinstance(ann, type) and issubclass(ann, msgspec.Struct):
                 target_name, target_type = name, ann
                 break
@@ -93,7 +95,6 @@ def deserialize() -> typing.Callable[
                 raise BadRequest(f"Malformed JSON: {exc}") from exc
 
             kwargs[target_name] = struct_obj
-
             return await func(*args, **kwargs)
 
         return wrapper
