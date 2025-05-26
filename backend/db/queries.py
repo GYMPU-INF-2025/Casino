@@ -8,16 +8,15 @@ from __future__ import annotations
 
 __all__: collections.abc.Sequence[str] = ("Queries",)
 
+from backend.internal.snowflakes import Snowflake
 import typing
 
-from backend.internal.snowflakes import Snowflake
-
 if typing.TYPE_CHECKING:
+    import aiosqlite
     import collections.abc
 
-    import aiosqlite
-
 from backend.db import models
+
 
 GET_USER_BY_ID: typing.Final[str] = """-- name: GetUserById :one
 SELECT id, username, password, money FROM users WHERE users.id = ?
@@ -42,8 +41,7 @@ class Queries:
     def conn(self) -> aiosqlite.Connection:
         """Connection object used to make queries.
 
-        Returns
-        -------
+        Returns:
             Connection object of type `aiosqlite.Connection` used to make queries.
         """
         return self._conn
@@ -58,8 +56,7 @@ class Queries:
         Args:
             id_: Snowflake.
 
-        Returns
-        -------
+        Returns:
             Result of type `models.User` fetched from the db. Will be `None` if not found.
         """
         row = await (await self._conn.execute(GET_USER_BY_ID, (int(id_),))).fetchone()

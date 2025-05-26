@@ -38,6 +38,9 @@ ignore = [
 "backend/main.py" = [
     "PLW0603" #  Using the global statement to update `queries` is discouraged
 ]
+"backend/db/*.py" = [
+    "ALL"
+]
 
 [lint.isort]
 required-imports = ["from __future__ import annotations"]

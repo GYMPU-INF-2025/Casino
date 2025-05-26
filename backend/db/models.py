@@ -8,21 +8,18 @@ from __future__ import annotations
 
 __all__: collections.abc.Sequence[str] = ("User",)
 
+import msgspec
 import typing
 
-import msgspec
-
 if typing.TYPE_CHECKING:
-    import collections.abc
-
     from backend.internal.snowflakes import Snowflake
+    import collections.abc
 
 
 class User(msgspec.Struct):
     """Model representing User.
 
-    Attributes
-    ----------
+    Attributes:
         id: Snowflake
         username: str
         password: str
