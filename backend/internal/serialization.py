@@ -28,7 +28,6 @@ def serialize(
     ) -> typing.Callable[P, typing.Awaitable[sanic.HTTPResponse]]:
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> sanic.HTTPResponse:
-            print(kwargs)
             result = await func(*args, **kwargs)
 
             if isinstance(result, msgspec.Struct):
@@ -61,7 +60,7 @@ def deserialize() -> typing.Callable[
         target_name: str | None = None
         target_type: type[msgspec.Struct] | None = None
 
-        for name, param in sig.parameters.items():
+        for name in sig.parameters:
             ann = type_hints.get(name)
             if isinstance(ann, type) and issubclass(ann, msgspec.Struct):
                 target_name, target_type = name, ann
