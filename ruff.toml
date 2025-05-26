@@ -35,6 +35,9 @@ ignore = [
     "D", # Missing docstrings
     "S101" # Use of assert detected
 ]
+"backend/main.py" = [
+    "PLW0603" #  Using the global statement to update `queries` is discouraged
+]
 
 [lint.isort]
 required-imports = ["from __future__ import annotations"]

@@ -2,20 +2,26 @@ version: "2"
 plugins:
   - name: python
     wasm:
-      url: https://github.com/rayakame/sqlc-gen-better-python/releases/download/v0.4.0/sqlc-gen-better-python.wasm
-      sha256: 4abc65163287f21bbb10325f7ba0b2f5aefd13e316e59af06e9b5d73c83ca4b5
+      url: https://github.com/rayakame/sqlc-gen-better-python/releases/download/v0.4.2/sqlc-gen-better-python.wasm
+      sha256: 9db2bada2a5f30dc0a48047e026d25e08dc169315df4c4836e7900a1f1eb85e6
 sql:
   - engine: "sqlite"
-    queries: "db/query.sql"
+    queries: "db/queries.sql"
     schema: "db/schema.sql"
     codegen:
       - out: "backend/db"
         plugin: python
         options:
-          package: "db"
+          package: "backend.db"
           emit_init_file: true
           sql_driver: "aiosqlite"
           model_type: "msgspec"
           emit_classes: true
-          docstrings: true
+          docstrings: "google"
           speedups: true
+          overrides:
+            - db_type: "bigserial"
+              py_type:
+                import: "backend.internal.snowflakes"
+                package: "Snowflake"
+                type: "Snowflake"

@@ -2,21 +2,48 @@
 
 from __future__ import annotations
 
+import typing
+
+import aiosqlite
 import sanic
 from sanic.log import logger
 
+from backend.db.queries import Queries
+from backend.internal.snowflakes import Snowflake
 from backend.models.responses import Success
 from backend.models.responses import Test
 from backend.serialization import deserialize
 from backend.serialization import serialize
 
+if typing.TYPE_CHECKING:
+    import asyncio
+
+
 app = sanic.Sanic("Casino")
+queries: Queries | None = None
+
+
+@app.before_server_start
+async def setup_db(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
+    """Create database connection."""
+    aiosqlite_conn = await aiosqlite.connect("sqlite.db")
+    global queries
+    queries = Queries(aiosqlite_conn)
+    app_.ext.add_dependency(aiosqlite_conn)
+
+
+@app.after_server_start
+async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
+    """Close the database connection when server shutting down."""
+    if queries is not None:
+        await queries.conn.close()
 
 
 @app.post("/")
 @serialize()
 @deserialize()
-async def hello_world(_: sanic.Request, body: Test) -> Success:
+async def hello_world(_: sanic.Request, body: Test, query: Queries) -> Success:
     """Hello World endpoint to test if the server is running."""
     logger.info(body.test)
+    await query.get_user_by_id(id_=Snowflake(20000))
     return Success()
