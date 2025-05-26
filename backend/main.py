@@ -31,7 +31,6 @@ ws_endpoints.add_lobby(game_lobby_type=LobbyImpl)
 async def hello_world(_: sanic.Request, body: Test) -> Success:
     """Hello World endpoint to test if the server is running."""
     logger.info(body.test)
-    logger.info(conn)
     return Success()
 
 
