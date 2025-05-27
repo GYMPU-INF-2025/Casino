@@ -9,7 +9,8 @@ import typing
 import msgspec
 from sanic.log import logger
 
-from backend.internal.hooks import decode_hook, encode_hook
+from backend.internal.hooks import decode_hook
+from backend.internal.hooks import encode_hook
 from backend.models import BaseEvent
 
 if typing.TYPE_CHECKING:
@@ -31,15 +32,13 @@ class GameLobbyBase(abc.ABC):
         self._lobby_id: str = lobby_id
         self._clients: dict[Snowflake, WebsocketClient] = {}
         self._events: ListenerMapT[BaseEvent] = {}
-    
+
     async def broadcast_event(self, event: BaseEvent) -> None:
         event_name = event.event_name()
-        data = msgspec.to_builtins(
-            event, enc_hook=encode_hook
-        )
+        data = msgspec.to_builtins(event, enc_hook=encode_hook)
         for client in self._clients.values():
             await client.dispatch_event(data, event_name)
-    
+
     def add_event_callback(self, event_type: type[typing.Any], callback: CallbackT[typing.Any]) -> None:
         origin_type = event_type
         if (_origin_type := typing.get_origin(event_type)) is not None:

@@ -30,9 +30,9 @@ class LobbyImpl(GameLobbyBase):
         self.money = 0
         self.add_event_callback(events.UpdateMoney, self.update_money_callback)
 
-    async def update_money_callback(self, event: events.UpdateMoney, client: WebsocketClient) -> None:
+    async def update_money_callback(self, event: events.UpdateMoney, _: WebsocketClient) -> None:
         self.money = event.money
-        await self.broadcast_event(event)
+        await self.broadcast_event(events.UpdateMoney(money=self.money))
 
     @property
     def max_num_clients(self) -> int:

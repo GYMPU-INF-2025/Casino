@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import typing
 
-from backend.internal.ws import GameLobbyBase
 from backend.internal.ws.websocket_manager import WebsocketManager
 
 if typing.TYPE_CHECKING:
     import sanic
+
+    from backend.internal.ws import GameLobbyBase
 
 __all__ = ("WebsocketEndpointsManager",)
 
