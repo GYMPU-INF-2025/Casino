@@ -31,6 +31,8 @@ if typing.TYPE_CHECKING:
 
 class _GameLobbyMeta(type(abc.ABC)):
     def __call__(cls, *, lobby_id: str, queries: Queries) -> object:
+        if not (len(lobby_id) == 5 and lobby_id.isalnum() and lobby_id.upper() == lobby_id):  # noqa: PLR2004
+            raise RuntimeError("Invalid lobby-id!")
         obj = super().__call__(lobby_id=lobby_id, queries=queries)
         obj.__post__init__()
         return obj

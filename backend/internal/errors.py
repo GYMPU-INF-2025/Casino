@@ -34,6 +34,7 @@ class WebsocketCloseCode(enum.IntEnum):
     NOT_AUTHENTICATED = 4003
     AUTHENTICATION_FAILED = 4004
     LOBBY_FULL = 4005
+    INVALID_LOBBY = 4006
 
 
 class WebsocketClientClosedConnectionError(WebsocketError):

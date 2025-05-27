@@ -72,7 +72,6 @@ class _WebsocketTransport:
             return data
 
     def _handle_close(self, close: websockets.ConnectionClosed) -> typing.NoReturn:
-        logger.debug("handling close")
         if rcvd := close.rcvd:
             raise errors.WebsocketClientClosedConnectionError(reason=rcvd.reason, code=rcvd.code)
         msg = "Client has closed"
@@ -93,14 +92,20 @@ class WebsocketManager(typing.Generic[T]):
     ) -> None:
         _ws = _WebsocketTransport(ws=ws)
         if not (lobby := self._lobbys.get(lobby_id)):
-            lobby = self._lobby_class(lobby_id=lobby_id, queries=queries)
-            self._lobbys[lobby_id] = lobby
+            try:
+                lobby = self._lobby_class(lobby_id=lobby_id, queries=queries)
+                self._lobbys[lobby_id] = lobby
+            except RuntimeError as exc:
+                msg = f"client tried joining lobby using invalid lobby id {lobby_id}."
+                logger.debug(msg)
+                await _ws.send_close(code=errors.WebsocketCloseCode.LOBBY_FULL, reason=str(exc))
+                return
         try:
             user_id = await self._connect(ws=_ws, request=request, lobby=lobby, queries=queries)
 
-        except OverflowError as exc:
+        except OverflowError:
             msg = f"client tried joining lobby {lobby_id} even though the lobby is full."
-            logger.debug(msg, exc_info=exc)
+            logger.debug(msg)
             await _ws.send_close(code=errors.WebsocketCloseCode.LOBBY_FULL, reason="Lobby is full")
 
         except errors.WebsocketConnectionError as ex:
@@ -114,11 +119,9 @@ class WebsocketManager(typing.Generic[T]):
 
         except errors.WebsocketError as exc:
             logger.exception("encountered gateway error", exc_info=exc)
-            raise
 
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             logger.exception("encountered some unhandled error", exc_info=exc)
-            raise
 
         else:
             await lobby.handle_ws(user_id)
