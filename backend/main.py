@@ -16,6 +16,7 @@ from backend.internal.snowflakes import Snowflake
 from backend.internal.ws import GameLobbyBase
 from backend.internal.ws import WebsocketClient
 from backend.internal.ws import WebsocketEndpointsManager
+from backend.internal.ws import add_event_listener
 from backend.models import events
 from backend.models.responses import Success
 from backend.models.responses import Test
@@ -25,20 +26,22 @@ if typing.TYPE_CHECKING:
 
 
 class LobbyImpl(GameLobbyBase):
-    def __init__(self, lobby_id: str) -> None:
-        super().__init__(lobby_id)
+    def __init__(self, *, lobby_id: str) -> None:
+        super().__init__(lobby_id=lobby_id)
         self.money = 0
-        self.add_event_callback(events.UpdateMoney, self.update_money_callback)
 
+    @add_event_listener(events.UpdateMoney)
     async def update_money_callback(self, event: events.UpdateMoney, _: WebsocketClient) -> None:
         self.money = event.money
         await self.broadcast_event(events.UpdateMoney(money=self.money))
 
     @property
+    @typing.override
     def max_num_clients(self) -> int:
         return 2
 
     @property
+    @typing.override
     def endpoint(self) -> str:
         return "test"
 

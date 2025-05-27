@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+__all__ = ("EventT", "GameLobbyBase")
+
 import abc
-
-__all__ = ("GameLobbyBase",)
-
+import inspect
 import typing
 
 import msgspec
@@ -12,6 +12,8 @@ from sanic.log import logger
 from backend.internal.hooks import decode_hook
 from backend.internal.hooks import encode_hook
 from backend.models import BaseEvent
+
+EventT = typing.TypeVar("EventT", bound=BaseEvent)
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable
@@ -22,16 +24,29 @@ if typing.TYPE_CHECKING:
     from backend.internal.ws import WebsocketClient
     from backend.models.internal import WebSocketPayload
 
-    EventT = typing.TypeVar("EventT", bound=BaseEvent)
     CallbackT = Callable[[EventT, WebsocketClient], Coroutine[typing.Any, typing.Any, None]]
     ListenerMapT = dict[str, tuple[type[EventT], list[CallbackT[EventT]]]]
 
 
-class GameLobbyBase(abc.ABC):
-    def __init__(self, lobby_id: str) -> None:
+class _GameLobbyMeta(type(abc.ABC)):
+    def __call__(cls, *, lobby_id: str) -> object:
+        obj = super().__call__(lobby_id=lobby_id)
+        obj.__post__init__()
+        return obj
+
+
+class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
+    def __init__(self, *, lobby_id: str) -> None:
         self._lobby_id: str = lobby_id
         self._clients: dict[Snowflake, WebsocketClient] = {}
         self._events: ListenerMapT[BaseEvent] = {}
+
+    def __post__init__(self) -> None:
+        for attr_name in dir(self):
+            maybe_listener = getattr(self, attr_name)
+
+            if callable(maybe_listener) and hasattr(maybe_listener, "__event_type__"):
+                self.add_event_callback(maybe_listener.__event_type__, maybe_listener)  # type: ignore[reportArgumentType]
 
     async def broadcast_event(self, event: BaseEvent) -> None:
         event_name = event.event_name()
@@ -52,6 +67,14 @@ class GameLobbyBase(abc.ABC):
         if not is_event:
             msg = "'event_type' is a non-Event type"
             raise TypeError(msg)
+
+        logger.debug(
+            "subscribing callback 'async def %s%s' to event-type %s.%s",
+            getattr(callback, "__name__", "<anon>"),
+            inspect.signature(callback),
+            event_type.__module__,
+            event_type.__qualname__,
+        )
 
         if event := self._events.get(event_type.event_name()):
             event[1].append(callback)
