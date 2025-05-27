@@ -26,8 +26,8 @@ if typing.TYPE_CHECKING:
 
 
 class LobbyImpl(GameLobbyBase):
-    def __init__(self, *, lobby_id: str) -> None:
-        super().__init__(lobby_id=lobby_id)
+    def __init__(self, *, lobby_id: str, queries: Queries) -> None:
+        super().__init__(lobby_id=lobby_id, queries=queries)
         self.money = 0
 
     @add_event_listener(events.UpdateMoney)
@@ -50,7 +50,7 @@ PROJECT_DIR = pathlib.Path(__file__).parent.parent
 DB_DIR = PROJECT_DIR / "db"
 
 app = sanic.Sanic("Casino")
-queries: Queries | None = None
+queries_: Queries | None = None
 
 
 @app.before_server_start
@@ -58,16 +58,16 @@ async def setup_db(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
     """Create database connection."""
     aiosqlite_conn = await aiosqlite.connect("sqlite.db")
     await aiosqlite_conn.executescript((DB_DIR / "schema.sql").read_text())
-    global queries
-    queries = Queries(aiosqlite_conn)
-    app_.ext.dependency(queries)
+    global queries_
+    queries_ = Queries(aiosqlite_conn)
+    app_.ext.dependency(queries_)
 
 
 @app.after_server_stop
 async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
     """Close the database connection when server shutting down."""
-    if queries is not None:
-        await queries.conn.close()
+    if queries_ is not None:
+        await queries_.conn.close()
 
 
 ws_endpoints = WebsocketEndpointsManager(app=app)

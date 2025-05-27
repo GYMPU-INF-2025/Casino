@@ -93,7 +93,7 @@ class WebsocketManager(typing.Generic[T]):
     ) -> None:
         _ws = _WebsocketTransport(ws=ws)
         if not (lobby := self._lobbys.get(lobby_id)):
-            lobby = self._lobby_class(lobby_id=lobby_id)
+            lobby = self._lobby_class(lobby_id=lobby_id, queries=queries)
             self._lobbys[lobby_id] = lobby
         try:
             user_id = await self._connect(ws=_ws, request=request, lobby=lobby, queries=queries)

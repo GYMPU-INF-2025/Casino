@@ -20,6 +20,7 @@ if typing.TYPE_CHECKING:
     from collections.abc import Coroutine
 
     from backend.db.models import User
+    from backend.db.queries import Queries
     from backend.internal import Snowflake
     from backend.internal.ws import WebsocketClient
     from backend.models.internal import WebSocketPayload
@@ -29,15 +30,16 @@ if typing.TYPE_CHECKING:
 
 
 class _GameLobbyMeta(type(abc.ABC)):
-    def __call__(cls, *, lobby_id: str) -> object:
-        obj = super().__call__(lobby_id=lobby_id)
+    def __call__(cls, *, lobby_id: str, queries: Queries) -> object:
+        obj = super().__call__(lobby_id=lobby_id, queries=queries)
         obj.__post__init__()
         return obj
 
 
 class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
-    def __init__(self, *, lobby_id: str) -> None:
+    def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         self._lobby_id: str = lobby_id
+        self._queries: Queries = queries
         self._clients: dict[Snowflake, WebsocketClient] = {}
         self._events: ListenerMapT[BaseEvent] = {}
 
@@ -97,6 +99,10 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
         logger.debug(
             f"Removed client with user id {user_id} and client_id {client.client_id} from lobby {self._lobby_id}"
         )
+
+    @property
+    def queries(self) -> Queries:
+        return self._queries
 
     @property
     @abc.abstractmethod
