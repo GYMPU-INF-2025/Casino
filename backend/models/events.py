@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import msgspec
 
-__all__ = ("BaseEvent", "TestEvent")
+__all__ = ("BaseEvent", "UpdateMoney")
 
 
 class BaseEvent(msgspec.Struct):
@@ -16,5 +16,5 @@ class BaseEvent(msgspec.Struct):
         return "".join(result).upper()
 
 
-class TestEvent(BaseEvent):
+class UpdateMoney(BaseEvent):
     money: int

@@ -27,12 +27,12 @@ if typing.TYPE_CHECKING:
 class LobbyImpl(GameLobbyBase):
     def __init__(self, lobby_id: str) -> None:
         super().__init__(lobby_id)
-        self.add_event_callback(events.TestEvent, self.test_callback)
+        self.money = 0
+        self.add_event_callback(events.UpdateMoney, self.update_money_callback)
 
-    async def test_callback(self, event: events.TestEvent, client: WebsocketClient) -> None:
-        logger.info(event.money)
-        logger.info(self.num_clients)
-        logger.info(client.client_id)
+    async def update_money_callback(self, event: events.UpdateMoney, client: WebsocketClient) -> None:
+        self.money = event.money
+        await self.broadcast_event(event)
 
     @property
     def max_num_clients(self) -> int:

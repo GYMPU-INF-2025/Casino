@@ -40,7 +40,7 @@ class WebsocketClient:
     @property
     def ws(self) -> _WebsocketTransport:
         return self._ws
-
+    
     @property
     def client_id(self) -> Snowflake:
         return self._client_id
@@ -48,7 +48,16 @@ class WebsocketClient:
     @classmethod
     def new_client(cls, ws: _WebsocketTransport, request: sanic.Request, user_id: Snowflake) -> WebsocketClient:
         return cls(ws=ws, request=request, user_id=user_id, client_id=generate_snowflake())
-
+    
+    async def dispatch_event(self, data: dict[str, typing.Any], event_name: str) -> None:
+        await self._ws.send_payload(
+            WebSocketPayload(
+                op=_DISPATCH,
+                d=data,
+                t=event_name
+            )
+        )
+    
     async def send_ready(self, user: User, num_clients: int) -> None:
         await self._ws.send_payload(
             WebSocketPayload(

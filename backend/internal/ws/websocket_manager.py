@@ -9,6 +9,7 @@ import sanic
 import websockets
 from sanic.log import logger
 
+from backend.db.queries import Queries
 from backend.internal import Snowflake
 from backend.internal import errors
 from backend.internal.ws import GameLobbyBase
@@ -18,8 +19,6 @@ from backend.internal.ws.websocket_client import WebsocketClient
 from backend.models import internal as models
 from backend.utils import tokens
 
-if typing.TYPE_CHECKING:
-    from backend.db.queries import Queries
 
 __all__ = ("WebsocketManager", "_WebsocketTransport")
 
