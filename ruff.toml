@@ -12,6 +12,7 @@ skip-magic-trailing-comma = true
 # https://docs.astral.sh/ruff/rules/
 select = ["ALL"]
 ignore = [
+    "D", # Docstrings
     # "S101",    # Use of assert detected (we use it for typing and testing purposes)
     "COM812",  # Missing trailing comma (interferes with the formatter)
     # "TRY003",  # Avoid specifying long messages outside the exception class (has false positives)
@@ -27,12 +28,16 @@ ignore = [
     "EM101",   # Exceptions  must not use a string literal (unnecesarry complexity)
     "EM102",   # Exceptions  must not use a f-string literal (unnecesarry complexity)
     "TRY003",  # Avoid specifying long messages outside the exception class (unnecesarry complexity)
+    "S104",    # Possible binding to all interfaces
+    "ERA001",  # Found commented-out code
 
 ]
 
 [lint.per-file-ignores]
+"**/__init__.py" = [
+    "F403", # `from .events import *` used; unable to detect undefined names
+]
 "noxfile.py" = [
-    "D", # Missing docstrings
     "S101" # Use of assert detected
 ]
 "backend/main.py" = [
@@ -40,6 +45,12 @@ ignore = [
 ]
 "backend/db/*.py" = [
     "ALL"
+]
+"backend/utils/tokens.py" = [
+    "S105"
+]
+"backend/internal/hooks.py" = [
+    "ANN401"
 ]
 
 [lint.isort]

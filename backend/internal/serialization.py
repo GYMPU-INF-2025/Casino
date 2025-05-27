@@ -10,7 +10,12 @@ import msgspec.json
 import sanic
 from sanic.exceptions import BadRequest
 
-encoder = msgspec.json.Encoder()
+__all__ = ("deserialize", "serialize")
+
+from backend.internal.hooks import decode_hook
+from backend.internal.hooks import encode_hook
+
+encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
 
 P = typing.ParamSpec("P")
@@ -69,7 +74,7 @@ def deserialize() -> typing.Callable[
         if target_name is None or target_type is None:
             return func
 
-        decoder = msgspec.json.Decoder(target_type)
+        decoder = msgspec.json.Decoder(target_type, dec_hook=decode_hook)
 
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:

@@ -10,23 +10,38 @@ import sanic
 from sanic.log import logger
 
 from backend.db.queries import Queries
-from backend.internal.snowflakes import Snowflake
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
+from backend.internal.snowflakes import Snowflake
+from backend.internal.ws import GameLobbyBase
+from backend.internal.ws import WebsocketClient
+from backend.internal.ws import WebsocketEndpointsManager
+from backend.models import events
 from backend.models.responses import Success
 from backend.models.responses import Test
-from backend.internal.ws import WebsocketEndpointsManager, GameLobbyBase
+
+if typing.TYPE_CHECKING:
+    import asyncio
 
 
 class LobbyImpl(GameLobbyBase):
+    def __init__(self, lobby_id: str) -> None:
+        super().__init__(lobby_id)
+        self.add_event_callback(events.TestEvent, self.test_callback)
+
+    async def test_callback(self, event: events.TestEvent, client: WebsocketClient) -> None:
+        logger.info(event.money)
+        logger.info(self.num_clients)
+        logger.info(client.client_id)
+
+    @property
+    def max_num_clients(self) -> int:
+        return 2
 
     @property
     def endpoint(self) -> str:
         return "test"
 
-
-if typing.TYPE_CHECKING:
-    import asyncio
 
 PROJECT_DIR = pathlib.Path(__file__).parent.parent
 DB_DIR = PROJECT_DIR / "db"
@@ -50,6 +65,7 @@ async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
     """Close the database connection when server shutting down."""
     if queries is not None:
         await queries.conn.close()
+
 
 ws_endpoints = WebsocketEndpointsManager(app=app)
 ws_endpoints.add_lobby(game_lobby_type=LobbyImpl)

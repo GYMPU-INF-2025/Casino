@@ -1,11 +1,13 @@
-import typing
+from __future__ import annotations
+
 import enum
+import typing
 
 
 class WebsocketError(RuntimeError):
     """A base exception type for anything that can be thrown by the Websocket."""
 
-    def __init__(self, *, reason: str):
+    def __init__(self, *, reason: str) -> None:
         self.reason = reason
 
     reason: str
@@ -15,12 +17,14 @@ class WebsocketError(RuntimeError):
     def __str__(self) -> str:
         return self.reason
 
+
 class WebsocketConnectionError(WebsocketError):
     """An exception thrown if a connection issue occurs."""
 
     @typing.override
     def __str__(self) -> str:
         return f"Failed to connect to client: {self.reason!r}"
+
 
 class WebsocketCloseCode(enum.IntEnum):
     PROTOCOL_ERROR = 1_002
@@ -29,12 +33,14 @@ class WebsocketCloseCode(enum.IntEnum):
     DECODE_ERROR = 4002
     NOT_AUTHENTICATED = 4003
     AUTHENTICATION_FAILED = 4004
+    LOBBY_FULL = 4005
+
 
 class WebsocketClientClosedConnectionError(WebsocketError):
-    """An exception raised when the server closes the connection."""
+    """An exception raised when the client closes the connection."""
 
     @typing.override
-    def __init__(self, *, reason: str, code: int):
+    def __init__(self, *, reason: str, code: int) -> None:
         self.reason = reason
         self.code = code
 
@@ -44,6 +50,7 @@ class WebsocketClientClosedConnectionError(WebsocketError):
     @typing.override
     def __str__(self) -> str:
         return f"Client closed connection with code {self.code} ({self.reason})"
+
 
 class WebsocketTransportError(WebsocketError):
     """An exception thrown if an issue occurs at the transport layer."""
