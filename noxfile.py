@@ -10,7 +10,8 @@ import nox
 from nox import options
 
 BACKEND_PATH = pathlib.Path(__file__).parent / "backend"
-PYTHON_PATHS = [BACKEND_PATH, "noxfile.py"]
+FRONTEND_PATH = pathlib.Path(__file__).parent / "frontend"
+PYTHON_PATHS = [BACKEND_PATH, "noxfile.py", FRONTEND_PATH]
 REFORMATTING_PATHS = PYTHON_PATHS
 
 
