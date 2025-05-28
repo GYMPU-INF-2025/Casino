@@ -30,6 +30,7 @@ if typing.TYPE_CHECKING:
 
 
 class _GameLobbyMeta(type(abc.ABC)):
+    @typing.override
     def __call__(cls, *, lobby_id: str, queries: Queries) -> object:
         if not (len(lobby_id) == 5 and lobby_id.isalnum() and lobby_id.upper() == lobby_id):  # noqa: PLR2004
             raise RuntimeError("Invalid lobby-id!")

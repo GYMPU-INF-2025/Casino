@@ -34,11 +34,7 @@ def serialize(
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> sanic.HTTPResponse:
             result = await func(*args, **kwargs)
-
-            if isinstance(result, msgspec.Struct):
-                return sanic.raw(body=encoder.encode(result), status=status_code, content_type="application/json")
-
-            raise TypeError(f"{func.__name__} should return msgspec.Struct, but returned {type(result).__name__}")
+            return sanic.raw(body=encoder.encode(result), status=status_code, content_type="application/json")
 
         return wrapper
 
