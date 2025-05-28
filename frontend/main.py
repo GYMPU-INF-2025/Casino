@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-import os
+import json
+import logging.config
+import pathlib
 
 import arcade
 import arcade.gui
-import threading
-import websocket
-import msgspec
 
+from frontend.window import MainWindow
 
+ROOT_PATH = pathlib.Path(__file__).parent
+
+"""
 class IdentifyData(msgspec.Struct):
     token: str = msgspec.field()
 
@@ -117,14 +120,15 @@ class GameView(arcade.View):
         if self._pending_money is not None and self.counter != self._pending_money:
             self.counter = self._pending_money
             self.label.text = str(self.counter)
+"""
 
 
-def main():
-    window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
-    game_view = GameView()
-    window.show_view(game_view)
+def main() -> None:
+    MainWindow()
     arcade.run()
 
 
 if __name__ == "__main__":
+    with (ROOT_PATH / "logging.json").open() as f:
+        logging.config.dictConfig(json.load(f))
     main()
