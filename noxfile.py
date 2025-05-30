@@ -10,7 +10,8 @@ import nox
 from nox import options
 
 BACKEND_PATH = pathlib.Path(__file__).parent / "backend"
-PYTHON_PATHS = [BACKEND_PATH, "noxfile.py"]
+FRONTEND_PATH = pathlib.Path(__file__).parent / "frontend"
+PYTHON_PATHS = [BACKEND_PATH, "noxfile.py", FRONTEND_PATH]
 REFORMATTING_PATHS = PYTHON_PATHS
 
 
@@ -89,7 +90,7 @@ def uv_sync(
     )
 
 
-@nox.session()
+@nox.session(reuse_venv=True)
 def ruff(session: nox.Session) -> None:
     uv_sync(session, groups=["dev", "ruff"])
 
@@ -99,7 +100,7 @@ def ruff(session: nox.Session) -> None:
     session.run("python", "-m", "ruff", "check", *PYTHON_PATHS, "--fix")
 
 
-@nox.session()
+@nox.session(reuse_venv=True)
 def ruff_check(session: nox.Session) -> None:
     uv_sync(session, groups=["dev", "ruff"])
 
@@ -107,7 +108,7 @@ def ruff_check(session: nox.Session) -> None:
     session.run("python", "-m", "ruff", "check", *PYTHON_PATHS)
 
 
-@nox.session()
+@nox.session(reuse_venv=True)
 def pyright(session: nox.Session) -> None:
     uv_sync(session, include_self=True, groups=["dev"])
     session.run("pyright", *PYTHON_PATHS)

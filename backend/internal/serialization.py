@@ -10,7 +10,12 @@ import msgspec.json
 import sanic
 from sanic.exceptions import BadRequest
 
-encoder = msgspec.json.Encoder()
+__all__ = ("deserialize", "serialize")
+
+from backend.internal.hooks import decode_hook
+from backend.internal.hooks import encode_hook
+
+encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
 
 P = typing.ParamSpec("P")
@@ -29,11 +34,7 @@ def serialize(
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> sanic.HTTPResponse:
             result = await func(*args, **kwargs)
-
-            if isinstance(result, msgspec.Struct):
-                return sanic.raw(body=encoder.encode(result), status=status_code, content_type="application/json")
-
-            raise TypeError(f"{func.__name__} should return msgspec.Struct, but returned {type(result).__name__}")
+            return sanic.raw(body=encoder.encode(result), status=status_code, content_type="application/json")
 
         return wrapper
 
@@ -57,7 +58,6 @@ def deserialize() -> typing.Callable[
         sig = inspect.signature(func)
         type_hints = typing.get_type_hints(func)
 
-        # Find the first msgspec.Struct-typed parameter -------------------------
         target_name: str | None = None
         target_type: type[msgspec.Struct] | None = None
 
@@ -70,7 +70,7 @@ def deserialize() -> typing.Callable[
         if target_name is None or target_type is None:
             return func
 
-        decoder = msgspec.json.Decoder(target_type)
+        decoder = msgspec.json.Decoder(target_type, dec_hook=decode_hook)
 
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
@@ -95,7 +95,6 @@ def deserialize() -> typing.Callable[
                 raise BadRequest(f"Malformed JSON: {exc}") from exc
 
             kwargs[target_name] = struct_obj
-
             return await func(*args, **kwargs)
 
         return wrapper
