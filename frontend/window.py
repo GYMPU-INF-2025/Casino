@@ -3,6 +3,7 @@ from __future__ import annotations
 __all__ = ("MainWindow",)
 
 import logging
+import pathlib
 import typing
 
 import arcade
@@ -22,17 +23,30 @@ logger = logging.getLogger(__name__)
 
 
 class MainWindow(arcade.Window):
-    def __init__(self) -> None:
+    def __init__(self, root_path: pathlib.Path) -> None:
         logger.debug("Initializing Main Window")
         super().__init__(title=c.WINDOW_NAME, fullscreen=c.FULL_SCREEN, width=c.SCREEN_WIDTH, height=c.SCREEN_HEIGHT)
         arcade.set_background_color(arcade.color.BLACK)
+        self.set_update_rate(c.UPDATE_RATE)
+        self.set_fps(c.DEFAULT_FPS)
+
+        self.shader_path = root_path / "shaders"
 
         self._title_view = TitleView(window=self, background_color=arcade.color.BLACK)
-        self._main_menu = MainMenu(window=self, background_color=arcade.color.BLACK)
-        self._pause_menu = PauseMenu(window=self, background_color=arcade.color.DARK_BLUE_GRAY)
+        self._main_menu = MainMenu(window=self, background_color=arcade.color.YELLOW)
+        self._pause_menu = PauseMenu(window=self)
 
         self._current_selected_view: BaseView = self._title_view
         self._show_view(self._title_view)
+    
+    def set_fps(self, fps: int) -> None:
+        _fps = 1/fps
+        if _fps > c.UPDATE_RATE:
+            _fps = c.UPDATE_RATE
+        self.set_draw_rate(_fps)
+
+    def get_shader_path(self, shader_name: str) -> pathlib.Path:
+        return self.shader_path / f"{shader_name}.glsl"
 
     @typing.override
     def show_view(self, new_view: View) -> None:
@@ -56,5 +70,9 @@ class MainWindow(arcade.Window):
 
     @typing.override
     def on_key_press(self, symbol: int, modifiers: int) -> EVENT_HANDLE_STATE:
-        if symbol == arcade.key.ESCAPE:
+        if symbol == arcade.key.ESCAPE and self._current_selected_view.can_pause:
             self.toggle_pause_menu()
+
+    @property
+    def current_selected_view(self) -> BaseView:
+        return self._current_selected_view

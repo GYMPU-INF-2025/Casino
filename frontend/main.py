@@ -124,7 +124,7 @@ class GameView(arcade.View):
 
 
 def main() -> None:
-    MainWindow()
+    MainWindow(ROOT_PATH)
     arcade.run()
 
 

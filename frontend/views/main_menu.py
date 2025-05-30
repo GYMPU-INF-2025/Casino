@@ -4,7 +4,11 @@ __all__ = ("MainMenu",)
 
 import typing
 
-from frontend.views.base import BaseView
+import arcade
+import arcade.gui
+
+import frontend.constants as c
+from frontend.views.base import BaseGUI
 
 if typing.TYPE_CHECKING:
     from arcade.types import Color
@@ -12,10 +16,46 @@ if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
 
 
-class MainMenu(BaseView):
+class MainMenu(BaseGUI):
     def __init__(self, window: MainWindow, background_color: Color | None = None) -> None:
-        super().__init__(window=window, background_color=background_color)
+        super().__init__(window=window)
+        self._background_color = background_color
+        
+
+        self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
+        
+        self.grid = arcade.gui.UIGridLayout(
+            column_count=2, row_count=3, horizontal_spacing=c.MENU_SPACING, vertical_spacing=c.MENU_SPACING
+        )
+        self.anchor = self.ui.add(arcade.gui.UIAnchorLayout())
+        
+
+        play_button = arcade.gui.UIFlatButton(text="Play", width=c.MENU_WIDTH)
+        close_game_button = arcade.gui.UIFlatButton(text="Quit Game", width=self._button_width)
+        logout_button = arcade.gui.UIFlatButton(text="Logout", width=self._button_width)
+        profile_button = arcade.gui.UIFlatButton(text="Profile", width=self._button_width)
+        options_button = arcade.gui.UIFlatButton(text="Options", width=self._button_width)
+        
+        
+        @close_game_button.event("on_click")
+        def on_close_game_button(_: arcade.gui.UIOnClickEvent) -> None:
+            arcade.exit()
+        
+        
+        self.grid.add(child=play_button, column=0, row=0, column_span=2)
+        self.grid.add(child=logout_button, column=0, row=1)
+        self.grid.add(child=profile_button, column=1, row=1)
+        self.grid.add(child=options_button, column=0, row=2)
+        self.grid.add(child=close_game_button, column=1, row=2)
+        self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
+        
+    @property
+    @typing.override
+    def can_pause(self) -> bool:
+        return True
 
     @typing.override
-    def on_draw(self) -> bool | None:
-        self.clear()
+    def on_draw_before_ui(self) -> None:
+        if self.background_color:
+            arcade.draw_rect_filled(self.window.rect, color=self.background_color)
+        arcade.draw_circle_filled(center_x=c.CENTER_X, center_y=c.CENTER_Y, radius=100, color=arcade.color.RED)

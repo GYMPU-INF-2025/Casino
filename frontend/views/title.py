@@ -9,13 +9,13 @@ import arcade
 from arcade.types import Color
 
 import frontend.constants as c
-from frontend.views.base import BaseView
+from frontend.views.base import BaseGameView
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
 
 
-class TitleView(BaseView):
+class TitleView(BaseGameView):
     def __init__(self, window: MainWindow, background_color: Color | None = None) -> None:
         super().__init__(window=window, background_color=background_color)
 
@@ -33,10 +33,7 @@ class TitleView(BaseView):
         self.timer: float = time.time()
 
         self.alpha = 0
-        self.text: arcade.Text = self.get_text()
-
-    def get_text(self) -> arcade.Text:
-        return arcade.Text(
+        self.text: arcade.Text = arcade.Text(
             text="\n".join(self.text_lines),
             x=c.CENTER_X,
             y=c.CENTER_Y,
@@ -72,7 +69,7 @@ class TitleView(BaseView):
         if t <= 1:
             self.alpha = int(255 * t)
 
-        self.text = self.get_text()
+        self.text.color = self.get_color()
         self.text.draw()
 
     @typing.override
