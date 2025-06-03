@@ -26,6 +26,7 @@ ruff =["ruff>=0.11.7"]
 frontend = [
     "arcade>=3.2.0",
     "colorlog>=6.9.0",
+    "httpx>=0.28.1",
     "websocket-client>=1.8.0",
 ]
 

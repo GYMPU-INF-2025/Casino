@@ -52,6 +52,10 @@ ignore = [
 "backend/internal/hooks.py" = [
     "ANN401"
 ]
+"frontend/old_main.py" = [
+    "ALL"
+]
+
 
 [lint.isort]
 required-imports = ["from __future__ import annotations"]
