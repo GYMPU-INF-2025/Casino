@@ -12,8 +12,8 @@ from sanic.exceptions import BadRequest
 
 __all__ = ("deserialize", "serialize")
 
-from backend.internal.hooks import decode_hook
-from backend.internal.hooks import encode_hook
+from shared.internal.hooks import decode_hook
+from shared.internal.hooks import encode_hook
 
 encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 

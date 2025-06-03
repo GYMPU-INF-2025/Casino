@@ -9,9 +9,9 @@ import typing
 import msgspec
 from sanic.log import logger
 
-from backend.internal.hooks import decode_hook
-from backend.internal.hooks import encode_hook
-from backend.models import BaseEvent
+from shared.internal.hooks import decode_hook
+from shared.internal.hooks import encode_hook
+from shared.models import BaseEvent
 
 EventT = typing.TypeVar("EventT", bound=BaseEvent)
 
@@ -21,9 +21,9 @@ if typing.TYPE_CHECKING:
 
     from backend.db.models import User
     from backend.db.queries import Queries
-    from backend.internal import Snowflake
     from backend.internal.ws import WebsocketClient
-    from backend.models.internal import WebSocketPayload
+    from shared.internal import Snowflake
+    from shared.models.internal import WebSocketPayload
 
     CallbackT = Callable[[EventT, WebsocketClient], Coroutine[typing.Any, typing.Any, None]]
     ListenerMapT = dict[str, tuple[type[EventT], list[CallbackT[EventT]]]]

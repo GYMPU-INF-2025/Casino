@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from backend.internal import Snowflake
+from shared.internal import Snowflake
 
 __all__ = ("decode_hook", "encode_hook")
 

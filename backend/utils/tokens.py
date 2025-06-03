@@ -4,7 +4,7 @@ import datetime
 
 import jwt
 
-from backend.internal import Snowflake
+from shared.internal import Snowflake
 
 SECRET_KEY = "SSj,4MdH)pfe@c.edBwX#_D%0+_L?[b]m6t#J2tCbhy=9)b8VFud+J,&Dzu;"
 DEFAULT_EXPIRY = datetime.timedelta(days=1)

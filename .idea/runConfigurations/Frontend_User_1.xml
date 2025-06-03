@@ -6,7 +6,7 @@
     <option name="PARENT_ENVS" value="true" />
     <envs>
       <env name="PYTHONUNBUFFERED" value="1" />
-      <env name="TOKEN" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMzc2NjY4MDE2NTI3MjgyMTc2LCJleHAiOjE3NDg0Mjg4MTB9.89nNRTMT6MEyL2cmNDbqWf1bjMCrNMCVcPxSO36HEJ8" />
+      <env name="TOKEN" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMzc2NjY4MDE2NTI3MjgyMTc2LCJleHAiOjE3NDg3NzEyODJ9.QwZMIjV_qZ6m7hZyZCJiYmOGi5h-MoPRyTViarK3264" />
     </envs>
     <option name="SDK_HOME" value="" />
     <option name="SDK_NAME" value="uv (Casino)" />

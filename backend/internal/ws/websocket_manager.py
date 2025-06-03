@@ -10,14 +10,16 @@ import websockets
 from sanic.log import logger
 
 from backend.db.queries import Queries  # noqa: TC001
-from backend.internal import Snowflake
 from backend.internal import errors
 from backend.internal.ws import GameLobbyBase
 from backend.internal.ws.opcodes import _HELLO
 from backend.internal.ws.opcodes import _IDENTIFY
 from backend.internal.ws.websocket_client import WebsocketClient
-from backend.models import internal as models
 from backend.utils import tokens
+from shared.models import internal as models
+
+if typing.TYPE_CHECKING:
+    from shared.internal import Snowflake
 
 __all__ = ("WebsocketManager", "_WebsocketTransport")
 

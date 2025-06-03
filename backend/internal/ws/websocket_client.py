@@ -5,16 +5,16 @@ import typing
 import msgspec
 from sanic.log import logger
 
-from backend.internal import Snowflake
 from backend.internal import errors
-from backend.internal import generate_snowflake
-from backend.internal.hooks import encode_hook
+from shared.internal.hooks import encode_hook
 from backend.internal.ws.opcodes import _DISPATCH
 from backend.internal.ws.opcodes import _READY
-from backend.models.internal import ReadyPayload
-from backend.models.internal import WebSocketPayload
-from backend.models.responses import PublicUser
 from backend.utils import convert_struct
+from shared.internal import Snowflake
+from shared.internal import generate_snowflake
+from shared.models.internal import ReadyPayload
+from shared.models.internal import WebSocketPayload
+from shared.models.responses import PublicUser
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable

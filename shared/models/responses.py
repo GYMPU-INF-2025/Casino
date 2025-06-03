@@ -7,7 +7,7 @@ import typing
 import msgspec
 
 if typing.TYPE_CHECKING:
-    from backend.internal import Snowflake
+    from shared.internal import Snowflake
 
 __all__ = ("PublicUser", "Success", "Test")
 

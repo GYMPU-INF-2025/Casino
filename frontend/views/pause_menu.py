@@ -24,7 +24,7 @@ class PauseMenu(BaseGUI):
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
         self.shown = False
-        
+
         self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
 
         self.grid = arcade.gui.UIGridLayout(
@@ -56,7 +56,7 @@ class PauseMenu(BaseGUI):
         self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
 
     @typing.override
-    def on_draw(self):
+    def on_draw(self) -> None:
         self.clear()
         self.fbo.use()
         self.window.current_selected_view.on_draw()

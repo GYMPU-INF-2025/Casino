@@ -12,14 +12,14 @@ from sanic.log import logger
 from backend.db.queries import Queries
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
-from backend.internal.snowflakes import Snowflake
 from backend.internal.ws import GameLobbyBase
 from backend.internal.ws import WebsocketClient
 from backend.internal.ws import WebsocketEndpointsManager
 from backend.internal.ws import add_event_listener
-from backend.models import events
-from backend.models.responses import Success
-from backend.models.responses import Test
+from shared.internal.snowflakes import Snowflake
+from shared.models import events
+from shared.models.responses import Success
+from shared.models.responses import Test
 
 if typing.TYPE_CHECKING:
     import asyncio

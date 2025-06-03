@@ -7,8 +7,8 @@ import msgspec
 __all__ = ("IdentifyPayload", "ReadyPayload", "WebSocketPayload")
 
 if typing.TYPE_CHECKING:
-    from backend.internal import Snowflake
-    from backend.models.responses import PublicUser
+    from shared.internal import Snowflake
+    from shared.models.responses import PublicUser
 
 
 class WebSocketPayload(msgspec.Struct):

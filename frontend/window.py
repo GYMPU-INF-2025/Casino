@@ -3,18 +3,20 @@ from __future__ import annotations
 __all__ = ("MainWindow",)
 
 import logging
-import pathlib
 import typing
 
 import arcade
 from arcade import View
 
 import frontend.constants as c
+from frontend.internal.backend_client import NetClient
 from frontend.views import MainMenu
 from frontend.views import PauseMenu
 from frontend.views import TitleView
 
 if typing.TYPE_CHECKING:
+    import pathlib
+
     from pyglet.event import EVENT_HANDLE_STATE
 
     from frontend.views.base import BaseView
@@ -27,10 +29,11 @@ class MainWindow(arcade.Window):
         logger.debug("Initializing Main Window")
         super().__init__(title=c.WINDOW_NAME, fullscreen=c.FULL_SCREEN, width=c.SCREEN_WIDTH, height=c.SCREEN_HEIGHT)
         arcade.set_background_color(arcade.color.BLACK)
-        self.set_update_rate(c.UPDATE_RATE)
+        self.set_update_rate(1 / c.UPDATES_PER_SECOND)
         self.set_fps(c.DEFAULT_FPS)
 
         self.shader_path = root_path / "shaders"
+        self.backend_client = NetClient(c.BACKEND_URL)
 
         self._title_view = TitleView(window=self, background_color=arcade.color.BLACK)
         self._main_menu = MainMenu(window=self, background_color=arcade.color.YELLOW)
@@ -38,12 +41,17 @@ class MainWindow(arcade.Window):
 
         self._current_selected_view: BaseView = self._title_view
         self._show_view(self._title_view)
-    
+
     def set_fps(self, fps: int) -> None:
-        _fps = 1/fps
-        if _fps > c.UPDATE_RATE:
-            _fps = c.UPDATE_RATE
-        self.set_draw_rate(_fps)
+        if fps > c.UPDATES_PER_SECOND:
+            logger.debug(
+                "Tried setting fps to %s, faster then the update rate of %s, capping fps to %s",
+                fps,
+                c.UPDATES_PER_SECOND,
+                c.UPDATES_PER_SECOND,
+            )
+            fps = c.UPDATES_PER_SECOND
+        self.set_draw_rate(1 / fps)
 
     def get_shader_path(self, shader_name: str) -> pathlib.Path:
         return self.shader_path / f"{shader_name}.glsl"
