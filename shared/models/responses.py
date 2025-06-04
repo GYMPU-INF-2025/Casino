@@ -9,13 +9,19 @@ import msgspec
 if typing.TYPE_CHECKING:
     from shared.internal import Snowflake
 
-__all__ = ("PublicUser", "Success", "Test")
+__all__ = ("PublicUser", "Success", "Test", "ErrorResponse")
 
 
 class Test(msgspec.Struct):
     """Testing purposes."""
 
     test: str
+
+class ErrorResponse(msgspec.Struct):
+    """Response sent together with an error."""
+    name: str
+    message: str
+    detail: str
 
 
 class Success(msgspec.Struct):
