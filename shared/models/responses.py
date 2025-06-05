@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import typing
 
 import msgspec
@@ -9,7 +10,7 @@ import msgspec
 if typing.TYPE_CHECKING:
     from shared.internal import Snowflake
 
-__all__ = ("PublicUser", "Success", "Test", "ErrorResponse")
+__all__ = ("PublicUser", "Success", "Test", "ErrorResponse", "LoginResponse")
 
 
 class Test(msgspec.Struct):
@@ -23,6 +24,12 @@ class ErrorResponse(msgspec.Struct):
     message: str
     detail: str
 
+
+class LoginResponse(msgspec.Struct):
+    """Represents the token response after a successful login."""
+    
+    token: str
+    expires_at: datetime.datetime
 
 class Success(msgspec.Struct):
     """Testing purposes."""

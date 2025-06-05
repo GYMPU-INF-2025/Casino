@@ -8,11 +8,14 @@ import typing
 import arcade
 from arcade import View
 
+
 import frontend.constants as c
-from frontend.internal.backend_client import NetClient
+from frontend.internal.net_client import NetClient
+from frontend.net.rest_client import RestClient
 from frontend.views import MainMenu
 from frontend.views import PauseMenu
 from frontend.views import TitleView
+from frontend.views.login_view import LoginMenu
 
 if typing.TYPE_CHECKING:
     import pathlib
@@ -33,11 +36,12 @@ class MainWindow(arcade.Window):
         self.set_fps(c.DEFAULT_FPS)
 
         self.shader_path = root_path / "shaders"
-        self.backend_client = NetClient(c.BACKEND_URL)
+        self.net_client = NetClient(RestClient())
 
         self._title_view = TitleView(window=self, background_color=arcade.color.BLACK)
         self._main_menu = MainMenu(window=self, background_color=arcade.color.YELLOW)
         self._pause_menu = PauseMenu(window=self)
+        self._login_menu = LoginMenu(window=self, background_color=arcade.color.BLACK)
 
         self._current_selected_view: BaseView = self._title_view
         self._show_view(self._title_view)
@@ -62,11 +66,16 @@ class MainWindow(arcade.Window):
         super().show_view(new_view)
 
     def _show_view(self, view: BaseView) -> None:
+        if self.current_view == view:
+            return
         self.show_view(view)
         self._current_selected_view = view
 
     def show_main_menu(self) -> None:
-        self._show_view(self._main_menu)
+        if self.net_client.authorized:
+            self._show_view(self._main_menu)
+        else:
+            self._show_view(self._login_menu)
 
     def toggle_pause_menu(self) -> None:
         if self._pause_menu.shown:
@@ -84,3 +93,9 @@ class MainWindow(arcade.Window):
     @property
     def current_selected_view(self) -> BaseView:
         return self._current_selected_view
+    
+    @typing.override
+    def on_update(self, delta_time: float) -> bool | None:
+        if not self.net_client.authorized:
+            self._show_view(self._login_menu)
+            

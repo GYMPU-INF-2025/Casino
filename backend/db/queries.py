@@ -3,10 +3,11 @@
 #   sqlc v1.28.0
 #   sqlc-gen-better-python v0.4.4
 """Module containing queries from file queries.sql."""
-
 from __future__ import annotations
 
-__all__: collections.abc.Sequence[str] = ("Queries",)
+__all__: collections.abc.Sequence[str] = (
+    "Queries",
+)
 
 from shared.internal import Snowflake
 import typing
@@ -20,6 +21,10 @@ from backend.db import models
 
 GET_USER_BY_ID: typing.Final[str] = """-- name: GetUserById :one
 SELECT id, username, password, money FROM users WHERE users.id = ?
+"""
+
+GET_USER_BY_USERNAME: typing.Final[str] = """-- name: GetUserByUsername :one
+SELECT id, username, password, money FROM users WHERE users.username = ?
 """
 
 
@@ -59,7 +64,25 @@ class Queries:
         Returns:
             Result of type `models.User` fetched from the db. Will be `None` if not found.
         """
-        row = await (await self._conn.execute(GET_USER_BY_ID, (int(id_),))).fetchone()
+        row = await (await self._conn.execute(GET_USER_BY_ID, (int(id_), ))).fetchone()
+        if row is None:
+            return None
+        return models.User(id=Snowflake(row[0]), username=row[1], password=row[2], money=row[3])
+
+    async def get_user_by_username(self, *, username: str) -> models.User | None:
+        """Fetch one from the db using the SQL query with `name: GetUserByUsername :one`.
+
+        ```sql
+        SELECT id, username, password, money FROM users WHERE users.username = ?
+        ```
+
+        Args:
+            username: str.
+
+        Returns:
+            Result of type `models.User` fetched from the db. Will be `None` if not found.
+        """
+        row = await (await self._conn.execute(GET_USER_BY_USERNAME, (username, ))).fetchone()
         if row is None:
             return None
         return models.User(id=Snowflake(row[0]), username=row[1], password=row[2], money=row[3])

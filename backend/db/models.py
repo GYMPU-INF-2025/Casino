@@ -3,10 +3,11 @@
 #   sqlc v1.28.0
 #   sqlc-gen-better-python v0.4.4
 """Module containing models."""
-
 from __future__ import annotations
 
-__all__: collections.abc.Sequence[str] = ("User",)
+__all__: collections.abc.Sequence[str] = (
+    "User",
+)
 
 import msgspec
 import typing

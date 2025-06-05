@@ -11,7 +11,8 @@ import msgspec
 
 from frontend.internal import CompiledRoute
 from shared.internal.hooks import encode_hook, decode_hook
-from frontend.net import generate_error, HTTPError
+from frontend.net import generate_error, HTTPError, routes
+from shared.models import responses, requests
 
 _AUTHORIZATION_HEADER: typing.Final[str] = sys.intern("Authorization")
 _CONTENT_HEADER: typing.Final[str] = sys.intern("Content-Type")
@@ -26,6 +27,7 @@ class RestClientBase:
         self._token: str | None = token
         self._base_url: str = base_url
         self._client = httpx.Client(auth=self.__auth_flow, base_url=self._base_url)
+        self._json_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
     def __auth_flow(self, request: httpx.Request) -> httpx.Request:
         if self._token:
@@ -35,11 +37,10 @@ class RestClientBase:
     def set_token(self, token: str | None) -> None:
         self._token = token
 
-    def login(self, username: str, password: str) -> None:
-        return
-
-    def _perform_request(self, expected_response: type[T], endpoint: CompiledRoute, *, data: dict[str, typing.Any] | None = None) -> T:
-        content = msgspec.json.encode(data, enc_hook=encode_hook)
+    def _perform_request(self, expected_response: type[T], endpoint: CompiledRoute, *, data: dict[str, typing.Any] | msgspec.Struct | None = None) -> T:
+        content: bytes | None = None
+        if isinstance(data, dict) or isinstance(data, msgspec.Struct):
+            content = self._json_encoder.encode(data)
         response = self._client.request(method=endpoint.method, url=endpoint.compiled_path, content=content)
 
         if response.status_code == http.HTTPStatus.NO_CONTENT and expected_response is None:
@@ -54,3 +55,12 @@ class RestClientBase:
             raise HTTPError(msg)
             
         raise generate_error(response)
+
+    def login(self, username: str, password: str) -> responses.LoginResponse:
+        body = requests.LoginRequest(
+            username=username,
+            password=password
+        )
+        route = routes.POST_LOGIN.compile()
+        return self._perform_request(expected_response=responses.LoginResponse, endpoint=route, data=body)
+        

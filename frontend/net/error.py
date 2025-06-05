@@ -1,4 +1,5 @@
 import http
+import typing
 
 import httpx
 import msgspec.json
@@ -37,6 +38,29 @@ class HTTPResponseError(HTTPError):
         self.message = message
         self.detail = detail
 
+    @typing.override
+    def __str__(self) -> str:
+        if isinstance(self.status, http.HTTPStatus):
+            name = self.status.name.replace("_", " ").title()
+            name_value = f"{name} {self.status.value}"
+
+        else:
+            name_value = f"Unknown Status {self.status}"
+
+        code_str = f" ({self.status})" if self.status else ""
+
+        if self.message:
+            body = f"{self.message}: {self.detail}"
+        else:
+            try:
+                body = self.raw_body.decode("utf-8")
+            except (AttributeError, UnicodeDecodeError, TypeError, ValueError):
+                body = str(self.raw_body)
+
+        chomped = len(body) > 200
+
+        return f"{name_value}:{code_str} '{body[:200]}{'...' if chomped else ''}' for {self.url}"
+
 class ClientHTTPError(HTTPResponseError):
     """"""
 
@@ -50,7 +74,7 @@ def generate_error(response: httpx.Response) -> HTTPResponseError:
     raw_body = response.content
     
     body = error_decoder.decode(raw_body)
-
+    
     try:
         status: http.HTTPStatus | int = http.HTTPStatus(response.status_code)
     except ValueError:

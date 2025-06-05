@@ -25,6 +25,8 @@ from shared.models import events, ErrorResponse
 from shared.models.responses import Success
 from shared.models.responses import Test
 
+from backend.authentication import router as auth_router
+
 if typing.TYPE_CHECKING:
     import asyncio
 
@@ -54,6 +56,7 @@ PROJECT_DIR = pathlib.Path(__file__).parent.parent
 DB_DIR = PROJECT_DIR / "db"
 
 app = sanic.Sanic("Casino")
+app.blueprint(auth_router)
 queries_: Queries | None = None
 
 

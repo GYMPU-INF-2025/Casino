@@ -71,6 +71,8 @@ class TitleView(BaseGameView):
 
         self.text.color = self.get_color()
         self.text.draw()
+        
+        
 
     @typing.override
     def on_show_view(self) -> None:
