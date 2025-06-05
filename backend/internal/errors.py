@@ -3,6 +3,17 @@ from __future__ import annotations
 import enum
 import typing
 
+import sanic
+
+__all__ = (
+    "InternServerErrorCodes",
+    "WebsocketError",
+    "WebsocketClientClosedConnectionError",
+    "WebsocketCloseCode",
+    "WebsocketTransportError",
+    "WebsocketConnectionError",
+    "InternalServerError"
+)
 
 class WebsocketError(RuntimeError):
     """A base exception type for anything that can be thrown by the Websocket."""
@@ -59,3 +70,21 @@ class WebsocketTransportError(WebsocketError):
     @typing.override
     def __str__(self) -> str:
         return f"Websocket transport error: {self.reason}"
+
+
+class InternServerErrorCodes(enum.IntEnum):
+    NON_INTENTIONAL = enum.auto()
+    
+    @typing.override
+    def __str__(self) -> str:
+        return f'ERROR_{int(self):04}'
+
+class InternalServerError(sanic.ServerError):
+    """Error representing internal server errors."""
+    
+    custom_code: InternServerErrorCodes = InternServerErrorCodes.NON_INTENTIONAL
+    message = str(InternServerErrorCodes.NON_INTENTIONAL)
+    
+    def __init__(self, custom_code: InternServerErrorCodes) -> None:
+        self.custom_code = custom_code
+        super().__init__(message=str(self.custom_code))

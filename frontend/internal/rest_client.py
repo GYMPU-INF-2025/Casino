@@ -11,6 +11,7 @@ import msgspec
 
 from frontend.internal import CompiledRoute
 from shared.internal.hooks import encode_hook, decode_hook
+from frontend.net import generate_error, HTTPError
 
 _AUTHORIZATION_HEADER: typing.Final[str] = sys.intern("Authorization")
 _CONTENT_HEADER: typing.Final[str] = sys.intern("Content-Type")
@@ -50,5 +51,6 @@ class RestClientBase:
 
             real_url = str(response.url)
             msg = f"Expected JSON [{content_type=}, {real_url=}]"
+            raise HTTPError(msg)
             
-        raise Exception
+        raise generate_error(response)
