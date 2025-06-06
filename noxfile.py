@@ -92,17 +92,18 @@ def uv_sync(
 
 @nox.session(reuse_venv=True)
 def ruff(session: nox.Session) -> None:
-    uv_sync(session, groups=["dev", "ruff"])
+    uv_sync(session, groups=["dev"])
 
     remove_trailing_whitespaces(session)
 
     session.run("python", "-m", "ruff", "format", *PYTHON_PATHS)
-    session.run("python", "-m", "ruff", "check", *PYTHON_PATHS, "--fix")
+    session.run("python", "-m", "ruff", "check", *PYTHON_PATHS, "--select", "I", "--fix")
+    session.run("python", "-m", "ruff", "check", *PYTHON_PATHS)
 
 
 @nox.session(reuse_venv=True)
 def ruff_check(session: nox.Session) -> None:
-    uv_sync(session, groups=["dev", "ruff"])
+    uv_sync(session, groups=["dev"])
 
     session.run("python", "-m", "ruff", "format", *PYTHON_PATHS, "--check")
     session.run("python", "-m", "ruff", "check", *PYTHON_PATHS)

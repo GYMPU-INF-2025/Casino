@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import collections.abc
 import functools
 import inspect
 import typing
@@ -20,16 +21,18 @@ encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
 P = typing.ParamSpec("P")
 
+type StructIsh = msgspec.Struct | collections.abc.Sequence[msgspec.Struct]
+
 
 def serialize(
     *, status_code: int = 200
 ) -> typing.Callable[
-    [typing.Callable[P, typing.Awaitable[msgspec.Struct]]], typing.Callable[P, typing.Awaitable[sanic.HTTPResponse]]
+    [typing.Callable[P, typing.Awaitable[StructIsh]]], typing.Callable[P, typing.Awaitable[sanic.HTTPResponse]]
 ]:
     """Serialize the returned `msgspec.Struct` into json format."""
 
     def decorator(
-        func: typing.Callable[P, typing.Awaitable[msgspec.Struct]],
+        func: typing.Callable[P, typing.Awaitable[StructIsh]],
     ) -> typing.Callable[P, typing.Awaitable[sanic.HTTPResponse]]:
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> sanic.HTTPResponse:

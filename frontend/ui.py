@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import arcade.gui
+from arcade import types
 from arcade import uicolor
 from arcade.gui.widgets import buttons
 
@@ -10,10 +11,10 @@ __all__ = ("Button", "ButtonStyle")
 class ButtonStyle:
     def __init__(self, font_size: int = 20) -> None:
         self.normal = buttons.UIFlatButtonStyle(
-            font_color=uicolor.WHITE_CLOUDS, bg=uicolor.Color(0, 0, 0, 150), font_size=font_size
+            font_color=uicolor.WHITE_CLOUDS, bg=types.Color(0, 0, 0, 150), font_size=font_size
         )
         self.hover = buttons.UIFlatButtonStyle(
-            bg=uicolor.Color(0, 0, 0, 190), font_color=uicolor.WHITE_CLOUDS, font_size=font_size
+            bg=types.Color(0, 0, 0, 190), font_color=uicolor.WHITE_CLOUDS, font_size=font_size
         )
         self.press = buttons.UIFlatButtonStyle(bg=uicolor.WHITE_SILVER, font_color=uicolor.BLACK, font_size=font_size)
         self.disabled = buttons.UIFlatButtonStyle(bg=uicolor.GRAY_ASBESTOS)
