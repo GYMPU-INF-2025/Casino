@@ -7,7 +7,7 @@ import msgspec.json
 from shared.internal.hooks import decode_hook
 from shared.models import ErrorResponse
 
-__all__ = ("HTTPError", "HTTPResponseError", "ClientHTTPError", "InternalServerError", "generate_error")
+__all__ = ("ClientHTTPError", "HTTPError", "HTTPResponseError", "InternalServerError", "generate_error")
 
 
 class HTTPError(RuntimeError):

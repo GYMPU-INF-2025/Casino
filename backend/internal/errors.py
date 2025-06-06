@@ -7,12 +7,12 @@ import sanic
 
 __all__ = (
     "InternServerErrorCodes",
-    "WebsocketError",
+    "InternalServerError",
     "WebsocketClientClosedConnectionError",
     "WebsocketCloseCode",
-    "WebsocketTransportError",
     "WebsocketConnectionError",
-    "InternalServerError",
+    "WebsocketError",
+    "WebsocketTransportError",
 )
 
 

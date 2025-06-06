@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-__all__ = ("decode_token", "generate_token", "DEFAULT_EXPIRY")
+__all__ = ("DEFAULT_EXPIRY", "decode_token", "generate_token")
 
 import datetime
 

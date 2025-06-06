@@ -10,8 +10,6 @@ import arcade.gui
 import frontend.constants as c
 
 if typing.TYPE_CHECKING:
-    from arcade.types import Color
-
     from frontend.window import MainWindow
 
 

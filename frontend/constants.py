@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 __all__ = (
+    "ASSETS_PATH",
     "CENTER_X",
     "CENTER_Y",
     "DEFAULT_FPS",
     "FULL_SCREEN",
+    "MENU_FONT_SIZE",
+    "MENU_ITEM_HEIGHT",
     "MENU_SPACING",
     "MENU_WIDTH",
     "SCREEN_HEIGHT",
@@ -12,9 +15,6 @@ __all__ = (
     "SCREEN_WIDTH",
     "UPDATES_PER_SECOND",
     "WINDOW_NAME",
-    "ASSETS_PATH",
-    "MENU_ITEM_HEIGHT",
-    "MENU_FONT_SIZE",
     "Alignment",
 )
 

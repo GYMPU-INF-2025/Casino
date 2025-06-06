@@ -4,7 +4,7 @@ import msgspec
 
 from shared.internal import Snowflake
 
-__all__ = ("Route", "CompiledRoute")
+__all__ = ("CompiledRoute", "Route")
 
 
 class Route(msgspec.Struct):

@@ -2,7 +2,7 @@ import arcade.gui
 from arcade import uicolor
 from arcade.gui.widgets import buttons
 
-__all__ = ("ButtonStyle", "Button")
+__all__ = ("Button", "ButtonStyle")
 
 
 class ButtonStyle:
