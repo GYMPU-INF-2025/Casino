@@ -38,10 +38,10 @@ class MainWindow(arcade.Window):
         self.shader_path = root_path / "shaders"
         self.net_client = NetClient(RestClient())
 
-        self._title_view = TitleView(window=self, background_color=arcade.color.BLACK)
-        self._main_menu = MainMenu(window=self, background_color=arcade.color.YELLOW)
+        self._title_view = TitleView(window=self)
+        self._main_menu = MainMenu(window=self)
         self._pause_menu = PauseMenu(window=self)
-        self._login_menu = LoginMenu(window=self, background_color=arcade.color.BLACK)
+        self._login_menu = LoginMenu(window=self)
 
         self._current_selected_view: BaseView = self._title_view
         self._show_view(self._title_view)

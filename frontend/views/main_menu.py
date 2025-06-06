@@ -17,9 +17,8 @@ if typing.TYPE_CHECKING:
 
 
 class MainMenu(BaseGUI):
-    def __init__(self, window: MainWindow, background_color: Color | None = None) -> None:
+    def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
-        self._background_color = background_color
 
         self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
 

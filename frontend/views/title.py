@@ -6,6 +6,7 @@ import time
 import typing
 
 import arcade
+import arcade.color as color
 from arcade.types import Color
 
 import frontend.constants as c
@@ -16,8 +17,8 @@ if typing.TYPE_CHECKING:
 
 
 class TitleView(BaseGameView):
-    def __init__(self, window: MainWindow, background_color: Color | None = None) -> None:
-        super().__init__(window=window, background_color=background_color)
+    def __init__(self, window: MainWindow) -> None:
+        super().__init__(window=window)
 
         self.text_lines = [
             "This game is an online casino simulation.",
@@ -63,6 +64,7 @@ class TitleView(BaseGameView):
     @typing.override
     def on_draw(self) -> bool | None:
         self.clear()
+        arcade.draw_rect_filled(rect=self.window.rect, color=color.BLACK)
         elapsed = time.time() - self.timer
 
         t = elapsed / 3.3

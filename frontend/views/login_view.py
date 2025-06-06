@@ -12,6 +12,7 @@ from frontend.net import ClientHTTPError
 from frontend.views.base import BaseGUI
 import arcade.color as color
 
+from frontend import ui
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
@@ -20,9 +21,8 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 class LoginMenu(BaseGUI):
-    def __init__(self, window: MainWindow, background_color: Color | None = None) -> None:
+    def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
-        self._background_color = background_color
 
         self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
 
@@ -38,14 +38,14 @@ class LoginMenu(BaseGUI):
         self.grid.add(self.username_field, column=1, row=0)
         self.grid.add(arcade.gui.UILabel(text="Password:", width=self._button_width, font_size=c.MENU_FONT_SIZE), column=0, row=1)
         self.grid.add(self.password_field, column=1, row=1)
-        login_button = arcade.gui.UIFlatButton(text="Login", width=self._button_width, height=c.MENU_ITEM_HEIGHT, style=c.BUTTON_STYLE)
-        register_button = arcade.gui.UIFlatButton(text="Register", width=self._button_width, style=c.BUTTON_STYLE, height=c.MENU_ITEM_HEIGHT)
+        login_button = ui.Button(text="Login", width=self._button_width, height=c.MENU_ITEM_HEIGHT)
+        register_button = ui.Button(text="Register", width=self._button_width, height=c.MENU_ITEM_HEIGHT)
         register_button.set_handler("on_click", self.on_register_click)
         login_button.set_handler("on_click", self.on_login_click)
         self.grid.add(login_button, column=0, row=2)
         self.grid.add(register_button, column=1, row=2)
         
-        self.error_text = arcade.gui.UILabel(text = "", text_color=color.RED, width=c.MENU_WIDTH, align=c.Alignment.CENTER)
+        self.error_text = arcade.gui.UILabel(text = "", text_color=color.RED, width=c.MENU_WIDTH, align=c.Alignment.CENTER, font_size=c.MENU_FONT_SIZE-10)
         self.grid.add(self.error_text, column=0,column_span=2, row=3)
 
         

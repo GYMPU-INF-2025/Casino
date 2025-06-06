@@ -26,9 +26,9 @@ class BaseView(abc.ABC, arcade.View):
 
 class BaseGameView(BaseView):
     @typing.override
-    def __init__(self, window: MainWindow, background_color: Color | None = None) -> None:
+    def __init__(self, window: MainWindow) -> None:
+        super().__init__(window, background_color=None)
         self.window = window
-        self._background_color = background_color
         self._background_image = arcade.load_texture(c.ASSETS_PATH / "background.png")
 
     @property
