@@ -19,12 +19,21 @@ if typing.TYPE_CHECKING:
 from backend.db import models
 
 
+CREATE_USER: typing.Final[str] = """-- name: CreateUser :execrows
+INSERT INTO users(id, username, password)
+VALUES (?, ?, ?)
+"""
+
 GET_USER_BY_ID: typing.Final[str] = """-- name: GetUserById :one
-SELECT id, username, password, money FROM users WHERE users.id = ?
+SELECT id, username, password, money
+FROM users
+WHERE users.id = ?
 """
 
 GET_USER_BY_USERNAME: typing.Final[str] = """-- name: GetUserByUsername :one
-SELECT id, username, password, money FROM users WHERE users.username = ?
+SELECT id, username, password, money
+FROM users
+WHERE users.username = ?
 """
 
 
@@ -51,11 +60,31 @@ class Queries:
         """
         return self._conn
 
+    async def create_user(self, *, id_: Snowflake, username: str, password: str) -> int:
+        """Execute SQL query with `name: CreateUser :execrows` and return the number of affected rows.
+
+        ```sql
+        INSERT INTO users(id, username, password)
+        VALUES (?, ?, ?)
+        ```
+
+        Args:
+            id_: Snowflake.
+            username: str.
+            password: str.
+
+        Returns:
+            The number (`int`) of affected rows. This will be -1 for queries like `CREATE TABLE`.
+        """
+        return (await self._conn.execute(CREATE_USER, (int(id_), username, password))).rowcount
+
     async def get_user_by_id(self, *, id_: Snowflake) -> models.User | None:
         """Fetch one from the db using the SQL query with `name: GetUserById :one`.
 
         ```sql
-        SELECT id, username, password, money FROM users WHERE users.id = ?
+        SELECT id, username, password, money
+        FROM users
+        WHERE users.id = ?
         ```
 
         Args:
@@ -73,7 +102,9 @@ class Queries:
         """Fetch one from the db using the SQL query with `name: GetUserByUsername :one`.
 
         ```sql
-        SELECT id, username, password, money FROM users WHERE users.username = ?
+        SELECT id, username, password, money
+        FROM users
+        WHERE users.username = ?
         ```
 
         Args:
