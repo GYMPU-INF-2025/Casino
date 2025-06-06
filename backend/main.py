@@ -31,7 +31,7 @@ if typing.TYPE_CHECKING:
     import asyncio
 
 
-class LobbyImpl(GameLobbyBase):
+class Blackjack(GameLobbyBase):
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
         self.money = 0
@@ -46,10 +46,10 @@ class LobbyImpl(GameLobbyBase):
     def max_num_clients(self) -> int:
         return 2
 
-    @property
+    @staticmethod
     @typing.override
-    def endpoint(self) -> str:
-        return "test"
+    def endpoint() -> str:
+        return "blackjack"
 
 
 PROJECT_DIR = pathlib.Path(__file__).parent.parent
@@ -78,7 +78,7 @@ async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
 
 
 ws_endpoints = WebsocketEndpointsManager(app=app)
-ws_endpoints.add_lobby(game_lobby_type=LobbyImpl)
+ws_endpoints.add_lobby(game_lobby_type=Blackjack)
 
 error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 

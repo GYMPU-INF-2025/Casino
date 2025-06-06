@@ -107,9 +107,9 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
     def queries(self) -> Queries:
         return self._queries
 
-    @property
+    @staticmethod
     @abc.abstractmethod
-    def endpoint(self) -> str:
+    def endpoint() -> str:
         """Returns the endpoint name."""
 
     @property
