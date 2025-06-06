@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import arcade.gui
 from arcade import uicolor
 from arcade.gui.widgets import buttons
@@ -28,13 +30,13 @@ class Button(arcade.gui.UIFlatButton):
         y: float = 0,
         width: float = 100,
         height: float = 50,
-        text="",
+        text: str = "",
         multiline: bool = False,
         size_hint: tuple[float | None, float | None] | None = None,
         size_hint_min: tuple[float | None, float | None] | None = None,
         size_hint_max: tuple[float | None, float | None] | None = None,
         style: ButtonStyle | None = None,
-    ):
+    ) -> None:
         if not style:
             style = ButtonStyle()
         super().__init__(

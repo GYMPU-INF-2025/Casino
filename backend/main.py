@@ -11,6 +11,7 @@ import msgspec.json
 import sanic
 from sanic.log import logger
 
+from backend.authentication import router as auth_router
 from backend.db.queries import Queries
 from backend.internal.errors import InternalServerError
 from backend.internal.serialization import deserialize
@@ -21,11 +22,10 @@ from backend.internal.ws import WebsocketEndpointsManager
 from backend.internal.ws import add_event_listener
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
-from shared.models import events, ErrorResponse
+from shared.models import ErrorResponse
+from shared.models import events
 from shared.models.responses import Success
 from shared.models.responses import Test
-
-from backend.authentication import router as auth_router
 
 if typing.TYPE_CHECKING:
     import asyncio
@@ -84,7 +84,7 @@ error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
 
 @app.all_exceptions
-async def handler(request: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
+async def handler(_: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
     name: str = ""
     message: str = ""
     detail: str = ""
@@ -123,11 +123,6 @@ async def hello_world(_: sanic.Request, body: Test, query: Queries) -> Success:
     if user is None:
         return Success(message="User not found!")
     return Success(message=user.username)
-
-
-@app.get("/")
-async def test(_: sanic.Request) -> None:
-    raise Exception("test")
 
 
 if __name__ == "__main__":

@@ -10,7 +10,8 @@ import websockets
 from sanic.log import logger
 
 from backend.db.queries import Queries  # noqa: TC001
-from backend.internal import errors, serialization
+from backend.internal import errors
+from backend.internal import serialization
 from backend.internal.ws import GameLobbyBase
 from backend.internal.ws.opcodes import _HELLO
 from backend.internal.ws.opcodes import _IDENTIFY
@@ -168,6 +169,8 @@ class WebsocketManager(typing.Generic[T]):
     @serialization.serialize()
     async def list_lobbys(self, _: sanic.Request) -> list[responses.PublicGameLobby]:
         return [
-            responses.PublicGameLobby(max_clients=l.max_num_clients, id=l_id, num_clients=l.num_clients, full=l.is_full)
-            for l_id, l in self._lobbys.items()
+            responses.PublicGameLobby(
+                max_clients=lobby.max_num_clients, id=l_id, num_clients=lobby.num_clients, full=lobby.is_full
+            )
+            for l_id, lobby in self._lobbys.items()
         ]

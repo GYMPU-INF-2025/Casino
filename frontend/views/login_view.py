@@ -6,18 +6,15 @@ import typing
 import arcade
 import arcade.gui
 import arcade.gui.experimental
+from arcade import color
 
 import frontend.constants as c
+from frontend import ui
 from frontend.net import ClientHTTPError
 from frontend.views.base import BaseGUI
-import arcade.color as color
-
-from frontend import ui
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
-    from arcade.types import Color
-
 logger = logging.getLogger(__name__)
 
 

@@ -11,10 +11,15 @@ import typing
 import httpx
 import msgspec
 
-from frontend.internal import CompiledRoute
-from shared.internal.hooks import encode_hook, decode_hook
-from frontend.net import generate_error, HTTPError
-from shared.models import responses
+from frontend.net import HTTPError
+from frontend.net import generate_error
+from shared.internal.hooks import decode_hook
+from shared.internal.hooks import encode_hook
+
+if typing.TYPE_CHECKING:
+    from frontend.internal import CompiledRoute
+    from shared.models import responses
+
 
 _AUTHORIZATION_HEADER: typing.Final[str] = sys.intern("Authorization")
 _CONTENT_HEADER: typing.Final[str] = sys.intern("Content-Type")
@@ -48,14 +53,14 @@ class RestClientBase(abc.ABC):
         data: dict[str, typing.Any] | msgspec.Struct | None = None,
     ) -> T:
         content: bytes | None = None
-        if isinstance(data, dict) or isinstance(data, msgspec.Struct):
+        if isinstance(data, (dict, msgspec.Struct)):
             content = self._json_encoder.encode(data)
         response = self._client.request(method=endpoint.method, url=endpoint.compiled_path, content=content)
 
         if response.status_code == http.HTTPStatus.NO_CONTENT and expected_response is None:
             return None
 
-        if 200 <= response.status_code < 300:
+        if 200 <= response.status_code < 300:  # noqa: PLR2004
             if (content_type := response.headers.get(_CONTENT_HEADER)) == _APPLICATION_JSON:
                 return msgspec.json.decode(response.content, type=expected_response, dec_hook=decode_hook)
 

@@ -7,6 +7,7 @@ import typing
 
 import arcade
 import arcade.gui
+
 import frontend.constants as c
 
 if typing.TYPE_CHECKING:

@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import datetime
 import typing
 
 import msgspec
 
 if typing.TYPE_CHECKING:
+    import datetime
+
     from shared.internal import Snowflake
 
 __all__ = ("ErrorResponse", "LoginResponse", "PublicUser", "Success", "Test")

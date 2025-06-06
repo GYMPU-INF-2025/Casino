@@ -8,7 +8,6 @@ import typing
 import arcade
 from arcade import View
 
-
 import frontend.constants as c
 from frontend.internal.net_client import NetClient
 from frontend.net.rest_client import RestClient

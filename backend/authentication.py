@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 import datetime
 import http
 
 import sanic
-import backend.internal.serialization as serialization
-import backend.utils as utils
-import shared.models as models
-from backend.db.queries import Queries
+
+from backend import utils
+from backend.db.queries import Queries  # noqa: TC001
+from backend.internal import serialization
+from shared import models
 
 router = sanic.Blueprint("authentication")
 

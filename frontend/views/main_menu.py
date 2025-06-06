@@ -11,8 +11,6 @@ import frontend.constants as c
 from frontend.views.base import BaseGUI
 
 if typing.TYPE_CHECKING:
-    from arcade.types import Color
-
     from frontend.window import MainWindow
 
 

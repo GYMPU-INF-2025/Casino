@@ -1,11 +1,15 @@
+from __future__ import annotations
+
 import http
 import typing
 
-import httpx
 import msgspec.json
 
 from shared.internal.hooks import decode_hook
 from shared.models import ErrorResponse
+
+if typing.TYPE_CHECKING:
+    import httpx
 
 __all__ = ("ClientHTTPError", "HTTPError", "HTTPResponseError", "InternalServerError", "generate_error")
 

@@ -6,7 +6,6 @@ import typing
 
 from frontend.internal.rest_client import RestClientBase
 
-
 RestClientT = typing.TypeVar("RestClientT", bound=RestClientBase)
 
 

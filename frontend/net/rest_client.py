@@ -4,13 +4,14 @@ __all__ = ("RestClient",)
 
 import typing
 
-from frontend.net import routes
 from frontend.internal.rest_client import RestClientBase
-from shared.models import responses, requests
+from frontend.net import routes
+from shared.models import requests
+from shared.models import responses
 
 
 class RestClient(RestClientBase):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(base_url="http://127.0.0.1:8000/")
 
     @typing.override

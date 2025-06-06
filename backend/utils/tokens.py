@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 __all__ = ("DEFAULT_EXPIRY", "decode_token", "generate_token")
 
 import datetime

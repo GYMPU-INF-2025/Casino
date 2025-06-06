@@ -6,7 +6,7 @@ import time
 import typing
 
 import arcade
-import arcade.color as color
+from arcade import color
 from arcade.types import Color
 
 import frontend.constants as c
