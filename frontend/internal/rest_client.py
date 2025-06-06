@@ -2,6 +2,7 @@ from __future__ import annotations
 
 __all__ = ("RestClientBase",)
 
+import abc
 import http
 import sys
 import typing
@@ -11,8 +12,8 @@ import msgspec
 
 from frontend.internal import CompiledRoute
 from shared.internal.hooks import encode_hook, decode_hook
-from frontend.net import generate_error, HTTPError, routes
-from shared.models import responses, requests
+from frontend.net import generate_error, HTTPError
+from shared.models import responses
 
 _AUTHORIZATION_HEADER: typing.Final[str] = sys.intern("Authorization")
 _CONTENT_HEADER: typing.Final[str] = sys.intern("Content-Type")
@@ -22,7 +23,7 @@ _APPLICATION_JSON: typing.Final[str] = sys.intern("application/json")
 
 T = typing.TypeVar("T",bound=msgspec.Struct | None)
 
-class RestClientBase:
+class RestClientBase(abc.ABC):
     def __init__(self, base_url: str, token: str | None = None) -> None:
         self._token: str | None = token
         self._base_url: str = base_url
@@ -55,12 +56,8 @@ class RestClientBase:
             raise HTTPError(msg)
             
         raise generate_error(response)
-
+    
+    @abc.abstractmethod
     def login(self, username: str, password: str) -> responses.LoginResponse:
-        body = requests.LoginRequest(
-            username=username,
-            password=password
-        )
-        route = routes.POST_LOGIN.compile()
-        return self._perform_request(expected_response=responses.LoginResponse, endpoint=route, data=body)
+        ...
         
