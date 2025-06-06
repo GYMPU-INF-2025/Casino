@@ -4,10 +4,8 @@ import msgspec
 
 from shared.internal import Snowflake
 
-__all__ = (
-    "Route",
-    "CompiledRoute"
-)
+__all__ = ("Route", "CompiledRoute")
+
 
 class Route(msgspec.Struct):
     method: str
@@ -46,13 +44,10 @@ class Route(msgspec.Struct):
 
             data[k] = v
 
-        return CompiledRoute(
-            route=self,
-            compiled_path=self.path_template.format_map(data)
-        )
+        return CompiledRoute(route=self, compiled_path=self.path_template.format_map(data))
+
 
 class CompiledRoute(msgspec.Struct):
-
     route: Route
     """The route this compiled route was created from."""
 

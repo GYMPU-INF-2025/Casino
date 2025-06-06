@@ -20,15 +20,13 @@ class BaseView(abc.ABC, arcade.View):
     @abc.abstractmethod
     def can_pause(self) -> bool:
         pass
-    
+
     def activate(self) -> None:
         return None
-    
+
     def deactivate(self) -> None:
         return None
 
-        
-        
 
 class BaseGameView(BaseView):
     @typing.override
@@ -45,10 +43,7 @@ class BaseGameView(BaseView):
     @typing.override
     def on_draw(self) -> bool | None:
         self.clear()
-        arcade.draw_texture_rect(
-            self._background_image,
-            self.window.rect
-        )
+        arcade.draw_texture_rect(self._background_image, self.window.rect)
 
 
 class BaseGUI(arcade.gui.UIView, BaseView):
@@ -66,10 +61,7 @@ class BaseGUI(arcade.gui.UIView, BaseView):
     @typing.override
     def on_draw(self) -> None:
         self.clear()
-        arcade.draw_texture_rect(
-            self._background_image,
-            self.window.rect
-        )
+        arcade.draw_texture_rect(self._background_image, self.window.rect)
         self.on_draw_before_ui()
         self.ui.draw()
         self.on_draw_after_ui()

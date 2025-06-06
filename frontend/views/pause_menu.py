@@ -42,11 +42,11 @@ class PauseMenu(BaseGUI):
         main_menu_button = arcade.gui.UIFlatButton(text="Main Menu", width=c.MENU_WIDTH)
         close_menu_button = arcade.gui.UIFlatButton(text="Close Menu", width=c.MENU_WIDTH)
         close_game_button = arcade.gui.UIFlatButton(text="Quit Game", width=c.MENU_WIDTH)
-        
+
         @main_menu_button.event("on_click")
         def on_main_menu_button(_: arcade.gui.UIOnClickEvent) -> None:
             self.window.show_main_menu()
-        
+
         @close_menu_button.event("on_click")
         def on_close_menu_button(_: arcade.gui.UIOnClickEvent) -> None:
             self.window.toggle_pause_menu()

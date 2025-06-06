@@ -18,8 +18,10 @@ class Test(msgspec.Struct):
 
     test: str
 
+
 class ErrorResponse(msgspec.Struct):
     """Response sent together with an error."""
+
     name: str
     message: str
     detail: str
@@ -27,9 +29,10 @@ class ErrorResponse(msgspec.Struct):
 
 class LoginResponse(msgspec.Struct):
     """Represents the token response after a successful login."""
-    
+
     token: str
     expires_at: datetime.datetime
+
 
 class Success(msgspec.Struct):
     """Testing purposes."""
@@ -44,11 +47,11 @@ class PublicUser(msgspec.Struct):
     username: str
     money: int
 
+
 class PublicGameLobby(msgspec.Struct):
     """Public Game Lobby struct."""
-    
+
     id: str
     full: bool
     max_clients: int
     num_clients: int
-    

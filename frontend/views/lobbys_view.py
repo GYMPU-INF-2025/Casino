@@ -27,7 +27,6 @@ class LobbysView(BaseGUI):
         )
         self.anchor = self.ui.add(arcade.gui.UIAnchorLayout())
 
-
         self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
 
     @property

@@ -82,6 +82,7 @@ ws_endpoints.add_lobby(game_lobby_type=Blackjack)
 
 error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
+
 @app.all_exceptions
 async def handler(request: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
     name: str = ""
@@ -97,7 +98,7 @@ async def handler(request: sanic.Request, exception: Exception) -> sanic.HTTPRes
             code = exception.status_code
         if exc_detail := exception.message:
             detail = exc_detail
-        logger.debug("Handled Exception %s",exception)
+        logger.debug("Handled Exception %s", exception)
     else:
         code = http.HTTPStatus(InternalServerError.status_code)
         name = code.name
@@ -105,9 +106,11 @@ async def handler(request: sanic.Request, exception: Exception) -> sanic.HTTPRes
         detail = InternalServerError.message
         logger.exception("Unhandled Exception occurred", exc_info=exception)
 
-    return sanic.raw(body=error_encoder.encode(ErrorResponse(
-        message=message, detail=detail, name=name
-    )), status=code, content_type="application/json")
+    return sanic.raw(
+        body=error_encoder.encode(ErrorResponse(message=message, detail=detail, name=name)),
+        status=code,
+        content_type="application/json",
+    )
 
 
 @app.post("/")
@@ -120,6 +123,7 @@ async def hello_world(_: sanic.Request, body: Test, query: Queries) -> Success:
     if user is None:
         return Success(message="User not found!")
     return Success(message=user.username)
+
 
 @app.get("/")
 async def test(_: sanic.Request) -> None:

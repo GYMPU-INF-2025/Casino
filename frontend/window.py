@@ -43,7 +43,7 @@ class MainWindow(arcade.Window):
         self._main_menu = MainMenu(window=self)
         self._pause_menu = PauseMenu(window=self)
         self._login_menu = LoginMenu(window=self)
-        
+
         self._blackjack_lobby_view = LobbysView(window=self)
 
         self._current_selected_view: BaseView = self._title_view
@@ -81,14 +81,14 @@ class MainWindow(arcade.Window):
             self._show_view(self._main_menu)
         else:
             self._show_view(self._login_menu)
-    
+
     def show_lobbys(self, game: str) -> None:
         match game:
             case "blackjack":
                 self._show_view(self._blackjack_lobby_view)
             case _:
                 raise TypeError(f"Unknown game: {game}")
-    
+
     def toggle_pause_menu(self) -> None:
         if self._pause_menu.shown:
             self.show_view(self._current_selected_view)
@@ -105,9 +105,8 @@ class MainWindow(arcade.Window):
     @property
     def current_selected_view(self) -> BaseView:
         return self._current_selected_view
-    
+
     @typing.override
     def on_update(self, delta_time: float) -> bool | None:
         if not self.net_client.authorized and self.current_selected_view != self._title_view:
             self._show_view(self._login_menu)
-            

@@ -32,19 +32,19 @@ class MainMenu(BaseGUI):
         logout_button = arcade.gui.UIFlatButton(text="Logout", width=self._button_width)
         profile_button = arcade.gui.UIFlatButton(text="Profile", width=self._button_width)
         options_button = arcade.gui.UIFlatButton(text="Options", width=self._button_width)
-        
+
         @play_button.event("on_click")
         def on_play_button(_: arcade.gui.UIOnClickEvent) -> None:
             self.window.show_lobbys("blackjack")
-        
+
         @close_game_button.event("on_click")
         def on_close_game_button(_: arcade.gui.UIOnClickEvent) -> None:
             arcade.exit()
-        
+
         @logout_button.event("on_click")
         def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
             self.window.net_client.logout()
-        
+
         self.grid.add(child=play_button, column=0, row=0, column_span=2)
         self.grid.add(child=logout_button, column=0, row=1)
         self.grid.add(child=profile_button, column=1, row=1)

@@ -164,16 +164,10 @@ class WebsocketManager(typing.Generic[T]):
             logger.debug(msg, exc_info=exc)
             await ws.send_close(code=errors.WebsocketCloseCode.DECODE_ERROR, reason="Malformed json sent")
             raise errors.WebsocketConnectionError(reason=msg) from None
-    
+
     @serialization.serialize()
     async def list_lobbys(self, _: sanic.Request) -> list[responses.PublicGameLobby]:
         return [
-            responses.PublicGameLobby(
-                max_clients=l.max_num_clients,
-                id=l_id,
-                num_clients=l.num_clients,
-                full=l.is_full,
-            ) for l_id, l in self._lobbys.items()
+            responses.PublicGameLobby(max_clients=l.max_num_clients, id=l_id, num_clients=l.num_clients, full=l.is_full)
+            for l_id, l in self._lobbys.items()
         ]
-        
-        

@@ -16,17 +16,17 @@ DEFAULT_EXPIRY = datetime.timedelta(days=3)
 
 def generate_token(user_id: Snowflake) -> str:
     """Generates a jwt token and stores the given user id in it.
-    
+
     Parameters
     ----------
     user_id : Snowflake
         The user id that should be stored inside the jwt
-    
+
     Returns
     -------
     str
         The encoded jwt token with the user id stored inside.
-        
+
     """
     return jwt.encode(
         payload={"user_id": int(user_id), "exp": datetime.datetime.now(datetime.UTC) + DEFAULT_EXPIRY},
@@ -37,22 +37,22 @@ def generate_token(user_id: Snowflake) -> str:
 
 def decode_token(token: str) -> Snowflake:
     """Decodes a jwt token and returns the stored user id.
-    
+
     Parameters
     ----------
     token : str
         The jwt token to decode
-    
+
     Returns
     -------
     Snowflake
         The user id stored in the jwt token
-        
+
     Raises
     ------
     jwt.exceptions.PyJWTError
         Raised when either the decoding fails, or there is no user id stored in the jwt.
-        
+
     """
     payload = jwt.decode(jwt=token, key=SECRET_KEY, algorithms=("HS256",))
     if user_id := payload.get("user_id"):
