@@ -53,9 +53,3 @@ class MainMenu(BaseGUI):
     @typing.override
     def can_pause(self) -> bool:
         return True
-
-    @typing.override
-    def on_draw_before_ui(self) -> None:
-        if self.background_color:
-            arcade.draw_rect_filled(self.window.rect, color=self.background_color)
-        arcade.draw_circle_filled(center_x=c.CENTER_X, center_y=c.CENTER_Y, radius=100, color=arcade.color.RED)

@@ -43,3 +43,12 @@ class PublicUser(msgspec.Struct):
     id: Snowflake
     username: str
     money: int
+
+class PublicGameLobby(msgspec.Struct):
+    """Public Game Lobby struct."""
+    
+    id: str
+    full: bool
+    max_clients: int
+    num_clients: int
+    

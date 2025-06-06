@@ -10,13 +10,14 @@ import websockets
 from sanic.log import logger
 
 from backend.db.queries import Queries  # noqa: TC001
-from backend.internal import errors
+from backend.internal import errors, serialization
 from backend.internal.ws import GameLobbyBase
 from backend.internal.ws.opcodes import _HELLO
 from backend.internal.ws.opcodes import _IDENTIFY
 from backend.internal.ws.websocket_client import WebsocketClient
 from backend.utils import tokens
 from shared.models import internal as models
+from shared.models import responses
 
 if typing.TYPE_CHECKING:
     from shared.internal import Snowflake
@@ -163,3 +164,16 @@ class WebsocketManager(typing.Generic[T]):
             logger.debug(msg, exc_info=exc)
             await ws.send_close(code=errors.WebsocketCloseCode.DECODE_ERROR, reason="Malformed json sent")
             raise errors.WebsocketConnectionError(reason=msg) from None
+    
+    @serialization.serialize()
+    async def list_lobbys(self, _: sanic.Request) -> list[responses.PublicGameLobby]:
+        return [
+            responses.PublicGameLobby(
+                max_clients=l.max_num_clients,
+                id=l_id,
+                num_clients=l.num_clients,
+                full=l.is_full,
+            ) for l_id, l in self._lobbys.items()
+        ]
+        
+        

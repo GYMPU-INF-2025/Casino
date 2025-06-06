@@ -20,3 +20,8 @@ class WebsocketEndpointsManager:
     def add_lobby(self, game_lobby_type: type[GameLobbyBase]) -> None:
         endpoint = WebsocketManager[game_lobby_type](game_lobby_type)
         self._app.add_websocket_route(endpoint.handle_websocket, f"/{game_lobby_type.endpoint()}/<lobby_id:str>")
+        self._app.add_route(
+            handler=endpoint.list_lobbys,
+            uri=f"/{game_lobby_type.endpoint()}/",
+            methods=frozenset({"GET"}),
+        )

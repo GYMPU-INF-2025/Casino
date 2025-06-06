@@ -96,6 +96,6 @@ class MainWindow(arcade.Window):
     
     @typing.override
     def on_update(self, delta_time: float) -> bool | None:
-        if not self.net_client.authorized:
+        if not self.net_client.authorized and self.current_selected_view != self._title_view:
             self._show_view(self._login_menu)
             

@@ -3,6 +3,7 @@ from __future__ import annotations
 __all__ = ("RestClientBase",)
 
 import abc
+import collections.abc
 import http
 import sys
 import typing
@@ -21,7 +22,7 @@ _CONTENT_HEADER: typing.Final[str] = sys.intern("Content-Type")
 _APPLICATION_JSON: typing.Final[str] = sys.intern("application/json")
 
 
-T = typing.TypeVar("T",bound=msgspec.Struct | None)
+T = typing.TypeVar("T",bound=msgspec.Struct | collections.abc.Sequence[msgspec.Struct] | None)
 
 class RestClientBase(abc.ABC):
     def __init__(self, base_url: str, token: str | None = None) -> None:
