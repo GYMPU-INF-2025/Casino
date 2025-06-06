@@ -20,6 +20,12 @@ class BaseView(abc.ABC, arcade.View):
     @abc.abstractmethod
     def can_pause(self) -> bool:
         pass
+    
+    def activate(self) -> None:
+        return None
+    
+    def deactivate(self) -> None:
+        return None
 
         
         

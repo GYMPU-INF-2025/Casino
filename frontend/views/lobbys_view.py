@@ -8,13 +8,10 @@ import arcade.gui
 import arcade.gui.experimental
 
 import frontend.constants as c
-from frontend.net import ClientHTTPError
 from frontend.views.base import BaseGUI
-import arcade.color as color
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
-    from arcade.types import Color
 
 logger = logging.getLogger(__name__)
 
@@ -33,4 +30,7 @@ class LobbysView(BaseGUI):
 
         self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
 
-    
+    @property
+    @typing.override
+    def can_pause(self) -> bool:
+        return True
