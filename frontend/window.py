@@ -8,13 +8,13 @@ import typing
 import arcade
 from arcade import View
 
-
 import frontend.constants as c
 from frontend.internal.net_client import NetClient
 from frontend.net.rest_client import RestClient
 from frontend.views import MainMenu
 from frontend.views import PauseMenu
 from frontend.views import TitleView
+from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
 
 if typing.TYPE_CHECKING:
@@ -38,10 +38,12 @@ class MainWindow(arcade.Window):
         self.shader_path = root_path / "shaders"
         self.net_client = NetClient(RestClient())
 
-        self._title_view = TitleView(window=self, background_color=arcade.color.BLACK)
-        self._main_menu = MainMenu(window=self, background_color=arcade.color.YELLOW)
+        self._title_view = TitleView(window=self)
+        self._main_menu = MainMenu(window=self)
         self._pause_menu = PauseMenu(window=self)
-        self._login_menu = LoginMenu(window=self, background_color=arcade.color.BLACK)
+        self._login_menu = LoginMenu(window=self)
+
+        self._blackjack_lobby_view = LobbysView(window=self)
 
         self._current_selected_view: BaseView = self._title_view
         self._show_view(self._title_view)
@@ -68,14 +70,23 @@ class MainWindow(arcade.Window):
     def _show_view(self, view: BaseView) -> None:
         if self.current_view == view:
             return
+        self._current_selected_view.deactivate()
         self.show_view(view)
         self._current_selected_view = view
+        self._current_selected_view.activate()
 
     def show_main_menu(self) -> None:
         if self.net_client.authorized:
             self._show_view(self._main_menu)
         else:
             self._show_view(self._login_menu)
+
+    def show_lobbys(self, game: str) -> None:
+        match game:
+            case "blackjack":
+                self._show_view(self._blackjack_lobby_view)
+            case _:
+                raise TypeError(f"Unknown game: {game}")
 
     def toggle_pause_menu(self) -> None:
         if self._pause_menu.shown:
@@ -93,9 +104,8 @@ class MainWindow(arcade.Window):
     @property
     def current_selected_view(self) -> BaseView:
         return self._current_selected_view
-    
+
     @typing.override
     def on_update(self, delta_time: float) -> bool | None:
-        if not self.net_client.authorized:
+        if not self.net_client.authorized and self.current_selected_view != self._title_view:
             self._show_view(self._login_menu)
-            

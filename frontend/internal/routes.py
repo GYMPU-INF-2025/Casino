@@ -4,10 +4,8 @@ import msgspec
 
 from shared.internal import Snowflake
 
-__all__ = (
-    "Route",
-    "CompiledRoute"
-)
+__all__ = ("CompiledRoute", "Route")
+
 
 class Route(msgspec.Struct):
     method: str
@@ -34,25 +32,22 @@ class Route(msgspec.Struct):
         data = {}
         for k, v in kwargs.items():
             if v is True:
-                v = "true"
+                val = "true"
             elif v is False:
-                v = "false"
+                val = "false"
             elif v is None:
-                v = "null"
+                val = "null"
             elif v is Snowflake:
-                v = str(int(v))
+                val = str(int(v))
             else:
-                v = str(v)
+                val = str(v)
 
-            data[k] = v
+            data[k] = val
 
-        return CompiledRoute(
-            route=self,
-            compiled_path=self.path_template.format_map(data)
-        )
+        return CompiledRoute(route=self, compiled_path=self.path_template.format_map(data))
+
 
 class CompiledRoute(msgspec.Struct):
-
     route: Route
     """The route this compiled route was created from."""
 

@@ -49,8 +49,11 @@ ignore = [
 "backend/utils/tokens.py" = [
     "S105"
 ]
-"backend/internal/hooks.py" = [
+"shared/internal/hooks.py" = [
     "ANN401"
+]
+"frontend/net/error.py" = [
+    "PLR2004"
 ]
 "frontend/old_main.py" = [
     "ALL"

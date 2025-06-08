@@ -11,15 +11,12 @@ import frontend.constants as c
 from frontend.views.base import BaseGUI
 
 if typing.TYPE_CHECKING:
-    from arcade.types import Color
-
     from frontend.window import MainWindow
 
 
 class MainMenu(BaseGUI):
-    def __init__(self, window: MainWindow, background_color: Color | None = None) -> None:
+    def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
-        self._background_color = background_color
 
         self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
 
@@ -34,14 +31,18 @@ class MainMenu(BaseGUI):
         profile_button = arcade.gui.UIFlatButton(text="Profile", width=self._button_width)
         options_button = arcade.gui.UIFlatButton(text="Options", width=self._button_width)
 
+        @play_button.event("on_click")
+        def on_play_button(_: arcade.gui.UIOnClickEvent) -> None:
+            self.window.show_lobbys("blackjack")
+
         @close_game_button.event("on_click")
         def on_close_game_button(_: arcade.gui.UIOnClickEvent) -> None:
             arcade.exit()
-        
+
         @logout_button.event("on_click")
         def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
             self.window.net_client.logout()
-        
+
         self.grid.add(child=play_button, column=0, row=0, column_span=2)
         self.grid.add(child=logout_button, column=0, row=1)
         self.grid.add(child=profile_button, column=1, row=1)
@@ -53,9 +54,3 @@ class MainMenu(BaseGUI):
     @typing.override
     def can_pause(self) -> bool:
         return True
-
-    @typing.override
-    def on_draw_before_ui(self) -> None:
-        if self.background_color:
-            arcade.draw_rect_filled(self.window.rect, color=self.background_color)
-        arcade.draw_circle_filled(center_x=c.CENTER_X, center_y=c.CENTER_Y, radius=100, color=arcade.color.RED)

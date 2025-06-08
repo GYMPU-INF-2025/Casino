@@ -6,12 +6,12 @@ import msgspec
 from sanic.log import logger
 
 from backend.internal import errors
-from shared.internal.hooks import encode_hook
 from backend.internal.ws.opcodes import _DISPATCH
 from backend.internal.ws.opcodes import _READY
 from backend.utils import convert_struct
 from shared.internal import Snowflake
 from shared.internal import generate_snowflake
+from shared.internal.hooks import encode_hook
 from shared.models.internal import ReadyPayload
 from shared.models.internal import WebSocketPayload
 from shared.models.responses import PublicUser

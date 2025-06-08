@@ -3,5 +3,5 @@
 from __future__ import annotations
 
 from .events import *
-from .responses import *
 from .requests import *
+from .responses import *

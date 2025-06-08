@@ -39,8 +39,13 @@ class PauseMenu(BaseGUI):
         self.blur_shader.program["uRadius"] = 2.0
 
     def setup(self) -> None:
+        main_menu_button = arcade.gui.UIFlatButton(text="Main Menu", width=c.MENU_WIDTH)
         close_menu_button = arcade.gui.UIFlatButton(text="Close Menu", width=c.MENU_WIDTH)
         close_game_button = arcade.gui.UIFlatButton(text="Quit Game", width=c.MENU_WIDTH)
+
+        @main_menu_button.event("on_click")
+        def on_main_menu_button(_: arcade.gui.UIOnClickEvent) -> None:
+            self.window.show_main_menu()
 
         @close_menu_button.event("on_click")
         def on_close_menu_button(_: arcade.gui.UIOnClickEvent) -> None:
@@ -50,8 +55,9 @@ class PauseMenu(BaseGUI):
         def on_close_game_button(_: arcade.gui.UIOnClickEvent) -> None:
             arcade.exit()
 
-        self.grid.add(child=close_menu_button, column=0, row=0, column_span=2)
-        self.grid.add(child=close_game_button, column=0, row=1, column_span=2)
+        self.grid.add(child=main_menu_button, column=0, row=0, column_span=2)
+        self.grid.add(child=close_menu_button, column=0, row=1, column_span=2)
+        self.grid.add(child=close_game_button, column=0, row=2, column_span=2)
 
         self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
 

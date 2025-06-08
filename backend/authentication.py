@@ -1,22 +1,24 @@
+from __future__ import annotations
+
 import datetime
 import http
 
 import sanic
-import backend.internal.serialization as serialization
-import backend.utils as utils
-import shared.models as models
 from shared.internal import generate_snowflake
 from argon2 import PasswordHasher
-from backend.db.queries import Queries
+from backend import utils
+from backend.db.queries import Queries  # noqa: TC001
+from backend.internal import serialization
+from shared import models
 
 router = sanic.Blueprint("authentication")
 
 ph = PasswordHasher()
 
 WRONG_CREDENTIALS_ERROR = sanic.SanicException(
-            message="Combination of username and password does not match",
-            status_code=http.HTTPStatus.UNAUTHORIZED
-        )
+    message="Combination of username and password does not match", status_code=http.HTTPStatus.UNAUTHORIZED
+)
+
 
 @router.post("/login")
 @serialization.serialize()
@@ -32,6 +34,7 @@ async def login(_: sanic.Request, request_body: models.LoginRequest, queries: Qu
     except Exception:
         raise WRONG_CREDENTIALS_ERROR
     
+
     token = utils.generate_token(user_id=db_user.id)
     return models.LoginResponse(
         token=token,

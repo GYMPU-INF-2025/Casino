@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing
 
 from frontend.internal import Route
@@ -11,3 +13,6 @@ PUT: typing.Final[str] = "PUT"
 
 POST_LOGIN: typing.Final[Route] = Route(POST, "/login")
 POST_REGISTER: typing.Final[Route] = Route(POST, "/register")
+
+
+GET_LOBBYS: typing.Final[Route] = Route(GET, "/{game}")

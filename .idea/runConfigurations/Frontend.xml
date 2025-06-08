@@ -1,12 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Frontend User 2" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="Frontend" type="PythonConfigurationType" factoryName="Python">
     <module name="Casino" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
       <env name="PYTHONUNBUFFERED" value="1" />
-      <env name="TOKEN" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMzc2ODczNzE4MzExMDMwNzg0LCJleHAiOjE3NDg3NzEzMTZ9.ud_oOG6lM9g5GRsTEqeVBQH064iNEYh2Jb9iEB0DpH8" />
     </envs>
     <option name="SDK_HOME" value="" />
     <option name="SDK_NAME" value="uv (Casino)" />

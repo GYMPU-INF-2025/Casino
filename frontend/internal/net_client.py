@@ -6,7 +6,6 @@ import typing
 
 from frontend.internal.rest_client import RestClientBase
 
-
 RestClientT = typing.TypeVar("RestClientT", bound=RestClientBase)
 
 
@@ -25,14 +24,14 @@ class NetClient(typing.Generic[RestClientT]):
 
     def logout(self) -> None:
         self._token = None
-    
+
     def login(self, username: str, password: str) -> None:
         response = self._rest_client.login(username=username, password=password)
         self.set_token(token=response.token)
 
     def register(self, username: str, password: str) -> None:
         response = self._rest_client.register(username=username, password=password)
-    
+
     @property
     def rest(self) -> RestClientT:
         return self._rest_client
