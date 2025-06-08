@@ -25,9 +25,9 @@ import arcade
 
 ASSETS_PATH = Path(__file__).parent.parent / "assets"
 
-SCREEN_SIZE = [800, 500]
+SCREEN_SIZE = arcade.get_display_size()
 SCREEN_WIDTH, SCREEN_HEIGHT = SCREEN_SIZE
-WINDOW_NAME, FULL_SCREEN = "Casino", False
+WINDOW_NAME, FULL_SCREEN = "Casino", True
 
 UPDATES_PER_SECOND = 144
 DEFAULT_FPS = 160
