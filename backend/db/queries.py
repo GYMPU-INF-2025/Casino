@@ -60,12 +60,12 @@ class Queries:
         """
         return self._conn
 
-    async def create_user(self, *, id_: Snowflake, username: str, password: str) -> int:
+    async def create_user(self, *, id_: Snowflake, username: str, password: str, money: int) -> int:
         """Execute SQL query with `name: CreateUser :execrows` and return the number of affected rows.
 
         ```sql
-        INSERT INTO users(id, username, password)
-        VALUES (?, ?, ?)
+        INSERT INTO users(id, username, password, money)
+        VALUES (?, ?, ?, ?)
         ```
 
         Args:
@@ -76,7 +76,7 @@ class Queries:
         Returns:
             The number (`int`) of affected rows. This will be -1 for queries like `CREATE TABLE`.
         """
-        return (await self._conn.execute(CREATE_USER, (int(id_), username, password))).rowcount
+        return (await self._conn.execute(CREATE_USER, (int(id_), username, password, money))).rowcount
 
     async def get_user_by_id(self, *, id_: Snowflake) -> models.User | None:
         """Fetch one from the db using the SQL query with `name: GetUserById :one`.

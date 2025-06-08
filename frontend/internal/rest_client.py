@@ -21,7 +21,8 @@ _CONTENT_HEADER: typing.Final[str] = sys.intern("Content-Type")
 _APPLICATION_JSON: typing.Final[str] = sys.intern("application/json")
 
 
-T = typing.TypeVar("T",bound=msgspec.Struct | None)
+T = typing.TypeVar("T", bound=msgspec.Struct | None)
+
 
 class RestClientBase(abc.ABC):
     def __init__(self, base_url: str, token: str | None = None) -> None:
@@ -59,5 +60,9 @@ class RestClientBase(abc.ABC):
     
     @abc.abstractmethod
     def login(self, username: str, password: str) -> responses.LoginResponse:
+        ...
+
+    @abc.abstractmethod
+    def register(self, username: str, password: str) -> responses.Success:
         ...
         

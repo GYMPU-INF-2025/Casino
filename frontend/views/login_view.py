@@ -57,9 +57,17 @@ class LoginMenu(BaseGUI):
         self.password_field.text = ""
     
     def on_register_click(self, _: arcade.gui.UIOnClickEvent) -> None:
-        logger.info("register")
-    
-    def on_login_click(self, _: arcade.gui.UIOnClickEvent) -> None:
+        if not self.textfield_check():
+            return
+
+        # Register new user
+        try:
+            self.window.net_client.register(username=self.username_field.text, password=self.password_field.text)
+        except ClientHTTPError as exc:
+            self.error_text.text = exc.detail
+            return
+
+        # Login new user
         try:
             self.window.net_client.login(username=self.username_field.text, password=self.password_field.text)
         except ClientHTTPError as exc:
@@ -67,3 +75,21 @@ class LoginMenu(BaseGUI):
         else:
             self.window.show_main_menu()
             self.reset()
+    
+    def on_login_click(self, _: arcade.gui.UIOnClickEvent) -> None:
+        if not self.textfield_check():
+            return
+
+        try:
+            self.window.net_client.login(username=self.username_field.text, password=self.password_field.text)
+        except ClientHTTPError as exc:
+            self.error_text.text = exc.detail
+        else:
+            self.window.show_main_menu()
+            self.reset()
+
+    def textfield_check(self) -> bool:
+        if not self.username_field.text or not self.password_field.text:
+            self.error_text.text = "Username and password cannot be empty."
+            return False
+        return True

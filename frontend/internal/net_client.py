@@ -9,6 +9,7 @@ from frontend.internal.rest_client import RestClientBase
 
 RestClientT = typing.TypeVar("RestClientT", bound=RestClientBase)
 
+
 class NetClient(typing.Generic[RestClientT]):
     def __init__(self, rest_client: RestClientT) -> None:
         self._rest_client = rest_client
@@ -28,6 +29,9 @@ class NetClient(typing.Generic[RestClientT]):
     def login(self, username: str, password: str) -> None:
         response = self._rest_client.login(username=username, password=password)
         self.set_token(token=response.token)
+
+    def register(self, username: str, password: str) -> None:
+        response = self._rest_client.register(username=username, password=password)
     
     @property
     def rest(self) -> RestClientT:
