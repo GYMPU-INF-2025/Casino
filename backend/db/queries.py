@@ -19,8 +19,8 @@ from backend.db import models
 
 
 CREATE_USER: typing.Final[str] = """-- name: CreateUser :execrows
-INSERT INTO users(id, username, password)
-VALUES (?, ?, ?)
+INSERT INTO users(id, username, password, money)
+VALUES (?, ?, ?, ?)
 """
 
 GET_USER_BY_ID: typing.Final[str] = """-- name: GetUserById :one
