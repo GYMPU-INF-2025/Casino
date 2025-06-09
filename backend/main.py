@@ -12,7 +12,9 @@ import sanic
 from sanic.log import logger
 
 from backend.authentication import router as auth_router
+from backend.db import models
 from backend.db.queries import Queries
+from backend.dependencys import get_current_user
 from backend.internal.errors import InternalServerError
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
@@ -20,12 +22,11 @@ from backend.internal.ws import GameLobbyBase
 from backend.internal.ws import WebsocketClient
 from backend.internal.ws import WebsocketEndpointsManager
 from backend.internal.ws import add_event_listener
-from backend import utils
+from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
 from shared.models import events
-from shared.models import PublicUser
 from shared.models.responses import Success
 from shared.models.responses import Test
 
@@ -59,17 +60,19 @@ DB_DIR = PROJECT_DIR / "db"
 
 app = sanic.Sanic("Casino")
 app.blueprint(auth_router)
+app.blueprint(users_router, url_prefix="/users")
 queries_: Queries | None = None
 
 
 @app.before_server_start
-async def setup_db(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
+async def add_dependency(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
     """Create database connection."""
     aiosqlite_conn = await aiosqlite.connect("sqlite.db")
     await aiosqlite_conn.executescript((DB_DIR / "schema.sql").read_text())
     global queries_
     queries_ = Queries(aiosqlite_conn)
     app_.ext.dependency(queries_)
+    app_.ext.add_dependency(models.User, get_current_user)
 
 
 @app.after_server_stop
@@ -113,40 +116,6 @@ async def handler(_: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
         status=code,
         content_type="application/json",
     )
-
-
-async def get_current_user(request: sanic.Request, queries: Queries) -> models.User:
-    auth_header = request.headers.get("Authorization")
-    if not auth_header:
-        raise sanic.SanicException(
-            message="Authorization header is missing.",
-            status_code=http.HTTPStatus.UNAUTHORIZED
-        )
-    token = auth_header.split(" ")[-1]
-    INVALID_TOKEN = sanic.SanicException(
-            message="Invalid token.",
-            status_code=http.HTTPStatus.UNAUTHORIZED
-        )
-    try:
-        user_id = utils.decode_token(token)
-    except Exception:
-        raise INVALID_TOKEN
-    else:
-        db_user = await queries.get_user_by_id(id_=user_id)
-        if not db_user:
-            raise INVALID_TOKEN
-        return db_user
-
-
-@app.get("/me")
-@serialize()
-@deserialize()
-async def get_me(_: sanic.Request, queries: Queries) -> PublicUser:
-    """
-    Get the current user's information.
-    """
-    db_user = await get_current_user(_, queries)
-    return db_user
 
 
 @app.post("/")
