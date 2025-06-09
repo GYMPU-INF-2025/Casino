@@ -12,7 +12,7 @@ PUT: typing.Final[str] = "PUT"
 
 
 POST_LOGIN: typing.Final[Route] = Route(POST, "/login")
-POST_REGISTER: typing.Final[Route] = Route(POST, "/register")
+POST_REGISTER: typing.Final[Route] = Route(POST, "/users")
 
 
 GET_LOBBYS: typing.Final[Route] = Route(GET, "/{game}")

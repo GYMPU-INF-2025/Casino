@@ -3,16 +3,13 @@ from __future__ import annotations
 __all__ = ("get_current_user",)
 
 import http
-import typing
 
 import jwt
 import sanic
 
 from backend import utils
+from backend.db import models  # noqa: TC001
 from backend.db.queries import Queries  # noqa: TC001
-
-if typing.TYPE_CHECKING:
-    from backend.db import models
 
 INVALID_TOKEN_ERROR = sanic.SanicException(message="Invalid token.", status_code=http.HTTPStatus.UNAUTHORIZED)
 

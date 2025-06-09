@@ -30,7 +30,6 @@ class LobbysView(BaseGUI):
 
         self.scroll = self.box_layout.add(child=arcade.gui.experimental.UIScrollArea())
         self.scroll.add(child=arcade.gui.UILabel(text="Test", font_size=c.MENU_FONT_SIZE))
-        self.scroll.add(child=arcade.gui.UILabel(text="Test", font_size=c.MENU_FONT_SIZE))
 
     @property
     @typing.override
