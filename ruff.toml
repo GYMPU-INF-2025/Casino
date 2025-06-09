@@ -30,7 +30,7 @@ ignore = [
     "TRY003",  # Avoid specifying long messages outside the exception class (unnecesarry complexity)
     "S104",    # Possible binding to all interfaces
     "ERA001",  # Found commented-out code
-
+    "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
 ]
 
 [lint.per-file-ignores]

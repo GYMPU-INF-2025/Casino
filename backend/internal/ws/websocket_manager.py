@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import random
+import string
 import typing
 
 import jwt
@@ -9,6 +11,7 @@ import sanic
 import websockets
 from sanic.log import logger
 
+from backend.db import models as db_models  # noqa: TC001
 from backend.db.queries import Queries  # noqa: TC001
 from backend.internal import errors
 from backend.internal import serialization
@@ -17,7 +20,7 @@ from backend.internal.ws.opcodes import _HELLO
 from backend.internal.ws.opcodes import _IDENTIFY
 from backend.internal.ws.websocket_client import WebsocketClient
 from backend.utils import tokens
-from shared.models import internal as models
+from shared.models import internal as internal_models
 from shared.models import responses
 
 if typing.TYPE_CHECKING:
@@ -29,7 +32,7 @@ __all__ = ("WebsocketManager", "_WebsocketTransport")
 class _WebsocketTransport:
     def __init__(self, *, ws: sanic.Websocket) -> None:
         self._ws = ws
-        self._decoder = msgspec.json.Decoder(type=models.WebSocketPayload)
+        self._decoder = msgspec.json.Decoder(type=internal_models.WebSocketPayload)
         self._encoder = msgspec.json.Encoder()
         self._sent_close = False
 
@@ -41,14 +44,14 @@ class _WebsocketTransport:
         logger.debug("sending close frame with code %s and message %s", code, reason)
         await self._ws.close(code=code, reason=reason)
 
-    async def recieve_payload(self) -> models.WebSocketPayload:
+    async def recieve_payload(self) -> internal_models.WebSocketPayload:
         json = await self._recieve_data()
 
         logger.debug("received payload with size %s\n    %s", len(json), json)
 
         return self._decoder.decode(json)
 
-    async def send_payload(self, payload: models.WebSocketPayload) -> None:
+    async def send_payload(self, payload: internal_models.WebSocketPayload) -> None:
         json = self._encoder.encode(payload)
         logger.debug("sending payload with size %s\n    %s", len(json), json)
 
@@ -89,21 +92,17 @@ class WebsocketManager(typing.Generic[T]):
     def __init__(self, lobby_class: type[T]) -> None:
         self._lobby_class = lobby_class
         self._lobbys: dict[str, T] = {}
-        self._identify_decoder = msgspec.json.Decoder(type=models.IdentifyPayload)
+        self._identify_decoder = msgspec.json.Decoder(type=internal_models.IdentifyPayload)
 
     async def handle_websocket(
         self, request: sanic.Request, ws: sanic.Websocket, lobby_id: str, queries: Queries
     ) -> None:
         _ws = _WebsocketTransport(ws=ws)
         if not (lobby := self._lobbys.get(lobby_id)):
-            try:
-                lobby = self._lobby_class(lobby_id=lobby_id, queries=queries)
-                self._lobbys[lobby_id] = lobby
-            except RuntimeError as exc:
-                msg = f"client tried joining lobby using invalid lobby id {lobby_id}."
-                logger.debug(msg)
-                await _ws.send_close(code=errors.WebsocketCloseCode.LOBBY_FULL, reason=str(exc))
-                return
+            msg = f"client tried joining lobby using invalid lobby id {lobby_id}."
+            logger.debug(msg)
+            await _ws.send_close(code=errors.WebsocketCloseCode.INVALID_LOBBY, reason="Lobby not found")
+            return
         try:
             user_id = await self._connect(ws=_ws, request=request, lobby=lobby, queries=queries)
 
@@ -133,11 +132,11 @@ class WebsocketManager(typing.Generic[T]):
     async def _connect(
         self, *, ws: _WebsocketTransport, request: sanic.Request, lobby: T, queries: Queries
     ) -> Snowflake:
-        await ws.send_payload(payload=models.WebSocketPayload(op=_HELLO, d={}))
+        await ws.send_payload(payload=internal_models.WebSocketPayload(op=_HELLO, d={}))
         try:
             payload = await ws.recieve_payload()
             if payload.op == _IDENTIFY:
-                ident_payload = msgspec.convert(payload.d, type=models.IdentifyPayload)
+                ident_payload = msgspec.convert(payload.d, type=internal_models.IdentifyPayload)
                 user_id = tokens.decode_token(ident_payload.token)
                 user = await queries.get_user_by_id(id_=user_id)
                 if not user:
@@ -174,3 +173,20 @@ class WebsocketManager(typing.Generic[T]):
             )
             for l_id, lobby in self._lobbys.items()
         ]
+
+    def _gen_new_lobby_id(self) -> str:
+        chars = string.ascii_uppercase + string.digits
+        while True:
+            lobby_id = "".join(random.choices(chars, k=5))
+            if not self._lobbys.get(lobby_id):
+                return lobby_id
+
+    @serialization.serialize()
+    async def create_lobby(self, _: sanic.Request, queries: Queries, user: db_models.User) -> responses.PublicGameLobby:
+        lobby_id = self._gen_new_lobby_id()
+        logger.debug("user %s requested creating lobby %s", user.id, lobby_id)
+        lobby = self._lobby_class(lobby_id=lobby_id, queries=queries)
+        self._lobbys[lobby_id] = lobby
+        return responses.PublicGameLobby(
+            max_clients=lobby.max_num_clients, id=lobby_id, num_clients=lobby.num_clients, full=lobby.is_full
+        )

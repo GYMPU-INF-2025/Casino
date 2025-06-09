@@ -26,3 +26,8 @@ class WebsocketEndpointsManager:
             uri=f"/{game_lobby_type.endpoint()}/",
             methods=frozenset({"GET"}),
         )
+        self._app.add_route(
+            handler=typing.cast("RouteHandler", endpoint.create_lobby),
+            uri=f"/{game_lobby_type.endpoint()}/",
+            methods=frozenset({"POST"}),
+        )
