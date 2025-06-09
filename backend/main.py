@@ -119,7 +119,7 @@ async def get_current_user(request: sanic.Request, queries: Queries) -> PublicUs
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         raise sanic.SanicException(
-            message="Authorization header is missing",
+            message="Authorization header is missing.",
             status_code=http.HTTPStatus.UNAUTHORIZED
         )
     token = auth_header.split(" ")[-1]
