@@ -20,10 +20,12 @@ from backend.internal.ws import GameLobbyBase
 from backend.internal.ws import WebsocketClient
 from backend.internal.ws import WebsocketEndpointsManager
 from backend.internal.ws import add_event_listener
+from backend import utils
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
 from shared.models import events
+from shared.models import PublicUser
 from shared.models.responses import Success
 from shared.models.responses import Test
 
@@ -111,6 +113,41 @@ async def handler(_: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
         status=code,
         content_type="application/json",
     )
+
+
+async def get_current_user(request: sanic.Request, queries: Queries) -> PublicUser:
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        raise sanic.SanicException(
+            message="Authorization header is missing",
+            status_code=http.HTTPStatus.UNAUTHORIZED
+        )
+    token = auth_header.split(" ")[-1]
+
+    try:
+        user_id = utils.decode_token(token)
+        db_user = await queries.get_user_by_id(id_=user_id)
+        return PublicUser(
+            id=db_user.id,
+            username=db_user.username,
+            money=db_user.money
+        )
+    except Exception:
+        raise sanic.SanicException(
+            message="Invalid token",
+            status_code=http.HTTPStatus.UNAUTHORIZED
+        )
+
+
+@app.get("/me")
+@serialize()
+@deserialize()
+async def get_me(_: sanic.Request, queries: Queries) -> PublicUser:
+    """
+    Get the current user's information.
+    """
+    db_user = await get_current_user(_, queries)
+    return db_user
 
 
 @app.post("/")
