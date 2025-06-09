@@ -41,9 +41,8 @@ async def login(_: sanic.Request, request_body: models.LoginRequest, queries: Qu
 
 
 @router.post("/register")
-@serialization.serialize()
 @serialization.deserialize()
-async def register(_: sanic.Request, request_body: models.LoginRequest, queries: Queries) -> models.Success:
+async def register(_: sanic.Request, request_body: models.LoginRequest, queries: Queries) -> sanic.HTTPResponse:
     db_user = await queries.get_user_by_username(username=request_body.username)
     if db_user is not None:
         raise sanic.SanicException(message="Username already exists", status_code=http.HTTPStatus.CONFLICT)
@@ -53,5 +52,4 @@ async def register(_: sanic.Request, request_body: models.LoginRequest, queries:
 
     await queries.create_user(id_=user_id, username=request_body.username, password=hashed_user_pw, money=1000)
     await queries.conn.commit()
-
-    return models.Success(message="User registered successfully")
+    return sanic.empty()
