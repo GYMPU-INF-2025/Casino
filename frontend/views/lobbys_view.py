@@ -32,10 +32,7 @@ class LobbysView(BaseGUI):
         self.scroll.add(child=arcade.gui.UILabel(text="Test", font_size=c.MENU_FONT_SIZE))
         self.scroll.add(child=arcade.gui.UILabel(text="Test", font_size=c.MENU_FONT_SIZE))
 
-
     @property
     @typing.override
     def can_pause(self) -> bool:
         return True
-
-
