@@ -123,20 +123,19 @@ async def get_current_user(request: sanic.Request, queries: Queries) -> models.U
             status_code=http.HTTPStatus.UNAUTHORIZED
         )
     token = auth_header.split(" ")[-1]
-
-    try:
-        user_id = utils.decode_token(token)
-        db_user = await queries.get_user_by_id(id_=user_id)
-        return PublicUser(
-            id=db_user.id,
-            username=db_user.username,
-            money=db_user.money
-        )
-    except Exception:
-        raise sanic.SanicException(
-            message="Invalid token",
+    INVALID_TOKEN = sanic.SanicException(
+            message="Invalid token.",
             status_code=http.HTTPStatus.UNAUTHORIZED
         )
+    try:
+        user_id = utils.decode_token(token)
+    except Exception:
+        raise INVALID_TOKEN
+    else:
+        db_user = await queries.get_user_by_id(id_=user_id)
+        if not db_user:
+            raise INVALID_TOKEN
+        return db_user
 
 
 @app.get("/me")
