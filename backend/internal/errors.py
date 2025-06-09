@@ -76,6 +76,7 @@ class WebsocketTransportError(WebsocketError):
 class InternalServerErrorCodes(enum.IntEnum):
     NON_INTENTIONAL = enum.auto()
     INVALID_HASH = enum.auto()
+    HASHING_FAILED = enum.auto()
 
     @typing.override
     def __str__(self) -> str:
