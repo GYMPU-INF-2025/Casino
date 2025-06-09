@@ -39,7 +39,7 @@ class RestClientBase(abc.ABC):
 
     def __auth_flow(self, request: httpx.Request) -> httpx.Request:
         if self._token:
-            request.headers[_AUTHORIZATION_HEADER] = f"Token {self._token}"
+            request.headers[_AUTHORIZATION_HEADER] = f"Bearer {self._token}"
         return request
 
     def set_token(self, token: str | None) -> None:
