@@ -10,7 +10,7 @@ from arcade import color
 
 import frontend.constants as c
 from frontend import ui
-from frontend.net import ClientHTTPError
+from frontend.net import HTTPResponseError
 from frontend.views.base import BaseGUI
 
 if typing.TYPE_CHECKING:
@@ -69,13 +69,13 @@ class LoginMenu(BaseGUI):
 
         try:
             self.window.net_client.rest.register(username=self.username_field.text, password=self.password_field.text)
-        except ClientHTTPError as exc:
+        except HTTPResponseError as exc:
             self.error_text.text = exc.detail
             return
 
         try:
             self.window.net_client.login(username=self.username_field.text, password=self.password_field.text)
-        except ClientHTTPError as exc:
+        except HTTPResponseError as exc:
             self.error_text.text = exc.detail
         else:
             self.window.show_main_menu()
@@ -87,7 +87,7 @@ class LoginMenu(BaseGUI):
 
         try:
             self.window.net_client.login(username=self.username_field.text, password=self.password_field.text)
-        except ClientHTTPError as exc:
+        except HTTPResponseError as exc:
             self.error_text.text = exc.detail
         else:
             self.window.show_main_menu()

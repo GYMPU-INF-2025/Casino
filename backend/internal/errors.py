@@ -6,8 +6,8 @@ import typing
 import sanic
 
 __all__ = (
-    "InternServerErrorCodes",
     "InternalServerError",
+    "InternalServerErrorCodes",
     "WebsocketClientClosedConnectionError",
     "WebsocketCloseCode",
     "WebsocketConnectionError",
@@ -73,8 +73,9 @@ class WebsocketTransportError(WebsocketError):
         return f"Websocket transport error: {self.reason}"
 
 
-class InternServerErrorCodes(enum.IntEnum):
+class InternalServerErrorCodes(enum.IntEnum):
     NON_INTENTIONAL = enum.auto()
+    INVALID_HASH = enum.auto()
 
     @typing.override
     def __str__(self) -> str:
@@ -84,9 +85,9 @@ class InternServerErrorCodes(enum.IntEnum):
 class InternalServerError(sanic.ServerError):
     """Error representing internal server errors."""
 
-    custom_code: InternServerErrorCodes = InternServerErrorCodes.NON_INTENTIONAL
-    message = str(InternServerErrorCodes.NON_INTENTIONAL)
+    custom_code: InternalServerErrorCodes = InternalServerErrorCodes.NON_INTENTIONAL
+    message = str(InternalServerErrorCodes.NON_INTENTIONAL)
 
-    def __init__(self, custom_code: InternServerErrorCodes) -> None:
+    def __init__(self, custom_code: InternalServerErrorCodes) -> None:
         self.custom_code = custom_code
         super().__init__(message=str(self.custom_code))

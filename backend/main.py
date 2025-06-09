@@ -89,7 +89,7 @@ error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
 
 @app.all_exceptions
-async def handler(_: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
+async def error_handler(_: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
     name: str = ""
     message: str = ""
     detail: str = ""
