@@ -16,7 +16,7 @@ __all__ = (
     "UPDATES_PER_SECOND",
     "WINDOW_NAME",
     "Alignment",
-    "GameModes"
+    "GameModes",
 )
 
 import enum
@@ -51,7 +51,9 @@ class Alignment(enum.StrEnum):
     TOP = "top"
     BOTTOM = "bottom"
 
+
 class GameModes(enum.StrEnum):
     BLACKJACK = "blackjack"
+
 
 BACKEND_URL = "http://127.0.0.1"

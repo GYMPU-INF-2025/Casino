@@ -12,7 +12,9 @@ import sanic
 from sanic.log import logger
 
 from backend.authentication import router as auth_router
+from backend.db import models
 from backend.db.queries import Queries
+from backend.dependencys import get_current_user
 from backend.internal.errors import InternalServerError
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
@@ -20,6 +22,7 @@ from backend.internal.ws import GameLobbyBase
 from backend.internal.ws import WebsocketClient
 from backend.internal.ws import WebsocketEndpointsManager
 from backend.internal.ws import add_event_listener
+from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
@@ -57,17 +60,19 @@ DB_DIR = PROJECT_DIR / "db"
 
 app = sanic.Sanic("Casino")
 app.blueprint(auth_router)
+app.blueprint(users_router, url_prefix="/users")
 queries_: Queries | None = None
 
 
 @app.before_server_start
-async def setup_db(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
+async def add_dependency(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
     """Create database connection."""
     aiosqlite_conn = await aiosqlite.connect("sqlite.db")
     await aiosqlite_conn.executescript((DB_DIR / "schema.sql").read_text())
     global queries_
     queries_ = Queries(aiosqlite_conn)
     app_.ext.dependency(queries_)
+    app_.ext.add_dependency(models.User, get_current_user)
 
 
 @app.after_server_stop

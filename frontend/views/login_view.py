@@ -80,7 +80,7 @@ class LoginMenu(BaseGUI):
         else:
             self.window.show_main_menu()
             self.reset()
-    
+
     def on_login_click(self, _: arcade.gui.UIOnClickEvent) -> None:
         if not self.textfield_check():
             return
