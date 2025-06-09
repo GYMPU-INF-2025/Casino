@@ -115,7 +115,7 @@ async def handler(_: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
     )
 
 
-async def get_current_user(request: sanic.Request, queries: Queries) -> PublicUser:
+async def get_current_user(request: sanic.Request, queries: Queries) -> models.User:
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         raise sanic.SanicException(
