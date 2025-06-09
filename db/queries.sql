@@ -10,4 +10,4 @@ WHERE users.username = ?;
 
 -- name: CreateUser :execrows
 INSERT INTO users(id, username, password, money)
-VALUES (?, ?, ?, ?)
+VALUES (?, ?, ?, ?);
