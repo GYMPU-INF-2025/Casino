@@ -33,7 +33,7 @@ class MainMenu(BaseGUI):
 
         @play_button.event("on_click")
         def on_play_button(_: arcade.gui.UIOnClickEvent) -> None:
-            self.window.show_lobbys("blackjack")
+            self.window.show_lobbys(c.GameModes.BLACKJACK)
 
         @close_game_button.event("on_click")
         def on_close_game_button(_: arcade.gui.UIOnClickEvent) -> None:

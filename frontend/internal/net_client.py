@@ -29,9 +29,6 @@ class NetClient(typing.Generic[RestClientT]):
         response = self._rest_client.login(username=username, password=password)
         self.set_token(token=response.token)
 
-    def register(self, username: str, password: str) -> None:
-        response = self._rest_client.register(username=username, password=password)
-
     @property
     def rest(self) -> RestClientT:
         return self._rest_client

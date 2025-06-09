@@ -17,19 +17,25 @@ logger = logging.getLogger(__name__)
 
 
 class LobbysView(BaseGUI):
-    def __init__(self, window: MainWindow) -> None:
+    def __init__(self, window: MainWindow, game_mode: c.GameModes) -> None:
         super().__init__(window=window)
-
+        self._game_mode = game_mode
         self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
 
-        self.grid = arcade.gui.UIGridLayout(
-            column_count=2, row_count=4, horizontal_spacing=c.MENU_SPACING, vertical_spacing=c.MENU_SPACING
-        )
         self.anchor = self.ui.add(arcade.gui.UIAnchorLayout())
+        self.box_layout = arcade.gui.UIBoxLayout()
 
-        self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
+        self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.box_layout)
+        self.box_layout.add(child=arcade.gui.UILabel(text="Test", font_size=c.MENU_FONT_SIZE))
+
+        self.scroll = self.box_layout.add(child=arcade.gui.experimental.UIScrollArea())
+        self.scroll.add(child=arcade.gui.UILabel(text="Test", font_size=c.MENU_FONT_SIZE))
+        self.scroll.add(child=arcade.gui.UILabel(text="Test", font_size=c.MENU_FONT_SIZE))
+
 
     @property
     @typing.override
     def can_pause(self) -> bool:
         return True
+
+

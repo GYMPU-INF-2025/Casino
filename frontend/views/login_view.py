@@ -67,14 +67,12 @@ class LoginMenu(BaseGUI):
         if not self.textfield_check():
             return
 
-        # Register new user
         try:
-            self.window.net_client.register(username=self.username_field.text, password=self.password_field.text)
+            self.window.net_client.rest.register(username=self.username_field.text, password=self.password_field.text)
         except ClientHTTPError as exc:
             self.error_text.text = exc.detail
             return
 
-        # Login new user
         try:
             self.window.net_client.login(username=self.username_field.text, password=self.password_field.text)
         except ClientHTTPError as exc:

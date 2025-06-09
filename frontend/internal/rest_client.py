@@ -72,6 +72,3 @@ class RestClientBase(abc.ABC):
 
     @abc.abstractmethod
     def login(self, username: str, password: str) -> responses.LoginResponse: ...
-
-    @abc.abstractmethod
-    def register(self, username: str, password: str) -> responses.Success: ...

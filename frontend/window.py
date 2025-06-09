@@ -30,20 +30,22 @@ logger = logging.getLogger(__name__)
 class MainWindow(arcade.Window):
     def __init__(self, root_path: pathlib.Path) -> None:
         logger.debug("Initializing Main Window")
+        logger.debug("Screen size: %sx%s", c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
+        logger.debug("Center: %s,%s", c.CENTER_X, c.CENTER_Y)
         super().__init__(title=c.WINDOW_NAME, fullscreen=c.FULL_SCREEN, width=c.SCREEN_WIDTH, height=c.SCREEN_HEIGHT)
         arcade.set_background_color(arcade.color.BLACK)
         self.set_update_rate(1 / c.UPDATES_PER_SECOND)
         self.set_fps(c.DEFAULT_FPS)
 
         self.shader_path = root_path / "shaders"
-        self.net_client = NetClient(RestClient())
+        self.net_client = NetClient[RestClient](RestClient())
 
         self._title_view = TitleView(window=self)
         self._main_menu = MainMenu(window=self)
         self._pause_menu = PauseMenu(window=self)
         self._login_menu = LoginMenu(window=self)
 
-        self._blackjack_lobby_view = LobbysView(window=self)
+        self._blackjack_lobby_view = LobbysView(window=self, game_mode=c.GameModes.BLACKJACK)
 
         self._current_selected_view: BaseView = self._title_view
         self._show_view(self._title_view)
@@ -81,12 +83,12 @@ class MainWindow(arcade.Window):
         else:
             self._show_view(self._login_menu)
 
-    def show_lobbys(self, game: str) -> None:
-        match game:
-            case "blackjack":
+    def show_lobbys(self, game_mode: c.GameModes) -> None:
+        match game_mode:
+            case c.GameModes.BLACKJACK:
                 self._show_view(self._blackjack_lobby_view)
             case _:
-                raise TypeError(f"Unknown game: {game}")
+                raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
     def toggle_pause_menu(self) -> None:
         if self._pause_menu.shown:

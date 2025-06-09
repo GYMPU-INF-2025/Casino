@@ -64,7 +64,6 @@ class TitleView(BaseGameView):
     @typing.override
     def on_draw(self) -> bool | None:
         self.clear()
-        arcade.draw_rect_filled(rect=self.window.rect, color=color.BLACK)
         elapsed = time.time() - self.timer
 
         t = elapsed / 3.3
