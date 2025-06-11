@@ -57,7 +57,7 @@ class RestClientBase(abc.ABC):
             content = self._json_encoder.encode(data)
         response = self._client.request(method=endpoint.method, url=endpoint.compiled_path, content=content)
 
-        if response.status_code == http.HTTPStatus.NO_CONTENT and expected_response is None:
+        if response.status_code == http.HTTPStatus.NO_CONTENT and expected_response is type(None):
             return None
 
         if 200 <= response.status_code < 300:  # noqa: PLR2004

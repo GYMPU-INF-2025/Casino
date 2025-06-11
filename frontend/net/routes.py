@@ -16,3 +16,4 @@ POST_REGISTER: typing.Final[Route] = Route(POST, "/users")
 
 
 GET_LOBBYS: typing.Final[Route] = Route(GET, "/{game}")
+POST_LOBBYS: typing.Final[Route] = Route(POST, "/{game}")
