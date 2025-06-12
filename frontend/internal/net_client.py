@@ -4,15 +4,24 @@ __all__ = ("NetClient",)
 
 import typing
 
+from frontend.internal import websocket_thread as ws_thread
 from frontend.internal.rest_client import RestClientBase
+
+if typing.TYPE_CHECKING:
+    import queue
+
+    from frontend import constants as c
+    from shared.models import events
+
 
 RestClientT = typing.TypeVar("RestClientT", bound=RestClientBase)
 
 
 class NetClient(typing.Generic[RestClientT]):
-    def __init__(self, rest_client: RestClientT) -> None:
-        self._rest_client = rest_client
+    def __init__(self, rest_client: type[RestClientT], base_address: str) -> None:
+        self._rest_client: RestClientT = rest_client(base_url=f"http://{base_address}/")
         self._token: str | None = None
+        self._ws_uri = f"ws://{base_address}/"
 
     @property
     def authorized(self) -> bool:
@@ -32,3 +41,21 @@ class NetClient(typing.Generic[RestClientT]):
     @property
     def rest(self) -> RestClientT:
         return self._rest_client
+
+    def get_websocket_thread(
+        self,
+        game_mode: c.GameModes,
+        lobby_id: str,
+        receive_event_queue: queue.Queue[events.BaseEvent],
+        disconnect_callback: ws_thread.DisconnectCallbackT,
+    ) -> ws_thread.WebsocketThread:
+        if self._token is None:
+            raise ValueError("Client not authenticated.")
+        return ws_thread.WebsocketThread(
+            token=self._token,
+            ws_uri=self._ws_uri,
+            game_mode=game_mode,
+            lobby_id=lobby_id,
+            receive_event_queue=receive_event_queue,
+            disconnect_callback=disconnect_callback,
+        )

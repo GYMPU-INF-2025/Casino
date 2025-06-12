@@ -4,7 +4,7 @@ import typing
 
 import msgspec
 
-__all__ = ("IdentifyPayload", "ReadyPayload", "WebSocketPayload")
+__all__ = ("IdentifyPayload", "WebSocketPayload")
 
 if typing.TYPE_CHECKING:
     from shared.internal import Snowflake
@@ -19,9 +19,3 @@ class WebSocketPayload(msgspec.Struct):
 
 class IdentifyPayload(msgspec.Struct):
     token: str
-
-
-class ReadyPayload(msgspec.Struct):
-    user: PublicUser
-    client_id: Snowflake
-    num_clients: int

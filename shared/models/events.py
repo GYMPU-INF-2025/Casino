@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+import typing
+
 import msgspec
 
 __all__ = ("BaseEvent", "UpdateMoney")
+
+from shared.models import responses
+from shared.internal import snowflakes
 
 
 class BaseEvent(msgspec.Struct):
@@ -15,6 +20,10 @@ class BaseEvent(msgspec.Struct):
             result.append(char)
         return "".join(result).upper()
 
+class ReadyEvent(BaseEvent):
+    user: responses.PublicUser
+    client_id: snowflakes.Snowflake
+    num_clients: int
 
 class UpdateMoney(BaseEvent):
     money: int

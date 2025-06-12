@@ -11,9 +11,6 @@ from shared.models import responses
 
 
 class RestClient(RestClientBase):
-    def __init__(self) -> None:
-        super().__init__(base_url="http://127.0.0.1:8000/")
-
     @typing.override
     def login(self, username: str, password: str) -> responses.LoginResponse:
         body = requests.LoginRequest(username=username, password=password)

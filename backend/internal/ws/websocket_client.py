@@ -6,13 +6,13 @@ import msgspec
 from sanic.log import logger
 
 from backend.internal import errors
-from backend.internal.ws.opcodes import _DISPATCH
-from backend.internal.ws.opcodes import _READY
 from backend.utils import convert_struct
 from shared.internal import Snowflake
 from shared.internal import generate_snowflake
 from shared.internal.hooks import encode_hook
-from shared.models.internal import ReadyPayload
+from shared.internal.opcodes import DISPATCH
+from shared.internal.opcodes import READY
+from shared.models import events
 from shared.models.internal import WebSocketPayload
 from shared.models.responses import PublicUser
 
@@ -50,20 +50,16 @@ class WebsocketClient:
         return cls(ws=ws, request=request, user_id=user_id, client_id=generate_snowflake())
 
     async def dispatch_event(self, data: dict[str, typing.Any], event_name: str) -> None:
-        await self._ws.send_payload(WebSocketPayload(op=_DISPATCH, d=data, t=event_name))
+        await self._ws.send_payload(WebSocketPayload(op=DISPATCH, d=data, t=event_name))
 
-    async def send_ready(self, user: User, num_clients: int) -> None:
-        await self._ws.send_payload(
-            WebSocketPayload(
-                op=_READY,
-                d=msgspec.to_builtins(
-                    ReadyPayload(
-                        user=convert_struct(user, PublicUser), client_id=self._client_id, num_clients=num_clients
-                    ),
-                    enc_hook=encode_hook,
-                ),
-            )
+    async def send_ready(self, user: User, num_clients: int) -> events.ReadyEvent:
+        ready_event = events.ReadyEvent(
+            user=convert_struct(user, PublicUser), client_id=self._client_id, num_clients=num_clients
         )
+        await self._ws.send_payload(
+            WebSocketPayload(op=READY, d=msgspec.to_builtins(ready_event, enc_hook=encode_hook))
+        )
+        return ready_event
 
     async def handle_ws(
         self,
@@ -76,11 +72,13 @@ class WebsocketClient:
             except errors.WebsocketConnectionError as exc:
                 logger.debug(f"Client {self.client_id} closed the connection with reason {exc.reason}")
                 remove_client(self._user_id)
+                break
             except errors.WebsocketClientClosedConnectionError as exc:
                 logger.debug(
                     f"Client {self.client_id} closed the connection with code {exc.code} and reason {exc.reason}"
                 )
                 remove_client(self._user_id)
+                break
             else:
-                if payload.op == _DISPATCH:
+                if payload.op == DISPATCH:
                     await dispatch_handler(payload, self)

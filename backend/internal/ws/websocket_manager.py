@@ -16,10 +16,9 @@ from backend.db.queries import Queries  # noqa: TC001
 from backend.internal import errors
 from backend.internal import serialization
 from backend.internal.ws import GameLobbyBase
-from backend.internal.ws.opcodes import _HELLO
-from backend.internal.ws.opcodes import _IDENTIFY
 from backend.internal.ws.websocket_client import WebsocketClient
 from backend.utils import tokens
+from shared.internal import opcodes
 from shared.models import internal as internal_models
 from shared.models import responses
 
@@ -63,7 +62,7 @@ class _WebsocketTransport:
         except websockets.ConnectionClosed as e:
             self._handle_close(e)
         except asyncio.CancelledError:
-            msg = "Client has closed"
+            msg = "Client cancelled"
             raise errors.WebsocketConnectionError(reason=msg) from None
         except sanic.ServerError as exc:
             msg = "Internal Server Error"
@@ -132,10 +131,10 @@ class WebsocketManager(typing.Generic[T]):
     async def _connect(
         self, *, ws: _WebsocketTransport, request: sanic.Request, lobby: T, queries: Queries
     ) -> Snowflake:
-        await ws.send_payload(payload=internal_models.WebSocketPayload(op=_HELLO, d={}))
+        await ws.send_payload(payload=internal_models.WebSocketPayload(op=opcodes.HELLO, d={}))
         try:
             payload = await ws.recieve_payload()
-            if payload.op == _IDENTIFY:
+            if payload.op == opcodes.IDENTIFY:
                 ident_payload = msgspec.convert(payload.d, type=internal_models.IdentifyPayload)
                 user_id = tokens.decode_token(ident_payload.token)
                 user = await queries.get_user_by_id(id_=user_id)
@@ -150,7 +149,9 @@ class WebsocketManager(typing.Generic[T]):
                 lobby.set_client(user_id, WebsocketClient.new_client(ws=ws, request=request, user_id=user_id))
                 await lobby.send_ready(user)
                 return user_id
-            msg = f"expected {_IDENTIFY} (IDENTIFY) opcode, received {payload.op}, closing with NOT_AUTHENTICATED"
+            msg = (
+                f"expected {opcodes.IDENTIFY} (IDENTIFY) opcode, received {payload.op}, closing with NOT_AUTHENTICATED"
+            )
             logger.debug(msg)
             await ws.send_close(code=errors.WebsocketCloseCode.NOT_AUTHENTICATED, reason="Expected HELLO or RESUME op")
             raise errors.WebsocketConnectionError(reason=msg) from None

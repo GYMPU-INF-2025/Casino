@@ -58,7 +58,7 @@ class RestClientBase(abc.ABC):
         response = self._client.request(method=endpoint.method, url=endpoint.compiled_path, content=content)
 
         if response.status_code == http.HTTPStatus.NO_CONTENT and expected_response is type(None):
-            return None
+            return expected_response()  # this returns None but for some reason pyright complains if we do `return None`
 
         if 200 <= response.status_code < 300:  # noqa: PLR2004
             if (content_type := response.headers.get(_CONTENT_HEADER)) == _APPLICATION_JSON:

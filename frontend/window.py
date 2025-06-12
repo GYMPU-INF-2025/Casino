@@ -14,6 +14,7 @@ from frontend.net.rest_client import RestClient
 from frontend.views import MainMenu
 from frontend.views import PauseMenu
 from frontend.views import TitleView
+from frontend.views.game_view import GameView
 from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
 
@@ -38,7 +39,7 @@ class MainWindow(arcade.Window):
         self.set_fps(c.DEFAULT_FPS)
 
         self.shader_path = root_path / "shaders"
-        self.net_client = NetClient[RestClient](RestClient())
+        self.net_client = NetClient[RestClient](RestClient, "127.0.0.1:8000")
 
         self._title_view = TitleView(window=self)
         self._main_menu = MainMenu(window=self)
@@ -82,6 +83,10 @@ class MainWindow(arcade.Window):
             self._show_view(self._main_menu)
         else:
             self._show_view(self._login_menu)
+
+    def show_game(self, game_mode: c.GameModes, lobby_id: str) -> None:
+        game_view = GameView(window=self, game_mode=game_mode, lobby_id=lobby_id)
+        self._show_view(view=game_view)
 
     def show_lobbys(self, game_mode: c.GameModes) -> None:
         match game_mode:

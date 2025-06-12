@@ -59,22 +59,33 @@ class LobbysView(BaseGUI):
             return
         lobby_id = lobby_label.text
         logger.debug("Trying to connect to lobby with id: %s", lobby_id)
+        self.window.show_game(self._game_mode, lobby_id=lobby_id)
 
     def on_lobby_create_press(self, _: arcade.gui.UIOnClickEvent) -> None:
-        self._lobbys.append(self.window.net_client.rest.create_lobby(self._game_mode.value))
-        self.refresh_ui()
+        self.window.net_client.rest.create_lobby(self._game_mode.value)
+        self.refresh_lobbys()
 
     def refresh_ui(self) -> None:
         self._lobbys_list.clear()
         self._add_lobbys_row("Game", "Lobby code", "Players")
         self.show_border(row_num=0)
-        for lobby in self._lobbys:
+        for i, lobby in enumerate(self._lobbys):
             self.add_lobby(lobby_code=lobby.id, max_players=lobby.max_clients, num_players=lobby.num_clients)
+            if self._selected is not None and i + 1 == self._selected:
+                self.show_border(self._selected)
         if len(self._lobbys) == 0:
             self._lobbys_list.add(child=arcade.gui.UILabel(text="No lobbys found!", font_size=c.MENU_FONT_SIZE))
 
     def refresh_lobbys(self) -> None:
+        selected_lobby_id = self._lobbys[self._selected - 1].id if self._selected else None
         self._lobbys = self.window.net_client.rest.get_lobbys(game=self._game_mode.value)
+        if selected_lobby_id:
+            for i, lobby in enumerate(self._lobbys):
+                if lobby.id == selected_lobby_id:
+                    self._selected = i + 1
+                    break
+                if i == len(self._lobbys) - 1:
+                    self._selected = None
         self.refresh_ui()
 
     def add_lobby(self, lobby_code: str, max_players: int, num_players: int) -> None:
@@ -140,3 +151,7 @@ class LobbysView(BaseGUI):
     @typing.override
     def can_pause(self) -> bool:
         return True
+
+    @typing.override
+    def deactivate(self) -> None:
+        self._selected = None
