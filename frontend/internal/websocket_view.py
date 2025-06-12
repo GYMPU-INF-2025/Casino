@@ -118,5 +118,4 @@ class WebsocketView(BaseGameView, metaclass=_WebsocketViewMeta):
             consume_event()
 
     def __del__(self) -> None:
-        logger.debug("Destroy")
         self._ws_thread.disconnect()
