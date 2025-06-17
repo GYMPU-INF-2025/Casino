@@ -1,2 +1,2 @@
-HTTPS
+HTTPS / HTTP
 # Casino
