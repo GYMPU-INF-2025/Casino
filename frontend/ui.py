@@ -17,6 +17,16 @@ logger = logging.getLogger(__name__)
 
 
 class ButtonStyle:
+    """Class containing an object-oriented button style.
+
+    The normal "arcade" way of doing this is done by passing a dict
+    to the style arg which is not really type safe.
+
+    This class can be inherited to create other styles.
+
+    Authors: Christopher
+    """
+
     def __init__(self, font_size: int = 20) -> None:
         self.normal = buttons.UIFlatButtonStyle(
             font_color=uicolor.WHITE_CLOUDS, bg=types.Color(0, 0, 0, 150), font_size=font_size
@@ -34,12 +44,23 @@ class ButtonStyle:
 
 
 class BoxLayout(arcade.gui.UIBoxLayout):
+    """BoxLayout that keeps it set size.
+
+    Authors: Christopher
+    """
+
     @typing.override
     def _update_size_hints(self) -> None:
         return
 
 
 class Label(arcade.gui.UILabel):
+    """Label class that keeps it minimum size,
+    even when the text does not need it.
+
+    Authors: Christopher
+    """
+
     _min_size_x = -1
 
     @typing.override
@@ -56,6 +77,14 @@ class Label(arcade.gui.UILabel):
 
 
 class Button(arcade.gui.UIFlatButton):
+    """Custom Button class that's only purpose is to have a default style.
+
+    The default style can be overridden by subclasses of `ButtonStyle`.
+
+    Authors: Christopher
+    """
+
+    @typing.override
     def __init__(
         self,
         *,
