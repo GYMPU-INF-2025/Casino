@@ -29,11 +29,11 @@ class LoginMenu(BaseGUI):
         )
         self.anchor = self.ui.add(arcade.gui.UIAnchorLayout())
 
-        self.username_field = arcade.gui.UIInputText(
-            width=self._button_width, height=c.MENU_ITEM_HEIGHT, font_size=c.MENU_FONT_SIZE
+        self.username_field = ui.InputText(
+            ui_manager=self.ui, width=self._button_width, height=c.MENU_ITEM_HEIGHT, font_size=c.MENU_FONT_SIZE
         )
-        self.password_field = arcade.gui.UIInputText(
-            width=self._button_width, height=c.MENU_ITEM_HEIGHT, font_size=c.MENU_FONT_SIZE
+        self.password_field = ui.InputText(
+            ui_manager=self.ui, width=self._button_width, height=c.MENU_ITEM_HEIGHT, font_size=c.MENU_FONT_SIZE
         )
 
         self.grid.add(
