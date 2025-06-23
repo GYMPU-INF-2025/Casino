@@ -93,6 +93,10 @@ class InputText(arcade.gui.UIInputText):
     deactivate automatically. Only thing changed compared to the normal `arcade.gui.UIInputText`
     is that you need to pass a `arcade.gui.UIManager` to the constructor.
 
+    Linked Issues:
+    https://github.com/pythonarcade/arcade/issues/2725
+    https://github.com/GYMPU-INF-2025/Casino/issues/13
+
     Authors: Christopher
     """
 
