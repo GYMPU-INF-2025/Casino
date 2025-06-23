@@ -95,6 +95,7 @@ def ruff(session: nox.Session) -> None:
     remove_trailing_whitespaces(session)
 
     session.run("python", "-m", "ruff", "format", *PYTHON_PATHS)
+    session.run("python", "-m", "ruff", "check", *PYTHON_PATHS, "--select", "RUF022", "--fix")
     session.run("python", "-m", "ruff", "check", *PYTHON_PATHS, "--select", "I", "--fix")
     session.run("python", "-m", "ruff", "check", *PYTHON_PATHS)
 
