@@ -39,7 +39,6 @@ REFORMATTING_FILE_EXTS = (
     "Dockerfile",
     ".editorconfig",
     ".gitattributes",
-    ".json",
     ".gitignore",
     ".dockerignore",
     ".txt",
