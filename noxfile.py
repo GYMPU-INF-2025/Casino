@@ -30,7 +30,6 @@ REFORMATTING_FILE_EXTS = (
     ".html",
     ".htm",
     ".js",
-    ".json",
     ".toml",
     ".ini",
     ".cfg",
