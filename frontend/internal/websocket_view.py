@@ -116,9 +116,9 @@ class WebsocketView(BaseGameView, metaclass=_WebsocketViewMeta):
 
             consume_event()
 
+    @typing.override
     def deactivate(self) -> None:
-        pass
+        self._ws_thread.disconnect()
 
     def __del__(self) -> None:
-        logger.debug("Delete")
         self._ws_thread.disconnect()
