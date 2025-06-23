@@ -112,10 +112,13 @@ class WebsocketView(BaseGameView, metaclass=_WebsocketViewMeta):
                             logger.exception(
                                 "Exception occurred when handling event %s", event.event_name(), exc_info=exc
                             )
-
                 return consume_event()
 
             consume_event()
 
+    def deactivate(self) -> None:
+        pass
+
     def __del__(self) -> None:
+        logger.debug("Delete")
         self._ws_thread.disconnect()
