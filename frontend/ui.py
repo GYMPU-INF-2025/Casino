@@ -146,13 +146,19 @@ class InputText(arcade.gui.UIInputText):
 
     @typing.override
     def activate(self) -> None:
+        """Overrides the activate method which is called when this TextInput is activated.
+
+        It first deactivates every TextInput that exists in the UIManager and then calls
+        the activate method of the base class.
+        """
+
         def recursive_deactivate(children: collections.abc.Sequence[arcade.gui.UIWidget] | arcade.gui.UIWidget) -> None:
             if isinstance(children, collections.abc.Sequence):
                 for c in children:
                     recursive_deactivate(c)
             elif isinstance(children, InputText):
                 children.deactivate()
-            elif hasattr(children, "children"):
+            else:
                 recursive_deactivate(children.children)
 
         for child in self.ui_manager.children.values():
