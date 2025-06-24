@@ -23,10 +23,8 @@ class Route(msgspec.Struct):
     """
 
     method: str
-    """The HTTP method."""
 
     path_template: str
-    """The template string used for the path."""
 
     def compile(self, **kwargs: str | int | bool | None | Snowflake) -> CompiledRoute:
         """Generate a formatted `CompiledRoute` for this route.
@@ -77,10 +75,8 @@ class CompiledRoute(msgspec.Struct):
         The compiled path with every parameter being filled out
     """
     route: Route
-    """The route this compiled route was created from."""
 
     compiled_path: str
-    """The compiled route path to use."""
 
     @property
     def method(self) -> str:
