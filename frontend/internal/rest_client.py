@@ -31,6 +31,14 @@ T = typing.TypeVar("T", bound=msgspec.Struct | collections.abc.Sequence[msgspec.
 
 
 class RestClientBase(abc.ABC):
+    """Abstract base class for the rest client.
+
+    Contains logic used to execute requests, manages authentication
+    and predefines required rest methods.
+
+    Authors: Christopher
+    """
+
     def __init__(self, base_url: str, token: str | None = None) -> None:
         self._token: str | None = token
         self._base_url: str = base_url
@@ -38,6 +46,12 @@ class RestClientBase(abc.ABC):
         self._json_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
     def __auth_flow(self, request: httpx.Request) -> httpx.Request:
+        """Internal method passed to the `httpx.Client`.
+
+        If there is a token set, an authorization header will be added.
+
+        Authors: Christopher
+        """
         if self._token:
             request.headers[_AUTHORIZATION_HEADER] = f"Bearer {self._token}"
         return request
@@ -52,6 +66,18 @@ class RestClientBase(abc.ABC):
         *,
         data: dict[str, typing.Any] | msgspec.Struct | None = None,
     ) -> T:
+        """Execute a request.
+
+        Parameters
+        ----------
+        expected_response: type[T]
+            The type of the returned object. This has to be either a `msgspec.Struct`,
+            a sequence of `msgspec.Struct` or `None`.
+        endpoint: CompiledRoute
+            The endpoint that should be requested.
+        data: dict[str, typing.Any] | msgspec.Struct | None
+            Optional data that should be sent in the request body. Will be formatted to json.
+        """
         content: bytes | None = None
         if isinstance(data, (dict, msgspec.Struct)):
             content = self._json_encoder.encode(data)
