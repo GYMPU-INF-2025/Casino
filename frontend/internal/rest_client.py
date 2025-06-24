@@ -77,6 +77,18 @@ class RestClientBase(abc.ABC):
             The endpoint that should be requested.
         data: dict[str, typing.Any] | msgspec.Struct | None
             Optional data that should be sent in the request body. Will be formatted to json.
+
+        Raises
+        ------
+        HTTPError
+            Expected response to be json but got some other content type.
+        HTTPResponseError
+            The server returned a response code that signals that something went wrong.
+
+        Returns
+        -------
+        T
+            The expected object.
         """
         content: bytes | None = None
         if isinstance(data, (dict, msgspec.Struct)):
