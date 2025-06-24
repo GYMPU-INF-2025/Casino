@@ -8,6 +8,20 @@ __all__ = ("CompiledRoute", "Route")
 
 
 class Route(msgspec.Struct):
+    """Class representing a http endpoint.
+
+    Authors: Christopher
+
+    Attributes
+    ----------
+    method: str
+        The http method this route uses.
+    path_template: str
+        The path this route uses. The path can have parameters that
+        will be filled out when compiling the route.
+        Example: "/test/{test_argument}/"
+    """
+
     method: str
     """The HTTP method."""
 
@@ -15,7 +29,7 @@ class Route(msgspec.Struct):
     """The template string used for the path."""
 
     def compile(self, **kwargs: str | int | bool | None | Snowflake) -> CompiledRoute:
-        """Generate a formatted [`CompiledRoute`][] for this route.
+        """Generate a formatted `CompiledRoute` for this route.
 
         This takes into account any URL parameters that have been passed.
 
@@ -48,6 +62,20 @@ class Route(msgspec.Struct):
 
 
 class CompiledRoute(msgspec.Struct):
+    """Class representing a compiled route.
+
+    Compiled routes contain the compiled path which is the normal
+    path but every parameter being filled out.
+
+    Authors: Christopher
+
+    Attributes
+    ----------
+    route: Route
+        The route this compiled route got created from
+    compiled_path: str
+        The compiled path with every parameter being filled out
+    """
     route: Route
     """The route this compiled route was created from."""
 
