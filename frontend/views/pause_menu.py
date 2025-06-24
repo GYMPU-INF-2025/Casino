@@ -21,9 +21,16 @@ logger = logging.getLogger(__name__)
 
 
 class PauseMenu(BaseGUI):
+    """View used for the pause menu. This menu opens when you press `ESC`.
+
+    The only "special" thing about this view is that it draws the view
+    that was active before this one as the background and blurs it.
+    This is achieved by using a shader.
+
+    Authors: Christopher
+    """
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
-        self.shown = False
 
         self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
 
@@ -33,7 +40,6 @@ class PauseMenu(BaseGUI):
         self.anchor = self.ui.add(arcade.gui.UIAnchorLayout())
         self.setup()
 
-        # Blurred Background
         self.fbo = self.window.ctx.framebuffer(color_attachments=[self.window.ctx.texture(c.SCREEN_SIZE)])
         self.blur_shader = Shadertoy.create_from_file(c.SCREEN_SIZE, self.window.get_shader_path("blur"))
         self.blur_shader.program["uRadius"] = 2.0
