@@ -17,6 +17,7 @@ from frontend.views import TitleView
 from frontend.views.game_view import GameView
 from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
+from frontend.views.game_selection import GameSelectionView
 
 if typing.TYPE_CHECKING:
     import pathlib
@@ -86,6 +87,10 @@ class MainWindow(arcade.Window):
 
     def show_game(self, game_mode: c.GameModes, lobby_id: str) -> None:
         game_view = GameView(window=self, game_mode=game_mode, lobby_id=lobby_id)
+        self._show_view(view=game_view)
+
+    def show_game_selection(self):
+        game_view = GameSelectionView(window=self)
         self._show_view(view=game_view)
 
     def show_lobbys(self, game_mode: c.GameModes) -> None:

@@ -9,6 +9,7 @@ import arcade.gui
 
 import frontend.constants as c
 from frontend.views.base import BaseGUI
+from frontend.views.game_selection import GameSelectionView
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
@@ -33,7 +34,7 @@ class MainMenu(BaseGUI):
 
         @play_button.event("on_click")
         def on_play_button(_: arcade.gui.UIOnClickEvent) -> None:
-            self.window.show_lobbys(c.GameModes.BLACKJACK)
+            self.window.show_game_selection()
 
         @close_game_button.event("on_click")
         def on_close_game_button(_: arcade.gui.UIOnClickEvent) -> None:
