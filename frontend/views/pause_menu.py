@@ -29,8 +29,11 @@ class PauseMenu(BaseGUI):
 
     Authors: Christopher
     """
+
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
+
+        self._shown = False
 
         self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
 
@@ -38,13 +41,7 @@ class PauseMenu(BaseGUI):
             column_count=2, row_count=3, horizontal_spacing=c.MENU_SPACING, vertical_spacing=c.MENU_SPACING
         )
         self.anchor = self.ui.add(arcade.gui.UIAnchorLayout())
-        self.setup()
 
-        self.fbo = self.window.ctx.framebuffer(color_attachments=[self.window.ctx.texture(c.SCREEN_SIZE)])
-        self.blur_shader = Shadertoy.create_from_file(c.SCREEN_SIZE, self.window.get_shader_path("blur"))
-        self.blur_shader.program["uRadius"] = 2.0
-
-    def setup(self) -> None:
         main_menu_button = arcade.gui.UIFlatButton(text="Main Menu", width=c.MENU_WIDTH)
         close_menu_button = arcade.gui.UIFlatButton(text="Close Menu", width=c.MENU_WIDTH)
         close_game_button = arcade.gui.UIFlatButton(text="Quit Game", width=c.MENU_WIDTH)
@@ -66,6 +63,10 @@ class PauseMenu(BaseGUI):
         self.grid.add(child=close_game_button, column=0, row=2, column_span=2)
 
         self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
+
+        self.fbo = self.window.ctx.framebuffer(color_attachments=[self.window.ctx.texture(c.SCREEN_SIZE)])
+        self.blur_shader = Shadertoy.create_from_file(c.SCREEN_SIZE, self.window.get_shader_path("blur"))
+        self.blur_shader.program["uRadius"] = 2.0
 
     @typing.override
     def on_draw(self) -> None:

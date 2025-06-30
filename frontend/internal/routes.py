@@ -74,6 +74,7 @@ class CompiledRoute(msgspec.Struct):
     compiled_path: str
         The compiled path with every parameter being filled out
     """
+
     route: Route
 
     compiled_path: str

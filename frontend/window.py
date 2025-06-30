@@ -96,12 +96,10 @@ class MainWindow(arcade.Window):
                 raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
     def toggle_pause_menu(self) -> None:
-        if self._pause_menu.shown:
+        if self.current_view == self._pause_menu:
             self.show_view(self._current_selected_view)
-            self._pause_menu.shown = False
         else:
             self.show_view(self._pause_menu)
-            self._pause_menu.shown = True
 
     @typing.override
     def on_key_press(self, symbol: int, modifiers: int) -> EVENT_HANDLE_STATE:
