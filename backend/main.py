@@ -48,10 +48,15 @@ class Blackjack(GameLobbyBase):
     async def on_ready(self, _: events.ReadyEvent, ws: WebsocketClient) -> None:
         await self.send_event(events.UpdateMoney(money=self.money), ws)
 
+    @add_event_listener(events.PrintText)
+    async def on_print(self, event: events.PrintText, ws: WebsocketClient) -> None:
+        logger.info(event.text)
+        await self.send_event(events.PrintText(text="Hallo"), ws)
+
     @property
     @typing.override
     def max_num_clients(self) -> int:
-        return 2
+        return 4
 
     @staticmethod
     @typing.override

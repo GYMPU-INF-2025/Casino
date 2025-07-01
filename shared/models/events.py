@@ -25,5 +25,9 @@ class ReadyEvent(BaseEvent):
     client_id: snowflakes.Snowflake
     num_clients: int
 
+class PrintText(BaseEvent):
+    text: str
+    text2: str
+
 class UpdateMoney(BaseEvent):
     money: int
