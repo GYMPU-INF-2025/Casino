@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import http
 import pathlib
+import random
 import typing
 
 import aiosqlite
@@ -58,6 +59,36 @@ class Blackjack(GameLobbyBase):
     def endpoint() -> str:
         return "blackjack"
 
+SlotSymbols = ["a", "b", "c", "d", "e", "f"]
+Prizes = {
+    "a" : 10,
+    "b" : 20,
+    "c" : 50,
+    "d" : 100,
+    "e" : 200,
+    "f" : 500,
+}
+
+class slot(GameLobbyBase):
+
+    def __init__(self, *, lobby_id: str, queries: Queries) -> None:
+        super().__init__(lobby_id=lobby_id, queries=queries)
+
+        self.money = 100
+        spin_cost = 5
+    def spin(self, spin_cost=5):
+        if self.money< spin_cost:
+            return None, 0, "zu wenig Geld"
+        self.money = self.money-spin_cost
+        outcome = [random.choice(SlotSymbols) for _ in range(3)]
+
+        win = 0
+        if outcome[0] == outcome [1] == outcome [2]:
+            win = Prizes.get(outcome[0], 0)
+        elif outcome [0] == outcome[1]  or outcome[1] == outcome [2] or outcome[0] == outcome [2]:
+            win = 2
+            self.money += win
+            return outcome, win, None
 
 PROJECT_DIR = pathlib.Path(__file__).parent.parent
 DB_DIR = PROJECT_DIR / "db"
