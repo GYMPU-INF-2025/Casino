@@ -32,7 +32,7 @@ class ChickengameView(BaseGUI):
         self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 8
         self._steps_width = (c.MENU_WIDTH - c.MENU_SPACING) / 21
         self.stake = int(0)
-        self.money = int(0)
+        self.total = int(0)
 
         self.grid = arcade.gui.UIGridLayout(
             column_count=0, row_count=2, horizontal_spacing=c.MENU_SPACING, vertical_spacing=c.MENU_SPACING
@@ -57,7 +57,7 @@ class ChickengameView(BaseGUI):
         play = arcade.gui.UIFlatButton(text="GO!", width=self._button_width)
 
         stake = arcade.gui.UITextArea(text=str(int(self.stake)), width=c.MENU_SPACING)
-        total = arcade.gui.UITextArea(text=str(int(self.money)), width=c.MENU_SPACING)
+        total = arcade.gui.UITextArea(text=str(int(self.total)), width=c.MENU_SPACING)
 
         self.grid.add(child=self.steps, column=0, row=1)
         self.grid.add(child=self.select, column=0, row=2)
