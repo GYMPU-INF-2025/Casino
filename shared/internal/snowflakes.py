@@ -18,6 +18,9 @@ SEQUENCE_MASK: typing.Final[int] = 0xFFF
 WORKER_ID_MASK: typing.Final[int] = 0x3FF
 
 
+__all__ = ("Snowflake", "Snowflakeish", "generate_snowflake")
+
+
 def epoch_to_datetime(epoch: int) -> datetime.datetime:
     """Convert the epoch used for snowflakes to a datetime object."""
     return datetime.datetime.fromtimestamp(epoch / 1_000, datetime.UTC) + EPOCH
