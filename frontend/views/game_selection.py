@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import typing
 
 import arcade
@@ -15,8 +14,6 @@ if typing.TYPE_CHECKING:
     from collections.abc import Callable
 
     from frontend.window import MainWindow
-
-logger = logging.getLogger(__name__)
 
 
 class GameSelectionView(BaseGUI):
