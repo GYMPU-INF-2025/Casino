@@ -16,13 +16,29 @@ from frontend.ui import Label
 from frontend.views.base import BaseGUI
 
 if typing.TYPE_CHECKING:
+    import collections.abc
+
     from frontend.window import MainWindow
     from shared.models import responses
 
 logger = logging.getLogger(__name__)
 
+T = typing.TypeVar("T")
+
+
+def try_get(iterable: collections.abc.Sequence[T], index: int) -> T | None:
+    try:
+        return iterable[index]
+    except IndexError:
+        return None
+
 
 class LobbysView(BaseGUI):
+    """View that shows every available lobby for a game mode and lets you pick & join a lobby.
+
+    Authors: Christopher
+    """
+
     def __init__(self, window: MainWindow, game_mode: c.GameModes) -> None:
         super().__init__(window=window)
         self._game_mode = game_mode
@@ -49,6 +65,7 @@ class LobbysView(BaseGUI):
         control_buttons.add(Button(text="Refresh", style=ButtonStyle(), width=170)).set_handler(
             "on_click", lambda _: self.refresh_lobbys()
         )
+        self._time_since_refresh = 0
         self.refresh_ui()
 
     def on_lobby_join_press(self, _: arcade.gui.UIOnClickEvent) -> None:
@@ -79,10 +96,14 @@ class LobbysView(BaseGUI):
     def refresh_lobbys(self) -> None:
         selected_lobby_id = self._lobbys[self._selected - 1].id if self._selected else None
         self._lobbys = self.window.net_client.rest.get_lobbys(game=self._game_mode.value)
+        self._time_since_refresh = 0
         if selected_lobby_id:
             for i, lobby in enumerate(self._lobbys):
-                if lobby.id == selected_lobby_id:
+                if lobby.id == selected_lobby_id and not lobby.full:
                     self._selected = i + 1
+                    break
+                if lobby.id == selected_lobby_id and lobby.full:
+                    self._selected = None
                     break
                 if i == len(self._lobbys) - 1:
                     self._selected = None
@@ -113,6 +134,9 @@ class LobbysView(BaseGUI):
                 continue
 
             if row.rect.point_in_rect(point=(x, y)):
+                if (lobby := try_get(self._lobbys, i - 1)) and lobby.full:
+                    self.hide_border(row_num=i)
+                    continue
                 self.show_border(row_num=i)
             elif i != self._selected:
                 self.hide_border(row_num=i)
@@ -132,6 +156,8 @@ class LobbysView(BaseGUI):
             if self._selected == i:
                 self.hide_border(row_num=i)
                 self._selected = None
+            elif (lobby := try_get(self._lobbys, i - 1)) and lobby.full:
+                return
             else:
                 if self._selected is not None:
                     self.hide_border(row_num=self._selected)
@@ -141,6 +167,10 @@ class LobbysView(BaseGUI):
     @typing.override
     def on_update(self, delta_time: float) -> None:
         self._join_button.disabled = self._selected is None
+        self._time_since_refresh += delta_time
+        if self._time_since_refresh >= c.LOBBY_REFRESH_SECONDS:
+            self.refresh_lobbys()
+            # TODO: Check if this works
 
     @typing.override
     def on_show_view(self) -> None:
