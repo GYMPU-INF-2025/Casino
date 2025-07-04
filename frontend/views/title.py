@@ -16,6 +16,13 @@ if typing.TYPE_CHECKING:
 
 
 class TitleView(BaseGameView):
+    """View that shows when starting the game.
+
+    This is just a black screen that shows a text, which slowly fades in.
+    When pressing any button (mouse or keyboard) the view is skipped and
+    the MainMenu is shown.
+    """
+
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
 
