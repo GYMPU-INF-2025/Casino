@@ -76,6 +76,11 @@ class slot(GameLobbyBase):
 
         self.money = 100
         spin_cost = 5
+
+    @add_event_listener(events.StartSpin)
+    def on_spin(self, event: events.StartSpin):
+        self.spin(event.einsatz)
+
     def spin(self, spin_cost=5):
         if self.money< spin_cost:
             return None, 0, "zu wenig Geld"

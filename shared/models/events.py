@@ -27,3 +27,6 @@ class ReadyEvent(BaseEvent):
 
 class UpdateMoney(BaseEvent):
     money: int
+
+class StartSpin(BaseEvent):
+    einsatz: int
