@@ -26,30 +26,20 @@ logger = logging.getLogger(__name__)
 class GameSelectionView(BaseGUI):
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
-        self._button_width = (c.MENU_WIDTH - c.MENU_SPACING) / 2
 
-        self.grid = arcade.gui.UIGridLayout(
-            column_count=2, row_count=4, horizontal_spacing=c.MENU_SPACING, vertical_spacing=c.MENU_SPACING
-        )
         self.anchor = self.ui.add(arcade.gui.UIAnchorLayout())
+        self.box = self.anchor.add(arcade.gui.UIBoxLayout(space_between=c.MENU_SPACING))
 
+        for attr in c.GameModes:
+            new_button = Button(text=attr.value.capitalize(), width=c.MENU_WIDTH)
+            self.box.add(new_button)
+            new_button.set_handler("on_click", self.button_callback(attr))
 
-        button = []
-        i = 0
-        for attr in dir(c.GameModes.__members__):
-                print(f"Property: {attr}")
-                i += 1
-                new_button = Button(text=attr)
-                button.append(new_button)
-                self.grid.add(new_button, column=1, row=i)
+    def button_callback(self, gameMode: c.GameModes):
+        def inner_callback(_: arcade.gui.UIOnClickEvent) -> None:
+            self.window.show_lobbys(gameMode)
 
+        return inner_callback
 
-
-
-
-        self.error_text = arcade.gui.UILabel(
-            text="", text_color=color.RED, width=c.MENU_WIDTH, align=c.Alignment.CENTER, font_size=c.MENU_FONT_SIZE - 10
-        )
-        self.grid.add(self.error_text, column=0, column_span=2, row=3)
-
-        self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
+    def can_pause(self) -> bool:
+        return True

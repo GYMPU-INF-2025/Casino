@@ -86,8 +86,11 @@ class MainWindow(arcade.Window):
             self._show_view(self._login_menu)
 
     def show_game(self, game_mode: c.GameModes, lobby_id: str) -> None:
-        game_view = GameView(window=self, game_mode=game_mode, lobby_id=lobby_id)
-        self._show_view(view=game_view)
+        match game_mode:
+            case c.GameModes.BLACKJACK:
+                self._show_view(GameView(window=self, game_mode=game_mode, lobby_id=lobby_id))
+            case _:
+                raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
     def show_game_selection(self):
         game_view = GameSelectionView(window=self)
