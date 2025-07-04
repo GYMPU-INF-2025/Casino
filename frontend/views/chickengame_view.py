@@ -60,27 +60,27 @@ class ChickengameView(BaseGUI):
         total_textbox = arcade.gui.UITextArea(text='Money ' + str(int(self.total)), width=c.MENU_SPACING)
 
         @minus.event("on_click")
-        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+        def on_minus_button(_: arcade.gui.UIOnClickEvent) -> None:
             return
 
         @plus.event("on_click")
-        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+        def on_plus_button(_: arcade.gui.UIOnClickEvent) -> None:
             return
 
         @diff_easy.event("on_click")
-        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+        def on_diff_easy_button(_: arcade.gui.UIOnClickEvent) -> None:
             return
 
         @diff_mid.event("on_click")
-        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+        def on_diff_mid_button(_: arcade.gui.UIOnClickEvent) -> None:
             return
 
         @diff_hard.event("on_click")
-        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+        def on_diff_hard_button(_: arcade.gui.UIOnClickEvent) -> None:
             return
 
         @play.event("on_click")
-        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+        def on_play_button(_: arcade.gui.UIOnClickEvent) -> None:
             return
 
         self.grid.add(child=self.steps, column=0, row=1)
