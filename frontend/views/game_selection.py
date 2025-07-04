@@ -20,6 +20,14 @@ logger = logging.getLogger(__name__)
 
 
 class GameSelectionView(BaseGUI):
+    """View that allows selecting the game mode.
+
+    The buttons for each game are autopopulated for every element in the
+    `GameModes` enum.
+
+    Authors: Quirin, Christopher
+    """
+
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
 
@@ -32,6 +40,8 @@ class GameSelectionView(BaseGUI):
             new_button.set_handler("on_click", self.button_callback(attr))
 
     def button_callback(self, game_mode: c.GameModes) -> Callable[[arcade.gui.UIOnClickEvent], None]:
+        """Callback function that shows the lobby view for the wanted game mode."""
+
         def inner_callback(_: arcade.gui.UIOnClickEvent) -> None:
             self.window.show_lobbys(game_mode)
 
