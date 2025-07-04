@@ -9,7 +9,6 @@ import arcade.gui
 
 import frontend.constants as c
 from frontend.views.base import BaseGUI
-from frontend.views.game_selection import GameSelectionView
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow

@@ -6,19 +6,15 @@ import typing
 import arcade
 import arcade.gui
 import arcade.gui.experimental
-from arcade import color
 
 import frontend.constants as c
-from frontend import ui
-from frontend.ui import BoxLayout
 from frontend.ui import Button
-from frontend.ui import ButtonStyle
-from frontend.ui import Label
 from frontend.views.base import BaseGUI
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Callable
+
     from frontend.window import MainWindow
-    from shared.models import responses
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +31,13 @@ class GameSelectionView(BaseGUI):
             self.box.add(new_button)
             new_button.set_handler("on_click", self.button_callback(attr))
 
-    def button_callback(self, gameMode: c.GameModes):
+    def button_callback(self, game_mode: c.GameModes) -> Callable[[arcade.gui.UIOnClickEvent], None]:
         def inner_callback(_: arcade.gui.UIOnClickEvent) -> None:
-            self.window.show_lobbys(gameMode)
+            self.window.show_lobbys(game_mode)
 
         return inner_callback
 
+    @property
+    @typing.override
     def can_pause(self) -> bool:
         return True
