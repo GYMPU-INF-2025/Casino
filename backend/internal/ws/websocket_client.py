@@ -45,6 +45,10 @@ class WebsocketClient:
     def client_id(self) -> Snowflake:
         return self._client_id
 
+    @property
+    def user_id(self) -> Snowflake:
+        return self._user_id
+
     @classmethod
     def new_client(cls, ws: _WebsocketTransport, request: sanic.Request, user_id: Snowflake) -> WebsocketClient:
         return cls(ws=ws, request=request, user_id=user_id, client_id=generate_snowflake())
