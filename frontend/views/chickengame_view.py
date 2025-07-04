@@ -56,8 +56,32 @@ class ChickengameView(BaseGUI):
         diff_hard = arcade.gui.UIFlatButton(text="Hard", width=self._button_width)
         play = arcade.gui.UIFlatButton(text="GO!", width=self._button_width)
 
-        stake = arcade.gui.UITextArea(text=str(int(self.stake)), width=c.MENU_SPACING)
-        total = arcade.gui.UITextArea(text=str(int(self.total)), width=c.MENU_SPACING)
+        stake_textbox = arcade.gui.UITextArea(text='Einsatz: ' + str(int(self.stake)), width=c.MENU_SPACING)
+        total_textbox = arcade.gui.UITextArea(text='Money ' + str(int(self.total)), width=c.MENU_SPACING)
+
+        @minus.event("on_click")
+        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+            return
+
+        @plus.event("on_click")
+        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+            return
+
+        @diff_easy.event("on_click")
+        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+            return
+
+        @diff_mid.event("on_click")
+        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+            return
+
+        @diff_hard.event("on_click")
+        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+            return
+
+        @play.event("on_click")
+        def on_logout_button(_: arcade.gui.UIOnClickEvent) -> None:
+            return
 
         self.grid.add(child=self.steps, column=0, row=1)
         self.grid.add(child=self.select, column=0, row=2)
