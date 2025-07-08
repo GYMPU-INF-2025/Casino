@@ -18,6 +18,7 @@ from frontend.views.game_selection import GameSelectionView
 from frontend.views.game_view import GameView
 from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
+from frontend.views.chickengame_view import ChickengameView
 
 if typing.TYPE_CHECKING:
     import pathlib
@@ -49,6 +50,7 @@ class MainWindow(arcade.Window):
         self._game_selection = GameSelectionView(window=self)
 
         self._blackjack_lobby_view = LobbysView(window=self, game_mode=c.GameModes.BLACKJACK)
+        self._chickengame_view = ChickengameView(window=self, game_mode=c.GameModes.CHICKENGAME)
 
         self._current_selected_view: BaseView = self._title_view
         self._show_view(self._title_view)
@@ -100,6 +102,8 @@ class MainWindow(arcade.Window):
         match game_mode:
             case c.GameModes.BLACKJACK:
                 self._show_view(self._blackjack_lobby_view)
+            case c.GameModes.CHICKENGAME:
+                self._show_view(self._chickengame_view)
             case _:
                 raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
