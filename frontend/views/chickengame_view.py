@@ -33,7 +33,7 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ChickengameView(WebsocketView, BaseGUI):
+class ChickengameView(BaseGUI):
     def __init__(self, window: MainWindow, game_mode: c.GameModes) -> None:
         super().__init__(window=window)
 
