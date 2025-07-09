@@ -87,7 +87,9 @@ class slot(GameLobbyBase):
         self.money = self.money-spin_cost
         outcome = [random.choice(SlotSymbols) for _ in range(3)]
 
+
         win = 0
+
         if outcome[0] == outcome [1] == outcome [2]:
             win = Prizes.get(outcome[0], 0)
         elif outcome [0] == outcome[1]  or outcome[1] == outcome [2] or outcome[0] == outcome [2]:
