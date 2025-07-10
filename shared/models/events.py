@@ -27,3 +27,17 @@ class ReadyEvent(BaseEvent):
 
 class UpdateMoney(BaseEvent):
     money: int
+
+class UpdateTake(BaseEvent):
+    total: int
+    stake: int
+    take: int
+    gamemode: int
+
+class UpdateStep(BaseEvent):
+    stake: int
+    gamemode: int
+    take: int
+
+class UpdateGamemode(BaseEvent):
+    gamemode: int
