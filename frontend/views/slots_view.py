@@ -52,6 +52,7 @@ class SlotsView(WebsocketView):
     def button2_on_press(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.send_event(events.StartSpin(einsatz=20))
 
+
     def kein_Geld(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.message_Label.visible.text ="Nicht genug Geld!"
         self.message_Label.visible=True

@@ -74,17 +74,19 @@ class slot(GameLobbyBase):
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
 
-        self.money = 100
+        self.mney = 100
         spin_cost = 5
 
     @add_event_listener(events.StartSpin)
     def on_spin(self, event: events.StartSpin):
         self.spin(event.einsatz)
 
-    def spin(self, spin_cost=5):
-        if self.money< spin_cost:
+    def spin(self, spin_cost):
+        if self.mney< spin_cost:
+            self.broadcast_event(events.StartSpin(spin_cost))
             return None, 0, "zu wenig Geld"
-        self.money = self.money-spin_cost
+
+        self.mney = self.mney-spin_cost
         outcome = [random.choice(SlotSymbols) for _ in range(3)]
 
 
@@ -94,7 +96,7 @@ class slot(GameLobbyBase):
             win = Prizes.get(outcome[0], 0)
         elif outcome [0] == outcome[1]  or outcome[1] == outcome [2] or outcome[0] == outcome [2]:
             win = 2
-            self.money += win
+            self.mney += win
             return outcome, win, None
 
 PROJECT_DIR = pathlib.Path(__file__).parent.parent
