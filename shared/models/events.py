@@ -30,3 +30,9 @@ class UpdateMoney(BaseEvent):
 
 class StartSpin(BaseEvent):
     einsatz: int
+
+class kein_Spin(BaseEvent):
+    einsatz: int
+
+class Spin_Animation(BaseEvent):
+    einsatz: int
