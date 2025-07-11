@@ -52,9 +52,30 @@ class Alignment(enum.StrEnum):
     BOTTOM = "bottom"
 
 
-class GameModes(enum.StrEnum):
-    BLACKJACK = "blackjack"
-    SLOTS = "slots"
+class GameModes(enum.Enum):
+    """Enum that holds all the available game modes.
+
+    The first value is the endpoint under which the client tries to connect to the backend,
+    the second value is if the game mode is a singleplayer game. This can later be used to
+    automatically create lobby's and joining them for singleplayer games.
+
+    Authors: Christopher
+    """
+
+    BLACKJACK = "blackjack", False
+    SLOTS = "slots", True
+
+    def __init__(self, _: str, singleplayer: bool) -> None:
+        self._singleplayer = singleplayer
+
+    def __new__(cls: type[GameModes], endpoint: str, _: bool) -> GameModes:
+        obj = object.__new__(cls)
+        obj._value_ = endpoint
+        return obj
+
+    @property
+    def singleplayer(self) -> bool:
+        return self._singleplayer
 
 
 BACKEND_URL = "http://127.0.0.1"

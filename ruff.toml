@@ -58,6 +58,10 @@ ignore = [
 "frontend/old_main.py" = [
     "ALL"
 ]
+"frontend/constants.py" = [
+    "FBT001",
+    "PYI034"
+]
 
 
 [lint.isort]
