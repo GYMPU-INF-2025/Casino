@@ -91,6 +91,8 @@ class MainWindow(arcade.Window):
         match game_mode:
             case c.GameModes.BLACKJACK:
                 self._show_view(GameView(window=self, game_mode=game_mode, lobby_id=lobby_id))
+            case c.GameModes.SLOTS:
+                self._show_view(SlotsView(window=self, game_mode=game_mode, lobby_id=lobby_id))
             case _:
                 raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
