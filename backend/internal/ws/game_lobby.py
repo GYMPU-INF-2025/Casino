@@ -9,7 +9,6 @@ import typing
 import msgspec
 from sanic.log import logger
 
-from backend.db.models import User
 from shared.internal import Snowflake
 from shared.internal.hooks import decode_hook
 from shared.internal.hooks import encode_hook
@@ -21,6 +20,7 @@ if typing.TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Coroutine
 
+    from backend.db.models import User
     from backend.db.queries import Queries
     from backend.internal.ws import WebsocketClient
     from shared.models.internal import WebSocketPayload
@@ -47,7 +47,6 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
         self._events: ListenerMapT[events.BaseEvent] = {}
 
     async def get_user_by_client(self, client: Snowflake | WebsocketClient) -> User:
-        user = User | None
         if isinstance(client, Snowflake):
             user = await self.queries.get_user_by_id(id_=self._clients[client].user_id)
         else:
