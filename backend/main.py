@@ -12,6 +12,7 @@ import sanic
 from sanic.log import logger
 
 from backend.authentication import router as auth_router
+from backend.chickengame import Chickengame
 from backend.db import models
 from backend.db.queries import Queries
 from backend.dependencys import get_current_user
@@ -88,6 +89,7 @@ async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
 
 ws_endpoints = WebsocketEndpointsManager(app=app)
 ws_endpoints.add_lobby(game_lobby_type=Blackjack)
+ws_endpoints.add_lobby(game_lobby_type=Chickengame)
 
 error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 

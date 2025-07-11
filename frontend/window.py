@@ -50,7 +50,6 @@ class MainWindow(arcade.Window):
         self._game_selection = GameSelectionView(window=self)
 
         self._blackjack_lobby_view = LobbysView(window=self, game_mode=c.GameModes.BLACKJACK)
-        self._chickengame_view = ChickengameView(window=self, game_mode=c.GameModes.CHICKENGAME)
 
         self._current_selected_view: BaseView = self._title_view
         self._show_view(self._title_view)
@@ -92,6 +91,8 @@ class MainWindow(arcade.Window):
         match game_mode:
             case c.GameModes.BLACKJACK:
                 self._show_view(GameView(window=self, game_mode=game_mode, lobby_id=lobby_id))
+            case c.GameModes.CHICKENGAME:
+                self._show_view(ChickengameView(window=self, game_mode=game_mode, lobby_id=lobby_id))
             case _:
                 raise TypeError(f"No lobbys view for game mode: {game_mode}")
 

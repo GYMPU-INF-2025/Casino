@@ -11,6 +11,7 @@ from arcade.gui.widgets.buttons import UITextureButton
 
 from backend.internal.ws import add_event_listener
 from frontend.constants import SCREEN_HEIGHT, SCREEN_WIDTH, Alignment, GameModes
+from frontend.internal.websocket_view import WebsocketView
 from frontend.views.base import BaseGUI
 from shared.models import events
 
@@ -21,9 +22,10 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ChickengameView(BaseGUI):
-    def __init__(self, window: MainWindow, game_mode: GameModes) -> None:
-        super().__init__(window=window)
+class ChickengameView(WebsocketView):
+    def __init__(self, window: MainWindow, game_mode: GameModes, lobby_id: str) -> None:
+        super().__init__(window=window, game_mode=game_mode, lobby_id=lobby_id)
+        self.ui = arcade.gui.UIManager()
 
         self._button_width = SCREEN_WIDTH / 6
         self._button_height = SCREEN_HEIGHT / 6
@@ -162,7 +164,6 @@ class ChickengameView(BaseGUI):
         self.gamemode_label.text = f'Gamemode: {self.gamemode_list[self.gamemode]}'
         self.total_label.text = f'Money: {int(self.total)}'
         self.take_button.text = f"Take: {self.take}"
-        self.on_draw()
 
     def clear_grids(self) -> None:
         self.grid_top.clear()
@@ -179,3 +180,13 @@ class ChickengameView(BaseGUI):
     @typing.override
     def can_pause(self) -> bool:
         return True
+
+    def on_draw(self) -> None:
+        super().on_draw()
+        self.ui.draw()
+
+    def on_show_view(self) -> None:
+        self.ui.enable()
+
+    def on_hide_view(self) -> None:
+        self.ui.disable()
