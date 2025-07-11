@@ -99,6 +99,16 @@ class slot(GameLobbyBase):
             self.mney += win
             return outcome, win, None
 
+    @property
+    @typing.override
+    def max_num_clients(self) -> int:
+        return 1
+
+    @staticmethod
+    @typing.override
+    def endpoint() -> str:
+        return "slots"
+
 PROJECT_DIR = pathlib.Path(__file__).parent.parent
 DB_DIR = PROJECT_DIR / "db"
 
@@ -128,6 +138,7 @@ async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
 
 ws_endpoints = WebsocketEndpointsManager(app=app)
 ws_endpoints.add_lobby(game_lobby_type=Blackjack)
+ws_endpoints.add_lobby(game_lobby_type=slot)
 
 error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
