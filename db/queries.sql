@@ -15,4 +15,4 @@ VALUES (?, ?, ?, ?);
 -- name: UpdateUserMoney :exec
 UPDATE users
 SET money = ?
-WHERE id = ?
+WHERE id = ?;
