@@ -11,3 +11,8 @@ WHERE users.username = ?;
 -- name: CreateUser :execrows
 INSERT INTO users(id, username, password, money)
 VALUES (?, ?, ?, ?);
+
+-- name: UpdateUserMoney :exec
+UPDATE users
+SET money = ?
+WHERE id = ?

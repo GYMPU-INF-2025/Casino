@@ -20,7 +20,7 @@ sql:
           docstrings: "google"
           speedups: true
           overrides:
-            - db_type: "bigserial"
+            - db_type: "BIGSERIAL"
               py_type:
                 import: "shared.internal"
                 package: "Snowflake"
