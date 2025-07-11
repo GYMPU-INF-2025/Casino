@@ -54,6 +54,7 @@ class Alignment(enum.StrEnum):
 
 class GameModes(enum.StrEnum):
     BLACKJACK = "blackjack"
+    SLOTS = "slots"
 
 
 BACKEND_URL = "http://127.0.0.1"

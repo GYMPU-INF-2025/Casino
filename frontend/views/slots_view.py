@@ -42,8 +42,9 @@ class SlotsView(WebsocketView):
             height=40,
 
         )
-        self.message_Label.visible=False
-        self.box.add(self.message_label.with_space_around(bottom=10))
+        self.UILabel = ""
+        self.box.add(self.message_label)
+        self.message_label.center_on_screen()
         ''''''
 
     def on_button_press(self, _: arcade.gui.UIOnClickEvent) -> None:
@@ -54,10 +55,11 @@ class SlotsView(WebsocketView):
 
 
     def kein_Geld(self, _: arcade.gui.UIOnClickEvent) -> None:
-        self.message_Label.visible.text ="Nicht genug Geld!"
-        self.message_Label.visible=True
+        self.message_label.visible.text ="Nicht genug Geld!"
+        self.message_label.visible=True
+
         def hide():
-            self.message_Label.visible=False
+            self.message_label.visible=False
         threading.Timer(2.0, hide).start()
 
     def spin_animation(self, final_symbols: list[str]) -> None:
