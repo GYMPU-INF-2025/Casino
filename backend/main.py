@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import http
 import pathlib
+import random
 import typing
 
 import aiosqlite
@@ -27,6 +28,7 @@ from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
 from shared.models import events
+from shared.models.events import Spin_Animation
 from shared.models.responses import Success
 from shared.models.responses import Test
 
@@ -58,6 +60,52 @@ class Blackjack(GameLobbyBase):
     def endpoint() -> str:
         return "blackjack"
 
+SlotSymbols = ["a", "b", "c", "d", "e", "f"]
+Prizes = {
+    "a" : 10,
+    "b" : 20,
+    "c" : 50,
+    "d" : 100,
+    "e" : 200,
+    "f" : 500,
+}
+
+class slot(GameLobbyBase):
+
+    def __init__(self, *, lobby_id: str, queries: Queries) -> None:
+        super().__init__(lobby_id=lobby_id, queries=queries)
+
+        self.money = 30
+        self.spin_cost = 5
+
+    @add_event_listener(events.StartSpin)
+    async def on_spin(self, event: events.StartSpin, _: WebsocketClient):
+        if self.money < self.spin_cost:
+            await self.broadcast_event(events.kein_Geld(self.spin_cost))
+            return
+
+        self.money = self.money - self.spin_cost
+        outcome = [random.choice(SlotSymbols) for _ in range(3)]
+        await self.broadcast_event(Spin_Animation(final_symbols=outcome))
+
+        win = 0
+
+        if outcome[0] == outcome[1] == outcome[2]:
+            win = Prizes.get(outcome[0], 0)
+        elif outcome[0] == outcome[1] or outcome[1] == outcome[2] or outcome[0] == outcome[2]:
+            win = 2
+            self.money += win
+            #return outcome, win, None
+
+    @property
+    @typing.override
+    def max_num_clients(self) -> int:
+        return 1
+
+    @staticmethod
+    @typing.override
+    def endpoint() -> str:
+        return "slots"
 
 PROJECT_DIR = pathlib.Path(__file__).parent.parent
 DB_DIR = PROJECT_DIR / "db"
@@ -88,6 +136,7 @@ async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
 
 ws_endpoints = WebsocketEndpointsManager(app=app)
 ws_endpoints.add_lobby(game_lobby_type=Blackjack)
+ws_endpoints.add_lobby(game_lobby_type=slot)
 
 error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 

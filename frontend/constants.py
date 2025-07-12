@@ -63,6 +63,7 @@ class GameModes(enum.Enum):
     """
 
     BLACKJACK = "blackjack", False
+    SLOTS = "slots", True
 
     def __init__(self, _: str, singleplayer: bool) -> None:
         self._singleplayer = singleplayer

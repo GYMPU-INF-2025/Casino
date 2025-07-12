@@ -27,3 +27,12 @@ class ReadyEvent(BaseEvent):
 
 class UpdateMoney(BaseEvent):
     money: int
+
+class StartSpin(BaseEvent):
+    einsatz: int
+
+class kein_Geld(BaseEvent):
+    einsatz: int
+
+class Spin_Animation(BaseEvent):
+    final_symbols: list[str]
