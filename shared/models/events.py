@@ -35,4 +35,4 @@ class kein_Geld(BaseEvent):
     einsatz: int
 
 class Spin_Animation(BaseEvent):
-    einsatz: int
+    Ergebnis: list

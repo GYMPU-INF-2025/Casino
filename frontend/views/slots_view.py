@@ -31,8 +31,9 @@ class SlotsView(WebsocketView):
         self.anchor = self.ui.add(arcade.gui.UIAnchorLayout(width=1000, height=500))
         self.box = self.anchor.add(arcade.gui.UIBoxLayout(height=500, width=1000))
 
-        button = self.box.add(Button(text="Test", style=ButtonStyle()))
+        '''button = self.box.add(Button(text="Test", style=ButtonStyle()))
         button.set_handler("on_click", self.on_button_press)
+        '''
         button = self.box.add(Button(text="turn", style=ButtonStyle()))
         button.set_handler( "on_click",self.on_button_press)
 
@@ -50,25 +51,44 @@ class SlotsView(WebsocketView):
         self.box.add(self.message_label)
         self.message_label.center_on_screen()
 
+        ''''''
+        from time import sleep
+
+
+
+        placeholder_label = arcade.gui.UILabel(
+            text="?  ?  ?",
+            text_color=arcade.color.BLACK,
+            font_size=40
+        )
+        self.box.add(placeholder_label)
+
+
+
+
 
     def on_button_press(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.send_event(events.StartSpin(einsatz=20))
 
-    def button2_on_press(self, _: arcade.gui.UIOnClickEvent) -> None:
-        self.send_event(events.StartSpin(einsatz=20))
+    '''def button2_on_press(self, _: arcade.gui.UIOnClickEvent) -> None:
+        self.send_event(events.StartSpin(einsatz=20))'''
 
     @add_event_listener(kein_Geld)
     def kein_Geld(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.message_label.text ="Nicht genug Geld!"
-
+        print("kein_Geld")
+        self.window.dispatch_event("on_draw")
         self.message_label.visible=True
+        self.window.dispatch_event("on_draw")
 
         def hide():
             self.message_label.visible=False
-        threading.Timer(2.0, hide).start()
+        threading.Timer(20, hide).start()
+        self.window.dispatch_event("on_draw")
+
 
     @add_event_listener(Spin_Animation)
-    def Spin_Animation(self, final_symbols: list[str]) -> None:
+    def Spin_Animation(self, final_symbols: list) -> None:
         from time import sleep
 
         placeholder_label = arcade.gui.UILabel(
@@ -80,10 +100,12 @@ class SlotsView(WebsocketView):
         def run_animation():
             for _ in range(15):
                 spin_result = [random.choice(["1","2","3","4","5","6"]) for _ in range(3)]
-                placeholder_label.text = " ".join(spin_result)
-                self.ui.on_draw()
+                placeholder_label.text = "".join(spin_result)
+                self.window.dispatch_event("on_draw")
                 sleep(0.05)
             placeholder_label.text = " ".join(final_symbols)
+
+            self.window.dispatch_event("on_draw")
         threading.Thread(target=run_animation).start()
 
 

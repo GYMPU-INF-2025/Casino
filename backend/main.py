@@ -75,30 +75,33 @@ class slot(GameLobbyBase):
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
 
-        self.mney = 3
+        self.mney = 2
         self.spin_cost = 5
 
     @add_event_listener(events.StartSpin)
-    def on_spin(self, event: events.StartSpin):
+    def StartSpin(self, event: events.StartSpin):
         self.spin(event.einsatz)
 
     def spin(self, spin_cost):
         if self.mney< spin_cost:
-            self.broadcast_event(events.kein_Geld(spin_cost))
+            self.send_event(events.kein_Geld(spin_cost))
             return None, 0, "zu wenig Geld"
+        else:
+            self.mney = self.mney-spin_cost
+            outcome = [random.choice(SlotSymbols) for _ in range(3)]
 
-        self.mney = self.mney-spin_cost
-        self.broadcast_event(Spin_Animation())
-        outcome = [random.choice(SlotSymbols) for _ in range(3)]
+
+            self.broadcast_event(Spin_Animation(outcome))
 
 
-        win = 0
 
-        if outcome[0] == outcome [1] == outcome [2]:
-            win = Prizes.get(outcome[0], 0)
-        elif outcome [0] == outcome[1]  or outcome[1] == outcome [2] or outcome[0] == outcome [2]:
-            win = 2
-            self.mney += win
+            win = 0
+
+            if outcome[0] == outcome [1] == outcome [2]:
+                win = Prizes.get(outcome[0], 0)
+            elif outcome [0] == outcome[1]  or outcome[1] == outcome [2] or outcome[0] == outcome [2]:
+                win = 2
+                self.mney += win
             return outcome, win, None
 
     @property
