@@ -75,34 +75,27 @@ class slot(GameLobbyBase):
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
 
-        self.mney = 2
+        self.money = 30
         self.spin_cost = 5
 
     @add_event_listener(events.StartSpin)
-    def StartSpin(self, event: events.StartSpin):
-        self.spin(event.einsatz)
+    async def on_spin(self, event: events.StartSpin, _: WebsocketClient):
+        if self.money < self.spin_cost:
+            await self.broadcast_event(events.kein_Geld(self.spin_cost))
+            return
 
-    def spin(self, spin_cost):
-        if self.mney< spin_cost:
-            self.send_event(events.kein_Geld(spin_cost))
-            return None, 0, "zu wenig Geld"
-        else:
-            self.mney = self.mney-spin_cost
-            outcome = [random.choice(SlotSymbols) for _ in range(3)]
+        self.money = self.money - self.spin_cost
+        outcome = [random.choice(SlotSymbols) for _ in range(3)]
+        await self.broadcast_event(Spin_Animation(final_symbols=outcome))
 
+        win = 0
 
-            self.broadcast_event(Spin_Animation(outcome))
-
-
-
-            win = 0
-
-            if outcome[0] == outcome [1] == outcome [2]:
-                win = Prizes.get(outcome[0], 0)
-            elif outcome [0] == outcome[1]  or outcome[1] == outcome [2] or outcome[0] == outcome [2]:
-                win = 2
-                self.mney += win
-            return outcome, win, None
+        if outcome[0] == outcome[1] == outcome[2]:
+            win = Prizes.get(outcome[0], 0)
+        elif outcome[0] == outcome[1] or outcome[1] == outcome[2] or outcome[0] == outcome[2]:
+            win = 2
+            self.money += win
+            #return outcome, win, None
 
     @property
     @typing.override
