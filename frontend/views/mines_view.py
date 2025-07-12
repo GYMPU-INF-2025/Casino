@@ -8,8 +8,11 @@ import arcade.gui
 from arcade.gui import UIAnchorLayout
 
 from frontend.ui import Button
+from frontend.internal.decorator import add_event_listener
 from frontend.constants import SCREEN_HEIGHT, SCREEN_WIDTH, Alignment, GameModes
 from frontend.internal.websocket_view import WebsocketView
+from shared.models import events
+from shared.models.events import GameOver
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
@@ -22,59 +25,106 @@ class MinesView(WebsocketView):
         self.ui = arcade.gui.UIManager()
 
         self.stake = 0
-        self.balance = 0
+        self.stake_text = None
+        self.balance = 1000
+        self.balance_text = None
         self.start_game = Button()
         self.mines_field = [[] for _ in range(5)]
+        self.is_game_started = False
 
-        # Erstelle separate Anchors für die verschiedenen UI-Bereiche
+        self.head_line = arcade.gui.UILabel(
+            text="Mines",
+            width=SCREEN_WIDTH,
+            align="center",
+            font_size=25
+        )
+
         self.mines_anchor = None
         self.stake_anchor = None
+        self.box = None
 
         self.create_stake_controls()
         self.create_mines_field()
 
     def create_stake_controls(self) -> None:
-        # Erstelle einen neuen Anchor für die Stake-Kontrollen
         self.stake_anchor = self.ui.add(UIAnchorLayout(width=SCREEN_WIDTH, height=SCREEN_HEIGHT))
 
-        # Container für Stake-Controls
         stake_container = arcade.gui.UIBoxLayout(
             align=Alignment.CENTER,
             space_between=10,
             vertical=True
         )
 
+        text_container = arcade.gui.UIBoxLayout(
+            align=Alignment.CENTER,
+            space_between=20,
+            vertical=False
+        )
+
         self.stake_text = arcade.gui.UILabel(
             text=f"Stake: {self.stake}",
             width=150,
-            align="center"
+            align="center",
+            font_size=20
         )
-        stake_container.add(self.stake_text)
+
+        self.balance_text = arcade.gui.UILabel(
+            text=f"Balance: {self.balance}",
+            width=150,
+            align="center",
+            font_size=20
+        )
+
+        text_container.add(self.stake_text)
+        text_container.add(self.balance_text)
+
+        stake_container.add(text_container)
 
         increase_stake = Button(
             text="+ Stake",
+            width=150,
+            height=40
         )
         increase_stake.on_click = self.on_increase_stake
         stake_container.add(increase_stake)
 
         decrease_stake = Button(
             text="- Stake",
+            width=150,
+            height=40
         )
         decrease_stake.on_click = self.on_decrease_stake
         stake_container.add(decrease_stake)
+        
+        self.start_game = Button(
+            text="Start Game",
+            width=200,
+            height=75
+        )
+        self.start_game.on_click = self.on_start_game
+        stake_container.add(self.start_game)
 
-        # Füge den Container zum Anchor hinzu und positioniere ihn links
         self.stake_anchor.add(
             child=stake_container,
             anchor_x="left",
             anchor_y="center",
-            align_x=150
+            align_x=300
         )
 
     def create_mines_field(self) -> None:
         self.mines_anchor = self.ui.add(UIAnchorLayout(width=SCREEN_WIDTH, height=SCREEN_HEIGHT))
 
         self.box = arcade.gui.UIBoxLayout(
+            align=Alignment.CENTER,
+            space_between=10,
+            vertical=True
+        )
+
+
+        self.box.add(self.head_line)
+
+
+        mines_grid = arcade.gui.UIBoxLayout(
             align=Alignment.CENTER,
             space_between=10,
             vertical=False
@@ -84,9 +134,12 @@ class MinesView(WebsocketView):
             row = arcade.gui.UIBoxLayout(align=Alignment.CENTER, space_between=10)
             for j in range(5):
                 button = Button(text="?", width=75, height=75)
+                button.on_click = self.on_mine_clicked
                 row.add(button)
                 self.mines_field[i].append(button)
-            self.box.add(row)
+            mines_grid.add(row)
+
+        self.box.add(mines_grid)
 
         self.mines_anchor.add(
             child=self.box,
@@ -96,14 +149,59 @@ class MinesView(WebsocketView):
 
         self.ui.enable()
 
-    def on_increase_stake(self, event) -> None:
-        self.stake += 1
+    def on_increase_stake(self, button) -> None:
+        if self.balance < 100 or self.is_game_started:
+            return
+        self.balance -= 100
+        self.stake += 100
+        self.balance_text.text = f"Balance: {self.balance}"
         self.stake_text.text = f"Stake: {self.stake}"
 
-    def on_decrease_stake(self, event) -> None:
-        if self.stake > 0:
-            self.stake -= 1
-            self.stake_text.text = f"Stake: {self.stake}"
+        stake_event = events.ChangeStake(amount=100)
+        self.send_event(stake_event)
+
+    def on_decrease_stake(self, button) -> None:
+        if self.stake < 100 or self.is_game_started:
+            return
+        self.balance += 100
+        self.stake -= 100
+        self.balance_text.text = f"Balance: {self.balance}"
+        self.stake_text.text = f"Stake: {self.stake}"
+
+        stake_event = events.ChangeStake(amount=-100)
+        self.send_event(stake_event)
+
+    def on_start_game(self, button) -> None:
+        if self.stake <= 0 or self.is_game_started:
+            return
+        self.is_game_started = True
+        self.start_game.text = "Game Started"
+        self.head_line.text = "Multiplier: 1.0"
+
+    def on_mine_clicked(self, button) -> None:
+        if not self.is_game_started:
+            return
+
+        # Finde die Position des geklickten Buttons im mines_field
+        for i in range(5):
+            for j in range(5):
+                if self.mines_field[i][j] == button.source:
+                    mine_event = events.MineClicked(x=j, y=i)
+                    self.send_event(mine_event)
+
+    @add_event_listener(events.MineClickedResponse)
+    def on_mine_clicked_response(self, event: events.MineClickedResponse) -> None:
+        self.mines_field[event.y][event.x].text = "X"
+        self.mines_field[event.y][event.x].disabled = True
+        self.head_line.text = f"Multiplier: {event.multiplier:.1f}"
+
+    @add_event_listener(events.GameOver)
+    def on_game_over(self, event: GameOver) -> None:
+        self.is_game_started = False
+        self.start_game.text = "Start Game"
+        self.mines_field[event.y][event.x].text = "!"
+        self.stake = 0
+        self.head_line.text = f"Game Over!"
 
     @property
     @typing.override

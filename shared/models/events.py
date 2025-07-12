@@ -27,3 +27,22 @@ class ReadyEvent(BaseEvent):
 
 class UpdateMoney(BaseEvent):
     money: int
+
+
+class ChangeStake(BaseEvent):
+    amount: int
+
+class MineClicked(BaseEvent):
+    x: int
+    y: int
+
+class MineClickedResponse(BaseEvent):
+    x: int
+    y: int
+    multiplier: float
+
+class GameOver(BaseEvent):
+    x: int
+    y: int
+
+
