@@ -29,6 +29,7 @@ from shared.models import ErrorResponse
 from shared.models import events
 from shared.models.responses import Success
 from shared.models.responses import Test
+from backend.mines import Mines
 
 if typing.TYPE_CHECKING:
     import asyncio
@@ -88,6 +89,7 @@ async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
 
 ws_endpoints = WebsocketEndpointsManager(app=app)
 ws_endpoints.add_lobby(game_lobby_type=Blackjack)
+ws_endpoints.add_lobby(game_lobby_type=Mines)
 
 error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
