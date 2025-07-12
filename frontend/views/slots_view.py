@@ -8,6 +8,7 @@ import typing
 import arcade
 import arcade.gui
 from arcade.gui import UILabel
+from pymunk.examples.spiderweb import on_draw
 
 import backend.main
 from frontend.internal.decorator import add_event_listener
@@ -15,6 +16,7 @@ from frontend.internal.websocket_view import WebsocketView
 from frontend.ui import Button
 from frontend.ui import ButtonStyle
 from shared.models import events
+from shared.models.events import kein_Geld, Spin_Animation
 
 if typing.TYPE_CHECKING:
     import frontend.constants as c
@@ -34,6 +36,8 @@ class SlotsView(WebsocketView):
         button = self.box.add(Button(text="turn", style=ButtonStyle()))
         button.set_handler( "on_click",self.on_button_press)
 
+
+
         self.message_label = arcade.gui.UILabel(
             text="",
             text_color=arcade.color.RED,
@@ -45,7 +49,7 @@ class SlotsView(WebsocketView):
         self.UILabel = ""
         self.box.add(self.message_label)
         self.message_label.center_on_screen()
-        ''''''
+
 
     def on_button_press(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.send_event(events.StartSpin(einsatz=20))
@@ -53,16 +57,18 @@ class SlotsView(WebsocketView):
     def button2_on_press(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.send_event(events.StartSpin(einsatz=20))
 
-
+    @add_event_listener(kein_Geld)
     def kein_Geld(self, _: arcade.gui.UIOnClickEvent) -> None:
-        self.message_label.visible.text ="Nicht genug Geld!"
+        self.message_label.text ="Nicht genug Geld!"
+
         self.message_label.visible=True
 
         def hide():
             self.message_label.visible=False
         threading.Timer(2.0, hide).start()
 
-    def spin_animation(self, final_symbols: list[str]) -> None:
+    @add_event_listener(Spin_Animation)
+    def Spin_Animation(self, final_symbols: list[str]) -> None:
         from time import sleep
 
         placeholder_label = arcade.gui.UILabel(

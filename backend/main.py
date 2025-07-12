@@ -28,6 +28,7 @@ from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
 from shared.models import events
+from shared.models.events import Spin_Animation
 from shared.models.responses import Success
 from shared.models.responses import Test
 
@@ -74,8 +75,8 @@ class slot(GameLobbyBase):
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
 
-        self.mney = 100
-        spin_cost = 5
+        self.mney = 3
+        self.spin_cost = 5
 
     @add_event_listener(events.StartSpin)
     def on_spin(self, event: events.StartSpin):
@@ -83,10 +84,11 @@ class slot(GameLobbyBase):
 
     def spin(self, spin_cost):
         if self.mney< spin_cost:
-            self.broadcast_event(events.StartSpin(spin_cost))
+            self.broadcast_event(events.kein_Geld(spin_cost))
             return None, 0, "zu wenig Geld"
 
         self.mney = self.mney-spin_cost
+        self.broadcast_event(Spin_Animation())
         outcome = [random.choice(SlotSymbols) for _ in range(3)]
 
 
