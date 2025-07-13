@@ -25,10 +25,6 @@ class BlackjackView(WebsocketView):
     def on_button(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.send_event(events.PrintText(text="Test"))
 
-    @add_event_listener(events.PrintText)
-    def on_print(self, event: events.PrintText) -> None:
-        print(event.text)
-
     def on_draw(self) -> bool | None:
         super().on_draw()
         self.ui.draw()
