@@ -17,16 +17,11 @@ from backend.db import models
 from backend.db.queries import Queries
 from backend.dependencys import get_current_user
 from backend.internal.errors import InternalServerError
-from backend.internal.serialization import deserialize
-from backend.internal.serialization import serialize
 from backend.internal.ws import WebsocketEndpointsManager
 from backend.mines import Mines
 from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
-from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
-from shared.models.responses import Success
-from shared.models.responses import Test
 
 if typing.TYPE_CHECKING:
     import asyncio
@@ -43,7 +38,10 @@ queries_: Queries | None = None
 
 @app.before_server_start
 async def add_dependency(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
-    """Create database connection."""
+    """Create database connection.
+
+    Authors: Christopher
+    """
     aiosqlite_conn = await aiosqlite.connect("sqlite.db")
     await aiosqlite_conn.executescript((DB_DIR / "schema.sql").read_text())
     global queries_
@@ -54,7 +52,10 @@ async def add_dependency(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> Non
 
 @app.after_server_stop
 async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
-    """Close the database connection when server shutting down."""
+    """Close the database connection when server shutting down.
+
+    Authors: Christopher
+    """
     if queries_ is not None:
         await queries_.conn.close()
 
@@ -68,6 +69,10 @@ error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
 @app.all_exceptions
 async def error_handler(_: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
+    """Error handler that returns a `ErrorResponse` as json for any error that occurs.
+
+    Authors: Christopher
+    """
     name: str = ""
     message: str = ""
     detail: str = ""
@@ -94,18 +99,6 @@ async def error_handler(_: sanic.Request, exception: Exception) -> sanic.HTTPRes
         status=code,
         content_type="application/json",
     )
-
-
-@app.post("/")
-@serialize()
-@deserialize()
-async def hello_world(_: sanic.Request, body: Test, query: Queries) -> Success:
-    """Hello World endpoint to test if the server is running."""
-    logger.info(body.test)
-    user = await query.get_user_by_id(id_=Snowflake(20000))
-    if user is None:
-        return Success(message="User not found!")
-    return Success(message=user.username)
 
 
 if __name__ == "__main__":

@@ -29,7 +29,10 @@ def serialize(
 ) -> typing.Callable[
     [typing.Callable[P, typing.Awaitable[StructIsh]]], typing.Callable[P, typing.Awaitable[sanic.HTTPResponse]]
 ]:
-    """Serialize the returned `msgspec.Struct` into json format."""
+    """Decorator to serialize the returned `msgspec.Struct` into json format.
+
+    Authors: Christopher
+    """
 
     def decorator(
         func: typing.Callable[P, typing.Awaitable[StructIsh]],
@@ -50,11 +53,13 @@ R = typing.TypeVar("R")
 def deserialize() -> typing.Callable[
     [typing.Callable[P, typing.Awaitable[R]]], typing.Callable[P, typing.Awaitable[R]]
 ]:
-    """Parse request body from json to a `msgspec.Struct`.
+    """Decorator to parse request body from json to a `msgspec.Struct`.
 
     Detects the first parameter annotated with a msgspec.Struct subclass,
     decodes the request body (JSON) into that struct, and injects it
     into **kwargs for the wrapped Sanic handler.
+
+    Authors: Christopher
     """
 
     def decorator(func: typing.Callable[P, typing.Awaitable[R]]) -> typing.Callable[P, typing.Awaitable[R]]:

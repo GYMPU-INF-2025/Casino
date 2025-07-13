@@ -15,6 +15,10 @@ INVALID_TOKEN_ERROR = sanic.SanicException(message="Invalid token.", status_code
 
 
 async def get_current_user(request: sanic.Request, queries: Queries) -> models.User:
+    """Dependency that checks if the request is authenticated and if so it returns the user that requested the endpoint.
+
+    Authors: Christopher, Quirin
+    """
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         raise sanic.SanicException(message="Authorization header is missing.", status_code=http.HTTPStatus.UNAUTHORIZED)

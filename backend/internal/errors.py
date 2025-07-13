@@ -17,7 +17,10 @@ __all__ = (
 
 
 class WebsocketError(RuntimeError):
-    """A base exception type for anything that can be thrown by the Websocket."""
+    """A base exception type for anything that can be thrown by the Websocket.
+
+    Author: Christopher
+    """
 
     def __init__(self, *, reason: str) -> None:
         self.reason = reason
@@ -31,7 +34,10 @@ class WebsocketError(RuntimeError):
 
 
 class WebsocketConnectionError(WebsocketError):
-    """An exception thrown if a connection issue occurs."""
+    """An exception thrown if a connection issue occurs.
+
+    Author: Christopher
+    """
 
     @typing.override
     def __str__(self) -> str:
@@ -50,7 +56,10 @@ class WebsocketCloseCode(enum.IntEnum):
 
 
 class WebsocketClientClosedConnectionError(WebsocketError):
-    """An exception raised when the client closes the connection."""
+    """An exception raised when the client closes the connection.
+
+    Author: Christopher
+    """
 
     @typing.override
     def __init__(self, *, reason: str, code: int) -> None:
@@ -66,7 +75,10 @@ class WebsocketClientClosedConnectionError(WebsocketError):
 
 
 class WebsocketTransportError(WebsocketError):
-    """An exception thrown if an issue occurs at the transport layer."""
+    """An exception thrown if an issue occurs at the transport layer.
+
+    Author: Christopher
+    """
 
     @typing.override
     def __str__(self) -> str:
@@ -84,7 +96,10 @@ class InternalServerErrorCodes(enum.IntEnum):
 
 
 class InternalServerError(sanic.ServerError):
-    """Error representing internal server errors."""
+    """Error representing internal server errors.
+
+    Author: Christopher
+    """
 
     custom_code: InternalServerErrorCodes = InternalServerErrorCodes.NON_INTENTIONAL
     message = str(InternalServerErrorCodes.NON_INTENTIONAL)

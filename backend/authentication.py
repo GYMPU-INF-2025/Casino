@@ -25,6 +25,10 @@ WRONG_CREDENTIALS_ERROR = sanic.SanicException(
 @serialization.serialize()
 @serialization.deserialize()
 async def login(_: sanic.Request, request_body: requests.LoginRequest, queries: Queries) -> responses.LoginResponse:
+    """Login endpoint where the user gets his jwt token used for authentication.
+
+    Authors: Christopher, Quirin
+    """
     db_user = await queries.get_user_by_username(username=request_body.username)
     if db_user is None:
         raise WRONG_CREDENTIALS_ERROR

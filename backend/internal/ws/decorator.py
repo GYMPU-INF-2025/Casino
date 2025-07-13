@@ -19,6 +19,11 @@ if typing.TYPE_CHECKING:
 def add_event_listener(
     event: type[EventT],
 ) -> Callable[[DecoratorCallbackT[GameLobbyT, EventT]], DecoratorCallbackT[GameLobbyT, EventT]]:
+    """Decorator used to mark a function as a callback for a certain event.
+
+    Authors: Christopher
+    """
+
     def wrapper(func: DecoratorCallbackT[GameLobbyT, EventT]) -> DecoratorCallbackT[GameLobbyT, EventT]:
         func.__event_type__ = event  # type: ignore[reportFunctionMemberAccess]
         return func

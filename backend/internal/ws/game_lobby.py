@@ -30,6 +30,13 @@ if typing.TYPE_CHECKING:
 
 
 class _GameLobbyMeta(type(abc.ABC)):
+    """Metaclass allowing for calling `__post__init__` function after an instance got created.
+
+    Also checks if the provided lobby id is valid.
+
+    Author: Christopher
+    """
+
     @typing.override
     def __call__(cls, *, lobby_id: str, queries: Queries) -> object:
         if not (len(lobby_id) == 5 and lobby_id.isalnum() and lobby_id.upper() == lobby_id):  # noqa: PLR2004
@@ -40,6 +47,13 @@ class _GameLobbyMeta(type(abc.ABC)):
 
 
 class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
+    """Base class for every game lobby, handling all the websocket logic.
+
+    To handle all the websocket logic this base class stores all the different connected clients,
+
+
+    """
+
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         self._lobby_id: str = lobby_id
         self._queries: Queries = queries
