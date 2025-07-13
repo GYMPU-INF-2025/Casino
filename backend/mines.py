@@ -60,12 +60,12 @@ class Mines(GameLobbyBase):
         if rand < self.num_mines:
             # Mine is clicked
             self.stake = 0
-            await self.send_event(events.MinesGameOver(x=event.x, y=event.y))
+            await self.send_event(events.MinesGameOver(x=event.x, y=event.y), _)
             return
 
         self.remaining_mines -= 1
         self.multiplier = self.calculate_multiplier()
-        await self.send_event(events.MinesMineClickedResponse(x=event.x, y=event.y, multiplier=self.multiplier))
+        await self.send_event(events.MinesMineClickedResponse(x=event.x, y=event.y, multiplier=self.multiplier), _)
 
     @add_event_listener(events.MinesStartGame)
     async def start_game_callback(self, _: events.MinesStartGame, ws: WebsocketClient) -> None:
