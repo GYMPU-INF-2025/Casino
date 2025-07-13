@@ -20,12 +20,15 @@ from backend.dependencys import get_current_user
 from backend.internal.errors import InternalServerError
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
+from backend.internal.ws import GameLobbyBase
 from backend.internal.ws import WebsocketEndpointsManager
 from backend.mines import Mines
 from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
+from backend.internal.ws import WebsocketClient
+from backend.internal.ws import add_event_listener
 from shared.models import events
 from shared.models.events import Spin_Animation
 from shared.models.responses import Success
@@ -64,8 +67,8 @@ class slot(GameLobbyBase):
         self.spin_cost = 5
 
     @add_event_listener(events.Moneyq)
-    def Moneyq(self):
-        self.send_event(events.Money_now(self.money))
+    def Moneyq(self, event: events.Moneyq, _ws: WebsocketClient):
+        self.send_event(events.Money_now(self.money), _ws)
 
     @add_event_listener(events.StartSpin)
     async def on_spin(self, event: events.StartSpin, _: WebsocketClient):
@@ -84,7 +87,7 @@ class slot(GameLobbyBase):
         elif outcome[0] == outcome[1] or outcome[1] == outcome[2] or outcome[0] == outcome[2]:
             win = 2
             self.money += win
-            self.broadcast_event(events.Slots_Win(self.money))
+            await self.broadcast_event(events.Slots_Win(self.money))
             return outcome, win, None
 
     @property

@@ -49,6 +49,8 @@ class Money_now(BaseEvent):
 class Moneyq(BaseEvent):
     einsatz: int
 
+class Slots_Win(BaseEvent):
+    money: int
 
 class MinesChangeStake(BaseEvent):
     amount: int
