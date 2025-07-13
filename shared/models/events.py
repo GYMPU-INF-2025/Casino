@@ -39,3 +39,6 @@ class Spin_Animation(BaseEvent):
 
 class Slots_Win(BaseEvent):
     now_money: int
+
+class Moneyq(BaseEvent):
+    money: int

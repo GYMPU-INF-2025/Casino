@@ -88,6 +88,10 @@ class slot(GameLobbyBase):
         self.money = 30
         self.spin_cost = 5
 
+    @add_event_listener(events.Moneyq)
+    def Moneyq(self):
+        return self.money
+
     @add_event_listener(events.StartSpin)
     async def on_spin(self, event: events.StartSpin, _: WebsocketClient):
         if self.money < self.spin_cost:
