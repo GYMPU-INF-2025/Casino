@@ -54,3 +54,5 @@ class Chashout(BaseEvent):
 class ChashoutResponse(BaseEvent):
     balance: int
 
+class StartGame(BaseEvent):
+    pass

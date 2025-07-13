@@ -6,6 +6,7 @@ import typing
 import arcade
 import arcade.gui
 from arcade.gui import UIAnchorLayout
+from pycparser.ply.yacc import restart
 
 from frontend.ui import Button
 from frontend.internal.decorator import add_event_listener
@@ -23,30 +24,62 @@ class MinesView(WebsocketView):
     def __init__(self, window: MainWindow, game_mode: GameModes, lobby_id: str) -> None:
         super().__init__(window=window, game_mode=game_mode, lobby_id=lobby_id)
         self.ui = arcade.gui.UIManager()
+        self._initialize_game_state()
+        self._initialize_ui_elements()
+        self.create_stake_controls()
+        self.create_mines_field()
 
+    def _initialize_game_state(self) -> None:
         self.stake = 0
-        self.stake_text = None
         self.balance = 1000
+        self.is_game_started = False
+        self.mines_field = [[] for _ in range(5)]
+
+    def _initialize_ui_elements(self) -> None:
+        self.stake_text = None
         self.balance_text = None
         self.start_game = Button()
         self.increase_stake = Button()
         self.decrease_stake = Button()
-        self.mines_field = [[] for _ in range(5)]
-        self.is_game_started = False
-
         self.head_line = arcade.gui.UILabel(
             text="Mines",
             width=SCREEN_WIDTH,
             align="center",
             font_size=25
         )
-
         self.mines_anchor = None
         self.stake_anchor = None
         self.box = None
 
-        self.create_stake_controls()
-        self.create_mines_field()
+    def _update_text_displays(self) -> None:
+        self.balance_text.text = f"Balance: {self.balance}"
+        self.stake_text.text = f"Stake: {self.stake}"
+
+    def _update_stake(self, amount: int) -> None:
+        if (amount > 0 and self.balance < abs(amount)) or \
+                (amount < 0 and self.stake < abs(amount)) or \
+                self.is_game_started:
+            return
+
+        self.balance -= amount
+        self.stake += amount
+        self._update_text_displays()
+
+        stake_event = events.ChangeStake(amount=amount)
+        self.send_event(stake_event)
+
+    def on_increase_stake(self, button) -> None:
+        self._update_stake(100)
+
+    def on_decrease_stake(self, button) -> None:
+        self._update_stake(-100)
+
+    def _toggle_stake_buttons(self, enabled: bool) -> None:
+        self.increase_stake.disabled = not enabled
+        self.decrease_stake.disabled = not enabled
+        self.increase_stake.text = "+ Stake" if enabled else "---"
+        self.decrease_stake.text = "- Stake" if enabled else "---"
+
 
     def create_stake_controls(self) -> None:
         self.stake_anchor = self.ui.add(UIAnchorLayout(width=SCREEN_WIDTH, height=SCREEN_HEIGHT))
@@ -151,27 +184,20 @@ class MinesView(WebsocketView):
 
         self.ui.enable()
 
-    def on_increase_stake(self, button) -> None:
-        if self.balance < 100 or self.is_game_started:
-            return
-        self.balance -= 100
-        self.stake += 100
-        self.balance_text.text = f"Balance: {self.balance}"
-        self.stake_text.text = f"Stake: {self.stake}"
+    @add_event_listener(events.ChashoutResponse)
+    def new_game(self, event: events.ChashoutResponse) -> None:
+        self.is_game_started = False
+        self.start_game.text = "Start Game"
+        self._toggle_stake_buttons(True)
+        self.stake = 0
+        self.balance = event.balance
+        self._update_text_displays()
+        self.head_line.text = "Mines"
 
-        stake_event = events.ChangeStake(amount=100)
-        self.send_event(stake_event)
-
-    def on_decrease_stake(self, button) -> None:
-        if self.stake < 100 or self.is_game_started:
-            return
-        self.balance += 100
-        self.stake -= 100
-        self.balance_text.text = f"Balance: {self.balance}"
-        self.stake_text.text = f"Stake: {self.stake}"
-
-        stake_event = events.ChangeStake(amount=-100)
-        self.send_event(stake_event)
+        for row in self.mines_field:
+            for button in row:
+                button.text = "?"
+                button.disabled = False
 
     def on_start_game(self, button) -> None:
         if not self.is_game_started:
@@ -180,32 +206,15 @@ class MinesView(WebsocketView):
             self.is_game_started = True
             self.start_game.text = "Cash out"
             self.head_line.text = "Multiplier: 1.0"
-            self.increase_stake.text = "---"
-            self.decrease_stake.text = "---"
-            self.increase_stake.disabled = True
-            self.decrease_stake.disabled = True
+            self._toggle_stake_buttons(False)
         else:
             self.send_event(events.Chashout())
 
-    @add_event_listener(events.ChashoutResponse)
-    def new_game(self, event: events.ChashoutResponse) -> None:
-        self.is_game_started = False
-        self.start_game.text = "Start Game"
-        self.increase_stake.text = "+ Stake"
-        self.decrease_stake.text = "- Stake"
-        self.increase_stake.disabled = False
-        self.decrease_stake.disabled = False
-        self.stake = 0
-        self.balance = event.balance
-        self.balance_text.text = f"Balance: {self.balance}"
-        self.stake_text.text = f"Stake: {self.stake}"
-        self.head_line.text = "Mines"
 
-        # Reset mines field
-        for row in self.mines_field:
-            for button in row:
-                button.text = "?"
-                button.disabled = False
+    @add_event_listener(events.UpdateMoney)
+    def on_update_money(self, event: events.UpdateMoney) -> None:
+        self.balance = event.money
+        self.balance_text.text = f"Balance: {self.balance}"
 
 
     def on_mine_clicked(self, button) -> None:
