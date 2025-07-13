@@ -34,7 +34,23 @@ class PrintText(BaseEvent):
 class UpdateMoney(BaseEvent):
     money: int
 
+class StartSpin(BaseEvent):
+    einsatz: int
 
+class kein_Geld(BaseEvent):
+    einsatz: int
+
+class Spin_Animation(BaseEvent):
+    final_symbols: list[str]
+
+class Money_now(BaseEvent):
+     money: int
+
+class Moneyq(BaseEvent):
+    einsatz: int
+
+class Slots_Win(BaseEvent):
+    money: int
 
 class MinesChangeStake(BaseEvent):
     amount: int
@@ -110,3 +126,25 @@ class BlackjackWin(BaseEvent):
 class BlackjackPlayerAction(BaseEvent):
     username: str
 
+
+class DoStep(BaseEvent):
+    stake: int
+    take: int
+    step: int
+
+class DoStepResponse(BaseEvent):
+    take: int
+
+class UpdateGamemode(BaseEvent):
+    gamemode: int
+
+class UpdateMultiplier(BaseEvent):
+    multiplier: float
+    step_text: int
+
+class UpdateMultiplierResponse(BaseEvent):
+    multiplier: float
+    step_text: int
+
+class UpdateTotal(BaseEvent):
+    total: int
