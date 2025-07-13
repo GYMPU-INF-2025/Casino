@@ -55,6 +55,7 @@ class WebsocketView(BaseGameView, metaclass=_WebsocketViewMeta):
 
     Authors: Christopher
     """
+
     def __init__(self, window: MainWindow, game_mode: c.GameModes, lobby_id: str) -> None:
         super().__init__(window=window)
         self._game_mode = game_mode
