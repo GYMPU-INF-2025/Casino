@@ -9,11 +9,12 @@ import websocket
 from arcade.gui import UIAnchorLayout, events
 from arcade.gui.widgets.buttons import UITextureButton
 
-from backend.internal.ws import add_event_listener
+from backend.internal.ws import add_event_listener, WebsocketClient
 from frontend.constants import SCREEN_HEIGHT, SCREEN_WIDTH, Alignment, GameModes
 from frontend.internal.websocket_view import WebsocketView
 from frontend.views.base import BaseGUI
 from shared.models import events
+from shared.models.events import UpdateMultiplier
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
@@ -35,8 +36,11 @@ class ChickengameView(WebsocketView):
         self.gamemode = 0
         self.gamemode_list = ['Easy', 'Medium', 'Hard']
         self.stake = 0
-        self.total = 650
         self.take = 0
+        self.total = 0
+        self.step = 1
+        self.multiplier = 0
+        self.step_text = 0
 
         self.img = arcade.load_texture('assets/chickengame/img.png')
         self.button_img = arcade.load_texture('assets/chickengame/button.png')
@@ -46,6 +50,9 @@ class ChickengameView(WebsocketView):
         self.show_money()
         self.show_steps()
         self.show_buttons()
+
+        for i in range(1, len(self.steps)):
+            self.steps[i].disabled = True
 
     def create_grids(self) -> None:
         def make_grid(column_count, row_count, height):
@@ -100,16 +107,25 @@ class ChickengameView(WebsocketView):
         self.anchor_mid.add(child=self.street_img, anchor_x="center", anchor_y="center", index=0)
 
         for i, step in enumerate(self.steps):
-            step.text = str(i)
             self.grid_mid.add(child=step, column=i, row=0)
 
-            @add_event_listener(events.UpdateStep)
+            self.send_event(events.UpdateMultiplier(multiplier=self.multiplier, step_text=i))
+
             @step.event("on_click")
-            def on_click(event: events.UpdateStep, index=i):
+            def on_click(event, index=i):
+                if self.stake == 0:
+                    return
                 self.steps[index].texture = self.show_alive_img()
-                self.steps[index].texture_hovered = self.show_alive_img()
-                self.steps[index].texture_pressed = self.show_alive_img()
-                self.on_draw()
+                self.steps[index].text = ''
+                self.steps[index].disabled = True
+                self.plus_button.disabled = True
+                self.minus_button.disabled = True
+                self.diff_easy_button.disabled = True
+                self.diff_mid_button.disabled = True
+                self.diff_hard_button.disabled = True
+                if index + 1 < len(self.steps):
+                    self.steps[index + 1].disabled = False
+                self.send_event(events.DoStep(stake=int(self.stake), take=int(self.take), step=i))
 
     def show_buttons(self) -> None:
         def make_button(text: str, callback) -> UITextureButton:
@@ -127,10 +143,10 @@ class ChickengameView(WebsocketView):
 
         self.minus_button = make_button("-100", self.decrease_stake)
         self.plus_button = make_button("+100", self.increase_stake)
-        self.diff_easy_button = make_button("Easy", lambda: self.set_gamemode(0, events.UpdateGamemode))
-        self.diff_mid_button = make_button("Medium", lambda: self.set_gamemode(1, events.UpdateGamemode))
-        self.diff_hard_button = make_button("Hard", lambda: self.set_gamemode(2, events.UpdateGamemode))
-        self.take_button = make_button(f"Take: {self.take}", self.refresh)
+        self.diff_easy_button = make_button("Easy", lambda: self.set_gamemode(0))
+        self.diff_mid_button = make_button("Medium", lambda: self.set_gamemode(1))
+        self.diff_hard_button = make_button("Hard", lambda: self.set_gamemode(2))
+        self.take_button = make_button(f"Take: {self.take}", self.take_money)
 
         for index, button in enumerate([
             self.minus_button, self.plus_button,
@@ -139,25 +155,71 @@ class ChickengameView(WebsocketView):
         ]):
             self.grid_bottom.add(child=button, column=index, row=0)
 
-    @add_event_listener(events.UpdateTake)
-    def decrease_stake(self, event: events.UpdateTake) -> None:
+    def decrease_stake(self) -> None:
         if self.stake >= 100:
             self.stake -= 100
             self.total += 100
         self.refresh()
 
-    @add_event_listener(events.UpdateTake)
-    def increase_stake(self, event: events.UpdateTake) -> None:
+    def increase_stake(self) -> None:
         if self.total >= 100:
             self.total -= 100
             self.stake += 100
         self.refresh()
 
-    @add_event_listener(events.UpdateGamemode)
-    def set_gamemode(self, mode: int, event: events.UpdateGamemode) -> None:
-        event.gamemode = mode
+    def set_gamemode(self, mode: int) -> None:
         self.gamemode = mode
+        self.send_event(events.UpdateGamemode(gamemode=mode))
+        for i, step in enumerate(self.steps):
+            self.send_event(events.UpdateMultiplier(multiplier=self.multiplier, step_text=i))
         self.refresh()
+        
+    @add_event_listener(events.UpdateMultiplierResponse)
+    def show_multiplier(self, event: events.UpdateMultiplierResponse) -> None:
+        self.multiplier = event.multiplier
+        self.step_text = event.step_text
+        self.steps[self.step_text].text = 'x' + str(event.multiplier)
+        self.refresh()
+
+    def take_money(self) -> None:
+        for i in range(1, len(self.steps)):
+            self.steps[i].disabled = True
+        for i in range(0, len(self.steps)):
+            self.steps[i].texture = self.img
+            self.steps[i].visible = True
+            self.send_event(events.UpdateMultiplier(multiplier=self.multiplier, step_text=i))
+        self.steps[0].disabled = False
+        self.total += self.take
+        self.take = 0
+        self.stake = 0
+        self.step = 1
+        self.plus_button.disabled = False
+        self.minus_button.disabled = False
+        self.diff_easy_button.disabled = False
+        self.diff_mid_button.disabled = False
+        self.diff_hard_button.disabled = False
+        self.send_event(events.UpdateGamemode(gamemode=self.gamemode))
+        self.send_event(events.UpdateTotal(total=self.total))
+        self.refresh()
+
+    @add_event_listener(events.DoStepResponse)
+    def do_step(self, event: events.DoStepResponse) -> None:
+        self.stake = event.take
+        self.take = event.take
+        if self.take == 0:
+            self.take_money()
+        else:
+            if self.step > 1:
+                self.steps[self.step-2].visible = False
+            self.step += 1
+            self.take_button.text = f"Take: {self.take}"
+            if self.step > 10:
+                self.take_money()
+        self.on_draw()
+
+    @add_event_listener(events.UpdateMoney)
+    def update_money(self, event: events.UpdateMoney) -> None:
+        self.total = event.money
 
     def refresh(self) -> None:
         self.stake_label.text = f'Stake: {self.stake}'
@@ -172,9 +234,6 @@ class ChickengameView(WebsocketView):
 
     def show_alive_img(self) -> arcade.Texture:
         return arcade.load_texture('assets/chickengame/alive_img.png')
-
-    def show_dead_img(self) -> arcade.Texture:
-        return arcade.load_texture('assets/chickengame/dead_img.png')
 
     @property
     @typing.override
