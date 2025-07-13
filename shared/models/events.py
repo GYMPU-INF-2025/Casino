@@ -29,30 +29,30 @@ class UpdateMoney(BaseEvent):
     money: int
 
 
-class ChangeStake(BaseEvent):
+class MinesChangeStake(BaseEvent):
     amount: int
 
-class MineClicked(BaseEvent):
+class MinesMineClicked(BaseEvent):
     x: int
     y: int
 
-class MineClickedResponse(BaseEvent):
+class MinesMineClickedResponse(BaseEvent):
     x: int
     y: int
     multiplier: float
 
-class GameOver(BaseEvent):
+class MinesGameOver(BaseEvent):
     x: int
     y: int
 
-class RestartGame(BaseEvent):
+class MinesRestartGame(BaseEvent):
     pass
 
-class Chashout(BaseEvent):
+class MinesChashout(BaseEvent):
     pass
 
-class ChashoutResponse(BaseEvent):
+class MinesChashoutResponse(BaseEvent):
     balance: int
 
-class StartGame(BaseEvent):
+class MinesStartGame(BaseEvent):
     pass
