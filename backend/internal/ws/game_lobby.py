@@ -9,6 +9,7 @@ import typing
 import msgspec
 from sanic.log import logger
 
+from shared.internal import Snowflake
 from shared.internal.hooks import decode_hook
 from shared.internal.hooks import encode_hook
 from shared.models import events
@@ -22,7 +23,6 @@ if typing.TYPE_CHECKING:
     from backend.db.models import User
     from backend.db.queries import Queries
     from backend.internal.ws import WebsocketClient
-    from shared.internal import Snowflake
     from shared.models.internal import WebSocketPayload
 
     CallbackT = Callable[[EventT, WebsocketClient], Coroutine[typing.Any, typing.Any, None]]
@@ -45,6 +45,15 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
         self._queries: Queries = queries
         self._clients: dict[Snowflake, WebsocketClient] = {}
         self._events: ListenerMapT[events.BaseEvent] = {}
+
+    async def get_user_by_client(self, client: Snowflake | WebsocketClient) -> User:
+        if isinstance(client, Snowflake):
+            user = await self.queries.get_user_by_id(id_=self._clients[client].user_id)
+        else:
+            user = await self.queries.get_user_by_id(id_=client.user_id)
+        if user is None:
+            raise ValueError("User not found")
+        return user
 
     def __post__init__(self) -> None:
         for attr_name in dir(self):
@@ -102,12 +111,19 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
     def get_client(self, user_id: Snowflake) -> WebsocketClient | None:
         return self._clients.get(user_id)
 
-    def _remove_client(self, user_id: Snowflake) -> None:
+    async def _remove_client(self, user_id: Snowflake) -> None:
         client = self._clients.pop(user_id, None)
         if client is not None:
             logger.debug(
                 f"Removed client with user id {user_id} and client_id {client.client_id} from lobby {self._lobby_id}"
             )
+            if not (event := self._events.get(events.LeaveEvent.event_name())):
+                return
+            for callback in event[1]:
+                try:
+                    await callback(events.LeaveEvent(), client)
+                except Exception as exc:  # noqa: BLE001
+                    logger.exception("Exception occurred when handling LEAVE event", exc_info=exc)
         else:
             logger.debug("Tried removing client with user id %s but was not found!", user_id)
 
