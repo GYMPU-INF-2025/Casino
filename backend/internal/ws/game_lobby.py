@@ -111,12 +111,19 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
     def get_client(self, user_id: Snowflake) -> WebsocketClient | None:
         return self._clients.get(user_id)
 
-    def _remove_client(self, user_id: Snowflake) -> None:
+    async def _remove_client(self, user_id: Snowflake) -> None:
         client = self._clients.pop(user_id, None)
         if client is not None:
             logger.debug(
                 f"Removed client with user id {user_id} and client_id {client.client_id} from lobby {self._lobby_id}"
             )
+            if not (event := self._events.get(events.LeaveEvent.event_name())):
+                return
+            for callback in event[1]:
+                try:
+                    await callback(events.LeaveEvent(), client)
+                except Exception as exc:  # noqa: BLE001
+                    logger.exception("Exception occurred when handling LEAVE event", exc_info=exc)
         else:
             logger.debug("Tried removing client with user id %s but was not found!", user_id)
 

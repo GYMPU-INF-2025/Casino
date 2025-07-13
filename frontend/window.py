@@ -14,11 +14,12 @@ from frontend.net.rest_client import RestClient
 from frontend.views import MainMenu
 from frontend.views import PauseMenu
 from frontend.views import TitleView
+from frontend.views.blackjack_view import BlackjackView
 from frontend.views.game_selection import GameSelectionView
-from frontend.views.game_view import GameView
 from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
 from frontend.views.chickengame_view import ChickengameView
+from frontend.views.mines_view import MinesView
 
 if typing.TYPE_CHECKING:
     import pathlib
@@ -90,9 +91,11 @@ class MainWindow(arcade.Window):
     def show_game(self, game_mode: c.GameModes, lobby_id: str) -> None:
         match game_mode:
             case c.GameModes.BLACKJACK:
-                self._show_view(GameView(window=self, game_mode=game_mode, lobby_id=lobby_id))
+                self._show_view(BlackjackView(window=self, game_mode=game_mode, lobby_id=lobby_id))
             case c.GameModes.CHICKENGAME:
                 self._show_view(ChickengameView(window=self, game_mode=game_mode, lobby_id=lobby_id))
+            case c.GameModes.MINES:
+                self._show_view(MinesView(window=self, game_mode=game_mode, lobby_id=lobby_id))
             case _:
                 raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
@@ -103,8 +106,6 @@ class MainWindow(arcade.Window):
         match game_mode:
             case c.GameModes.BLACKJACK:
                 self._show_view(self._blackjack_lobby_view)
-            case c.GameModes.CHICKENGAME:
-                self._show_view(self._chickengame_view)
             case _:
                 raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
