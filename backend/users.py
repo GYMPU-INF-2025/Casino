@@ -20,13 +20,22 @@ router = sanic.Blueprint("users")
 @router.get("/me")
 @serialization.serialize()
 async def get_me(_: sanic.Request, user: models.User) -> responses.PublicUser:
-    """Get the current user's information."""
+    """Get the current user's information.
+
+    Authors: Christopher
+    """
     return utils.convert_struct(user, responses.PublicUser)
 
 
 @router.post("/")
 @serialization.deserialize()
 async def create_user(_: sanic.Request, request_body: requests.LoginRequest, queries: Queries) -> sanic.HTTPResponse:
+    """Endpoint to create a new user.
+
+    This checks if the username is available and hashes the password and then adds the user to the db.
+
+    Authors: Quirin
+    """
     db_user = await queries.get_user_by_username(username=request_body.username)
     if db_user is not None:
         raise sanic.SanicException(message="Username already exists", status_code=http.HTTPStatus.CONFLICT)

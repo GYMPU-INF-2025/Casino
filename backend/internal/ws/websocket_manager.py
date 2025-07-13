@@ -29,6 +29,14 @@ __all__ = ("WebsocketManager", "_WebsocketTransport")
 
 
 class _WebsocketTransport:
+    """Class used for low level message transport used with websockets. The main purpose of this class is en/decoding
+    messages from json to objects or from objects to json.
+
+    It also handles closing the connection.
+
+    Authors: Christopher
+    """
+
     def __init__(self, *, ws: sanic.Websocket) -> None:
         self._ws = ws
         self._decoder = msgspec.json.Decoder(type=internal_models.WebSocketPayload)
@@ -88,6 +96,14 @@ T = typing.TypeVar("T", bound=GameLobbyBase)
 
 
 class WebsocketManager(typing.Generic[T]):
+    """Class managing the endpoints for a specific GameLobby `T`.
+
+    The main purpose is to store all lobbys for each game mode and to manage them.
+    Each WebsocketManager instance manages one game mode.
+
+    Authors: Christopher
+    """
+
     def __init__(self, lobby_class: type[T]) -> None:
         self._lobby_class = lobby_class
         self._lobbys: dict[str, T] = {}
@@ -96,6 +112,13 @@ class WebsocketManager(typing.Generic[T]):
     async def handle_websocket(
         self, request: sanic.Request, ws: sanic.Websocket, lobby_id: str, queries: Queries
     ) -> None:
+        """Function called when a new client connects to the websocket endpoint for this game mode.
+
+        This function then handles authentication and if everything goes well it passes the ws connection down to
+        the lobby instance the user wanted to connect to.
+
+        Authors: Christopher
+        """
         _ws = _WebsocketTransport(ws=ws)
         if not (lobby := self._lobbys.get(lobby_id)):
             msg = f"client tried joining lobby using invalid lobby id {lobby_id}."
@@ -131,6 +154,14 @@ class WebsocketManager(typing.Generic[T]):
     async def _connect(
         self, *, ws: _WebsocketTransport, request: sanic.Request, lobby: T, queries: Queries
     ) -> Snowflake:
+        """This function handles the "handshake" at the beginning of each websocket connection.
+
+        The "handshake" is the authentication process. It first sends a HELLO message to signal that
+        the "handshake" is ready to begin and then waits for a IDENTIFY message which contains the token
+        of the user, used for authentication.
+
+        Authors: Christopher
+        """
         await ws.send_payload(payload=internal_models.WebSocketPayload(op=opcodes.HELLO, d={}))
         try:
             payload = await ws.recieve_payload()
@@ -168,6 +199,10 @@ class WebsocketManager(typing.Generic[T]):
 
     @serialization.serialize()
     async def list_lobbys(self, _: sanic.Request) -> list[responses.PublicGameLobby]:
+        """Endpoint that lists every available lobby for this game mode.
+
+        Authors: Christopher
+        """
         return [
             responses.PublicGameLobby(
                 max_clients=lobby.max_num_clients, id=l_id, num_clients=lobby.num_clients, full=lobby.is_full
@@ -176,6 +211,10 @@ class WebsocketManager(typing.Generic[T]):
         ]
 
     def _gen_new_lobby_id(self) -> str:
+        """Generates a new 5 character long lobby id.
+
+        Authors: Christopher
+        """
         chars = string.ascii_uppercase + string.digits
         while True:
             lobby_id = "".join(random.choices(chars, k=5))
@@ -184,6 +223,10 @@ class WebsocketManager(typing.Generic[T]):
 
     @serialization.serialize()
     async def create_lobby(self, _: sanic.Request, queries: Queries, user: db_models.User) -> responses.PublicGameLobby:
+        """Endpoint that creates a new lobby for this game mode.
+
+        Authors: Christopher
+        """
         lobby_id = self._gen_new_lobby_id()
         logger.debug("user %s requested creating lobby %s", user.id, lobby_id)
         lobby = self._lobby_class(lobby_id=lobby_id, queries=queries)

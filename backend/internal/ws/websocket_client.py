@@ -29,6 +29,14 @@ __all__ = ("WebsocketClient",)
 
 
 class WebsocketClient:
+    """Class representing a client connected to a lobby.
+
+    The main purpose is storing the user_id associated with the client and handling the connecting by using the
+    `handle_ws` function.
+
+    Authors: Christopher
+    """
+
     def __init__(
         self, ws: _WebsocketTransport, request: sanic.Request, user_id: Snowflake, client_id: Snowflake
     ) -> None:
@@ -70,6 +78,12 @@ class WebsocketClient:
         dispatch_handler: Callable[[WebSocketPayload, WebsocketClient], Coroutine[typing.Any, typing.Any, None]],
         remove_client: Callable[[Snowflake], Coroutine[typing.Any, typing.Any, None]],
     ) -> None:
+        """Function that listens for new messages from the client.
+
+        It then dispatches the received payloads by using the provided `dispatch_handler` function.
+
+        Authors: Christopher
+        """
         while True:
             try:
                 payload = await self._ws.recieve_payload()

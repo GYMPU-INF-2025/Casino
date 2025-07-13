@@ -14,6 +14,12 @@ if typing.TYPE_CHECKING:
 __all__ = ("ClientHTTPError", "HTTPError", "HTTPResponseError", "InternalServerError", "generate_error")
 
 
+"""Different classes that represent http/network erros.
+
+Authors: Christopher
+"""
+
+
 class HTTPError(RuntimeError):
     """"""
 

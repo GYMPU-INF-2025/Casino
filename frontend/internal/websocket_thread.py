@@ -26,6 +26,14 @@ logger = logging.getLogger(__name__)
 
 
 class _WebsocketTransport:
+    """Class used for low level message transport used with websockets. The main purpose of this class is en/decoding
+    messages from json to objects or from objects to json.
+
+    It also handles closing the connection.
+
+    Authors: Christopher
+    """
+
     def __init__(self, *, ws: websocket.WebSocket) -> None:
         self._ws = ws
         self._decoder = msgspec.json.Decoder(type=internal_models.WebSocketPayload)
@@ -73,6 +81,17 @@ class _WebsocketTransport:
 
 
 class WebsocketThread(threading.Thread):
+    """Thread that runs in the background when a game is being played.
+
+    The thread manages the websocket connection and listens for new messages. It then decodes them and puts received
+    events into a shared queue, so that the game views can pull the events out of the queue and handle them.
+
+    This thread also established the websocket connection and authenticated the connection by sending the token of the
+    user to the server.
+
+    Authors: Christopher
+    """
+
     def __init__(
         self,
         token: str,

@@ -14,6 +14,14 @@ __all__ = ("WebsocketEndpointsManager",)
 
 
 class WebsocketEndpointsManager:
+    """Class managing endpoints needed for each lobby.
+
+    Each lobby has a websocket endpoint (used to connect to the websocket),
+    and 2 rest endpoints that can be used to create new lobbys and to get a list of existing lobbys.
+
+    Authors: Christopher
+    """
+
     def __init__(self, app: sanic.Sanic) -> None:
         self._app = app
         self._endpoints = []

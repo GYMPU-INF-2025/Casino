@@ -16,6 +16,8 @@ DEFAULT_EXPIRY = datetime.timedelta(days=3)
 def generate_token(user_id: Snowflake) -> str:
     """Generates a jwt token and stores the given user id in it.
 
+    Authors: Christopher
+
     Parameters
     ----------
     user_id : Snowflake
@@ -36,6 +38,8 @@ def generate_token(user_id: Snowflake) -> str:
 
 def decode_token(token: str) -> Snowflake:
     """Decodes a jwt token and returns the stored user id.
+
+    Authors: Christopher
 
     Parameters
     ----------

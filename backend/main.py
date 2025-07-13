@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import http
 import pathlib
-import random
 import typing
 
 import aiosqlite
@@ -19,79 +18,15 @@ from backend.db import models
 from backend.db.queries import Queries
 from backend.dependencys import get_current_user
 from backend.internal.errors import InternalServerError
-from backend.internal.serialization import deserialize
-from backend.internal.serialization import serialize
-from backend.internal.ws import GameLobbyBase
-from backend.internal.ws import WebsocketClient
 from backend.internal.ws import WebsocketEndpointsManager
-from backend.internal.ws import add_event_listener
 from backend.mines import Mines
+from backend.slots import Slots
 from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
-from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
-from shared.models import events
-from shared.models.events import Spin_Animation
-from shared.models.responses import Success
-from shared.models.responses import Test
 
 if typing.TYPE_CHECKING:
     import asyncio
-
-
-SlotSymbols = ["🍒", "🍋", "🔔", "💎", "⭐", "7️⃣"]
-Prizes = {"🍒": 10, "🍋": 20, "🔔": 50, "💎": 100, "⭐": 200, "7️⃣": 500}
-
-""" SYMBOL_MAP = {
-    "a": "🍒",  # Kirsche
-    "b": "🍋",  # Zitrone
-    "c": "🔔",  # Glocke
-    "d": "💎",  # Diamant
-    "e": "⭐",  # Stern
-    "f": "7️⃣", # Glückszahl 7
-}
-"""
-
-
-class Slots(GameLobbyBase):
-    def __init__(self, *, lobby_id: str, queries: Queries) -> None:
-        super().__init__(lobby_id=lobby_id, queries=queries)
-
-        self.money = 30
-        self.spin_cost = 5
-
-    @add_event_listener(events.Moneyq)
-    async def moneyq(self, _: events.Moneyq, _ws: WebsocketClient) -> None:
-        await self.send_event(events.Money_now(self.money), _ws)
-
-    @add_event_listener(events.StartSpin)
-    async def on_spin(self, _: events.StartSpin, __: WebsocketClient) -> None:
-        if self.money < self.spin_cost:
-            await self.broadcast_event(events.kein_Geld(self.spin_cost))
-            return
-
-        self.money = self.money - self.spin_cost
-        outcome = [random.choice(SlotSymbols) for _ in range(3)]
-        await self.broadcast_event(Spin_Animation(final_symbols=outcome))
-
-        win = 0
-
-        if outcome[0] == outcome[1] == outcome[2]:
-            win = Prizes.get(outcome[0], 0)
-        elif outcome[0] == outcome[1] or outcome[1] == outcome[2] or outcome[0] == outcome[2]:
-            win = 2
-        self.money += win
-        await self.broadcast_event(events.Slots_Win(self.money))
-
-    @property
-    @typing.override
-    def max_num_clients(self) -> int:
-        return 1
-
-    @staticmethod
-    @typing.override
-    def endpoint() -> str:
-        return "slots"
 
 
 PROJECT_DIR = pathlib.Path(__file__).parent.parent
@@ -105,7 +40,10 @@ queries_: Queries | None = None
 
 @app.before_server_start
 async def add_dependency(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
-    """Create database connection."""
+    """Create database connection.
+
+    Authors: Christopher
+    """
     aiosqlite_conn = await aiosqlite.connect("sqlite.db")
     await aiosqlite_conn.executescript((DB_DIR / "schema.sql").read_text())
     global queries_
@@ -116,7 +54,10 @@ async def add_dependency(app_: sanic.Sanic, _: asyncio.AbstractEventLoop) -> Non
 
 @app.after_server_stop
 async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
-    """Close the database connection when server shutting down."""
+    """Close the database connection when server shutting down.
+
+    Authors: Christopher
+    """
     if queries_ is not None:
         await queries_.conn.close()
 
@@ -132,6 +73,10 @@ error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 
 @app.all_exceptions
 async def error_handler(_: sanic.Request, exception: Exception) -> sanic.HTTPResponse:
+    """Error handler that returns a `ErrorResponse` as json for any error that occurs.
+
+    Authors: Christopher
+    """
     name: str = ""
     message: str = ""
     detail: str = ""
@@ -158,18 +103,6 @@ async def error_handler(_: sanic.Request, exception: Exception) -> sanic.HTTPRes
         status=code,
         content_type="application/json",
     )
-
-
-@app.post("/")
-@serialize()
-@deserialize()
-async def hello_world(_: sanic.Request, body: Test, query: Queries) -> Success:
-    """Hello World endpoint to test if the server is running."""
-    logger.info(body.test)
-    user = await query.get_user_by_id(id_=Snowflake(20000))
-    if user is None:
-        return Success(message="User not found!")
-    return Success(message=user.username)
 
 
 if __name__ == "__main__":
