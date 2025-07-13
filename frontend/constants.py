@@ -63,6 +63,7 @@ class GameModes(enum.Enum):
     """
 
     BLACKJACK = "blackjack", False
+    CHICKENGAME = "chickengame", True
     MINES = "mines", True
     SLOTS = "slots", True
 

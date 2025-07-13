@@ -126,3 +126,25 @@ class BlackjackWin(BaseEvent):
 class BlackjackPlayerAction(BaseEvent):
     username: str
 
+
+class DoStep(BaseEvent):
+    stake: int
+    take: int
+    step: int
+
+class DoStepResponse(BaseEvent):
+    take: int
+
+class UpdateGamemode(BaseEvent):
+    gamemode: int
+
+class UpdateMultiplier(BaseEvent):
+    multiplier: float
+    step_text: int
+
+class UpdateMultiplierResponse(BaseEvent):
+    multiplier: float
+    step_text: int
+
+class UpdateTotal(BaseEvent):
+    total: int
