@@ -12,51 +12,23 @@ import sanic
 from sanic.log import logger
 
 from backend.authentication import router as auth_router
+from backend.blackjack import Blackjack
 from backend.db import models
 from backend.db.queries import Queries
 from backend.dependencys import get_current_user
 from backend.internal.errors import InternalServerError
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
-from backend.internal.ws import GameLobbyBase
-from backend.internal.ws import WebsocketClient
 from backend.internal.ws import WebsocketEndpointsManager
-from backend.internal.ws import add_event_listener
 from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
-from shared.models import events
 from shared.models.responses import Success
 from shared.models.responses import Test
 
 if typing.TYPE_CHECKING:
     import asyncio
-
-
-class Blackjack(GameLobbyBase):
-    def __init__(self, *, lobby_id: str, queries: Queries) -> None:
-        super().__init__(lobby_id=lobby_id, queries=queries)
-        self.money = 100
-
-    @add_event_listener(events.UpdateMoney)
-    async def update_money_callback(self, event: events.UpdateMoney, _: WebsocketClient) -> None:
-        self.money = event.money
-        await self.broadcast_event(events.UpdateMoney(money=self.money))
-
-    @add_event_listener(events.ReadyEvent)
-    async def on_ready(self, _: events.ReadyEvent, ws: WebsocketClient) -> None:
-        await self.send_event(events.UpdateMoney(money=self.money), ws)
-
-    @property
-    @typing.override
-    def max_num_clients(self) -> int:
-        return 2
-
-    @staticmethod
-    @typing.override
-    def endpoint() -> str:
-        return "blackjack"
 
 
 PROJECT_DIR = pathlib.Path(__file__).parent.parent

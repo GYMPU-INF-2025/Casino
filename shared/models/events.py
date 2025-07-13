@@ -4,7 +4,6 @@ import typing
 
 import msgspec
 
-__all__ = ("BaseEvent", "UpdateMoney")
 
 from shared.models import responses
 from shared.internal import snowflakes
@@ -25,5 +24,58 @@ class ReadyEvent(BaseEvent):
     client_id: snowflakes.Snowflake
     num_clients: int
 
+class LeaveEvent(BaseEvent):
+    pass
+
+class PrintText(BaseEvent):
+    text: str
+    text2: str
+
 class UpdateMoney(BaseEvent):
     money: int
+
+class BlackjackCardData(msgspec.Struct):
+    name: str
+    value: int
+
+class BlackjackPlayerData(msgspec.Struct):
+    username: str
+    current_bet: int = msgspec.field(default=0)
+    cards: list[BlackjackCardData] = msgspec.field(default_factory=list)
+
+class BlackjackWaitingForBet(BaseEvent):
+    wait_time: int
+
+class BlackjackGiveCard(BaseEvent):
+    username: str
+    card: BlackjackCardData
+
+class BlackjackSetBet(BaseEvent):
+    bet: int
+
+class BlackjackUpdateGame(BaseEvent):
+    started: bool
+
+    active_players: list[BlackjackPlayerData]
+    waiting_players: list[BlackjackPlayerData]
+
+class BlackjackStartGame(BaseEvent):
+    pass
+
+class BlackjackHoldCard(BaseEvent):
+    pass
+
+class BlackjackDrawCard(BaseEvent):
+    pass
+
+class BlackjackDefeat(BaseEvent):
+    pass
+
+class BlackjackDraw(BaseEvent):
+    pass
+
+class BlackjackWin(BaseEvent):
+    pass
+
+class BlackjackPlayerAction(BaseEvent):
+    username: str
