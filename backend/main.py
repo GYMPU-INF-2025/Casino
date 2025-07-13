@@ -21,14 +21,14 @@ from backend.internal.errors import InternalServerError
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
 from backend.internal.ws import GameLobbyBase
+from backend.internal.ws import WebsocketClient
 from backend.internal.ws import WebsocketEndpointsManager
+from backend.internal.ws import add_event_listener
 from backend.mines import Mines
 from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
-from backend.internal.ws import WebsocketClient
-from backend.internal.ws import add_event_listener
 from shared.models import events
 from shared.models.events import Spin_Animation
 from shared.models.responses import Success
@@ -39,16 +39,9 @@ if typing.TYPE_CHECKING:
 
 
 SlotSymbols = ["🍒", "🍋", "🔔", "💎", "⭐", "7️⃣"]
-Prizes = {
-    "🍒" : 10,
-    "🍋" : 20,
-    "🔔" : 50,
-    "💎" : 100,
-    "⭐" : 200,
-    "7️⃣" : 500,
-}
+Prizes = {"🍒": 10, "🍋": 20, "🔔": 50, "💎": 100, "⭐": 200, "7️⃣": 500}
 
-''' SYMBOL_MAP = {
+""" SYMBOL_MAP = {
     "a": "🍒",  # Kirsche
     "b": "🍋",  # Zitrone
     "c": "🔔",  # Glocke
@@ -56,10 +49,10 @@ Prizes = {
     "e": "⭐",  # Stern
     "f": "7️⃣", # Glückszahl 7
 }
-'''
+"""
 
-class slot(GameLobbyBase):
 
+class Slots(GameLobbyBase):
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
 
@@ -67,11 +60,11 @@ class slot(GameLobbyBase):
         self.spin_cost = 5
 
     @add_event_listener(events.Moneyq)
-    def Moneyq(self, event: events.Moneyq, _ws: WebsocketClient):
-        self.send_event(events.Money_now(self.money), _ws)
+    async def moneyq(self, _: events.Moneyq, _ws: WebsocketClient) -> None:
+        await self.send_event(events.Money_now(self.money), _ws)
 
     @add_event_listener(events.StartSpin)
-    async def on_spin(self, event: events.StartSpin, _: WebsocketClient):
+    async def on_spin(self, _: events.StartSpin, __: WebsocketClient) -> None:
         if self.money < self.spin_cost:
             await self.broadcast_event(events.kein_Geld(self.spin_cost))
             return
@@ -86,9 +79,8 @@ class slot(GameLobbyBase):
             win = Prizes.get(outcome[0], 0)
         elif outcome[0] == outcome[1] or outcome[1] == outcome[2] or outcome[0] == outcome[2]:
             win = 2
-            self.money += win
-            await self.broadcast_event(events.Slots_Win(self.money))
-            return outcome, win, None
+        self.money += win
+        await self.broadcast_event(events.Slots_Win(self.money))
 
     @property
     @typing.override
@@ -99,6 +91,7 @@ class slot(GameLobbyBase):
     @typing.override
     def endpoint() -> str:
         return "slots"
+
 
 PROJECT_DIR = pathlib.Path(__file__).parent.parent
 DB_DIR = PROJECT_DIR / "db"
@@ -129,7 +122,7 @@ async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
 
 ws_endpoints = WebsocketEndpointsManager(app=app)
 ws_endpoints.add_lobby(game_lobby_type=Blackjack)
-ws_endpoints.add_lobby(game_lobby_type=slot)
+ws_endpoints.add_lobby(game_lobby_type=Slots)
 ws_endpoints.add_lobby(game_lobby_type=Mines)
 
 error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)

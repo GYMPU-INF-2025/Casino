@@ -2,25 +2,29 @@ from __future__ import annotations
 
 import random
 import typing
+from functools import partial
 
 import arcade
 import arcade.gui
+
 from frontend.internal.decorator import add_event_listener
 from frontend.internal.websocket_view import WebsocketView
 from frontend.ui import Button
 from frontend.ui import ButtonStyle
 from shared.models import events
-from shared.models.events import kein_Geld, Spin_Animation, Money_now, Moneyq
-from functools import partial
+from shared.models.events import Money_now
+from shared.models.events import Spin_Animation
+from shared.models.events import kein_Geld
 
 if typing.TYPE_CHECKING:
     import frontend.constants as c
     from frontend.window import MainWindow
 
+
 class SlotsView(WebsocketView):
     def __init__(self, window: MainWindow, game_mode: c.GameModes, lobby_id: str) -> None:
         super().__init__(window, game_mode, lobby_id)
-        '''Erstellen der grafischen Oberfläche'''
+        """Erstellen der grafischen Oberfläche"""
         self.ui = arcade.gui.UIManager()
 
         self.anchor = self.ui.add(arcade.gui.UIAnchorLayout(width=1000, height=500))
@@ -33,7 +37,7 @@ class SlotsView(WebsocketView):
 
         self.box = arcade.gui.UIBoxLayout(height=100, width=1000)
         main_layout.add(self.box)
-        einsatz = 5
+
         # Lade Symbole
         self.symbol_textures = {
             "a": arcade.load_texture("assets/slots_symbols/cherry.png"),
@@ -48,33 +52,20 @@ class SlotsView(WebsocketView):
         self.animation_step = 0
         self.max_animation_steps = 10
 
-
-        self.money_label = arcade.gui.UILabel(
-            text= "0 Geld",
-            text_color=arcade.color.GREEN,
-            font_size=40
-        )
-        self.money_money()
-
-
+        self.money_label = arcade.gui.UILabel(text="0 Geld", text_color=arcade.color.GREEN, font_size=40)
 
         self.box.add(self.money_label)
 
         # Symbole mit Rahmen simulieren (kein border support, daher Rahmen selbst zeichnen)
         self.slot_images = []
         self.slot_positions = []  # für Rahmen-Zeichnung speichern
-        for i in range(3):
+        for _ in range(3):
             btn = arcade.gui.UITextureButton(
                 texture=self.symbol_textures["a"],
                 width=90,
                 height=90,
-                style={
-                    "normal" : arcade.gui.UITextureButton.UIStyle(
-
-                    )
-
-                })
-            btn.background_color = arcade.color.WHITE
+                style={"normal": arcade.gui.UITextureButton.UIStyle()},
+            )
 
             self.slot_images.append(btn)
             self.symbol_row.add(btn)
@@ -84,36 +75,29 @@ class SlotsView(WebsocketView):
         button.set_handler("on_click", self.on_button_press)
 
         self.message_label = arcade.gui.UILabel(
-            text="",
-            text_color=arcade.color.RED,
-            font_size=20,
-            width=400,
-            height=40,
+            text="", text_color=arcade.color.RED, font_size=20, width=400, height=40
         )
         main_layout.add(self.message_label)
-
-    async def money_money(self):
-        await self.send_event(events.Moneyq())
 
     def on_button_press(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.send_event(events.StartSpin(einsatz=20))
 
     @add_event_listener(kein_Geld)
-    def kein_Geld(self, _: arcade.gui.UIOnClickEvent) -> None:
+    def kein_geld(self, _: kein_Geld) -> None:
         self.message_label.text = "Nicht genug Geld!"
         self.message_label.visible = True
-        arcade.schedule(lambda dt: setattr(self.message_label, 'visible', False), 2.0)
+        arcade.schedule(lambda _: setattr(self.message_label, "visible", False), 2.0)
 
-    def update_animation(self, final_symbols: list[str], delta_time: float) -> None:
+    def update_animation(self, final_symbols: list[str], _: float) -> None:
         if not self.animation_running:
             return
 
         self.animation_step += 1
-        SlotSymbols = list(self.symbol_textures.keys())  # a–f
+        slot_symbols = list(self.symbol_textures.keys())  # a-f
 
         # Zufällige Bilder während der Animation
         for i in range(3):
-            symbol = random.choice(SlotSymbols)
+            symbol = random.choice(slot_symbols)
             texture = self.symbol_textures[symbol]
             self.slot_images[i].texture = texture
 
@@ -132,11 +116,11 @@ class SlotsView(WebsocketView):
         self.update_animation(final_symbols, delta_time)
 
     @add_event_listener(Money_now)
-    def Money_now(self, now_money: int) -> None:
-        self.money_label.text = f"Geld: {now_money}"
+    def money_now(self, now_money: Money_now) -> None:
+        self.money_label.text = f"Geld: {now_money.money}"
 
     @add_event_listener(Spin_Animation)
-    def Spin_Animation(self, event: events.Spin_Animation) -> None:
+    def spin_animation(self, event: events.Spin_Animation) -> None:
         self.animation_running = True
         self.animation_step = 0
         animation_func = partial(self.update_animation_wrapper, event.final_symbols)
