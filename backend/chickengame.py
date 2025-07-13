@@ -40,7 +40,7 @@ class Chickengame(GameLobbyBase):
         self.step = event.step + 1
         rand = random.random()
         if rand < self.give_probability():
-            self.take += self.stake*self.give_multiplier(self.step)
+            self.take = self.stake*self.give_multiplier(self.step)
             await self.broadcast_event(events.DoStepResponse(take=int(self.take)))
         else:
             await self.broadcast_event(events.DoStepResponse(take=0))
