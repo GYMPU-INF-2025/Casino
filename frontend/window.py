@@ -15,10 +15,10 @@ from frontend.views import MainMenu
 from frontend.views import PauseMenu
 from frontend.views import TitleView
 from frontend.views.blackjack_view import BlackjackView
+from frontend.views.chickengame_view import ChickengameView
 from frontend.views.game_selection import GameSelectionView
 from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
-from frontend.views.chickengame_view import ChickengameView
 from frontend.views.mines_view import MinesView
 
 if typing.TYPE_CHECKING:

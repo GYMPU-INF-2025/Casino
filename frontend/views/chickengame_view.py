@@ -8,12 +8,17 @@ import arcade.gui
 from arcade.gui import UIAnchorLayout
 from arcade.gui.widgets.buttons import UITextureButton
 
-from backend.internal.ws import add_event_listener
-from frontend.constants import SCREEN_HEIGHT, SCREEN_WIDTH, Alignment, GameModes
+from frontend.constants import SCREEN_HEIGHT
+from frontend.constants import SCREEN_WIDTH
+from frontend.constants import Alignment
+from frontend.constants import GameModes
+from frontend.internal.decorator import add_event_listener
 from frontend.internal.websocket_view import WebsocketView
 from shared.models import events
 
 if typing.TYPE_CHECKING:
+    import collections.abc
+
     from frontend.window import MainWindow
 
 logger = logging.getLogger(__name__)
@@ -21,10 +26,10 @@ logger = logging.getLogger(__name__)
 # Constants
 STAKE_STEP = 100
 MAX_STEPS = 10
-ALIVE_IMG_PATH = 'assets/chickengame/alive_img.png'
-BUTTON_IMG_PATH = 'assets/chickengame/button.png'
-STREET_IMG_PATH = 'assets/chickengame/street.png'
-STEP_IMG_PATH = 'assets/chickengame/img.png'
+ALIVE_IMG_PATH = "assets/chickengame/alive_img.png"
+BUTTON_IMG_PATH = "assets/chickengame/button.png"
+STREET_IMG_PATH = "assets/chickengame/street.png"
+STEP_IMG_PATH = "assets/chickengame/img.png"
 
 
 class ChickengameView(WebsocketView):
@@ -40,7 +45,7 @@ class ChickengameView(WebsocketView):
 
         # Game state
         self.gamemode = 0
-        self.gamemode_list = ['Easy', 'Medium', 'Hard']
+        self.gamemode_list = ["Easy", "Medium", "Hard"]
         self.stake = 0
         self.take = 0
         self.total = 0
@@ -51,7 +56,7 @@ class ChickengameView(WebsocketView):
         # Textures
         self.img = arcade.load_texture(STEP_IMG_PATH)
         self.button_img = arcade.load_texture(BUTTON_IMG_PATH)
-        self.street_img = arcade.load_texture(STREET_IMG_PATH)
+        self.street_img_texture = arcade.load_texture(STREET_IMG_PATH)
 
         # UI setup
         self._create_grids()
@@ -63,11 +68,14 @@ class ChickengameView(WebsocketView):
             self.steps[i].disabled = True
 
     def _create_grids(self) -> None:
-        def make_grid(columns, rows, height):
+        def make_grid(columns: int, rows: int, height: float) -> arcade.gui.UIGridLayout:
             return arcade.gui.UIGridLayout(
-                column_count=columns, row_count=rows,
-                row_height=height, size_hint=(None, None),
-                width=SCREEN_WIDTH, height=height
+                column_count=columns,
+                row_count=rows,
+                row_height=height,
+                size_hint=(None, None),
+                width=SCREEN_WIDTH,
+                height=int(height),
             )
 
         self.grid_top = make_grid(3, 1, self._button_height)
@@ -85,16 +93,12 @@ class ChickengameView(WebsocketView):
     def _show_money(self) -> None:
         def make_label(text: str) -> arcade.gui.UILabel:
             return arcade.gui.UILabel(
-                text=text,
-                width=SCREEN_WIDTH / 3,
-                height=self._button_height,
-                font_size=50,
-                align=Alignment.CENTER,
+                text=text, width=SCREEN_WIDTH / 3, height=self._button_height, font_size=50, align=Alignment.CENTER
             )
 
-        self.stake_label = make_label(f'Stake: {int(self.stake)}')
-        self.gamemode_label = make_label(f'Gamemode: {self.gamemode_list[self.gamemode]}')
-        self.total_label = make_label(f'Money: {int(self.total)}')
+        self.stake_label = make_label(f"Stake: {int(self.stake)}")
+        self.gamemode_label = make_label(f"Gamemode: {self.gamemode_list[self.gamemode]}")
+        self.total_label = make_label(f"Money: {int(self.total)}")
 
         for i, label in enumerate([self.stake_label, self.gamemode_label, self.total_label]):
             anchor = UIAnchorLayout(width=SCREEN_WIDTH / 3, height=self._button_height)
@@ -108,11 +112,13 @@ class ChickengameView(WebsocketView):
             button = UITextureButton(texture=self.img, width=self._steps_width, height=self._steps_height)
 
             @button.event("on_click")
-            def on_click(_, index=i):  # `index=i` closes over correct loop variable
+            def on_click(
+                _: arcade.gui.UIOnClickEvent, index: int = i
+            ) -> None:  # `index=i` closes over correct loop variable
                 if self.stake == 0:
                     return
                 self.steps[index].texture = self._show_alive_img()
-                self.steps[index].text = ''
+                self.steps[index].text = ""
                 self.steps[index].disabled = True
                 self._toggle_input(False)
                 if index + 1 < len(self.steps):
@@ -124,21 +130,19 @@ class ChickengameView(WebsocketView):
             self.grid_mid.add(child=button, column=i, row=0)
             self.send_event(events.UpdateMultiplier(multiplier=self.multiplier, step_text=i))
 
-        self.street_img = arcade.gui.UIImage(texture=self.street_img)
+        self.street_img = arcade.gui.UIImage(texture=self.street_img_texture)
         self.anchor_mid.add(child=self.street_img, anchor_x="center", anchor_y="center", index=0)
 
     def _show_buttons(self) -> None:
-        def make_button(text: str, callback) -> UITextureButton:
+        def make_button(text: str, callback: collections.abc.Callable[[], None]) -> UITextureButton:
             button = UITextureButton(
-                texture=self.button_img,
-                text=text,
-                width=self._button_width,
-                height=self._button_height,
+                texture=self.button_img, text=text, width=self._button_width, height=self._button_height
             )
 
             @button.event("on_click")
             def handle_click(_: arcade.gui.UIOnClickEvent) -> None:
                 callback()
+
             return button
 
         self.minus_button = make_button("-100", self.decrease_stake)
@@ -148,11 +152,16 @@ class ChickengameView(WebsocketView):
         self.diff_hard_button = make_button("Hard", lambda: self.set_gamemode(2))
         self.take_button = make_button(f"Take: {self.take}", self.take_money)
 
-        for i, button in enumerate([
-            self.minus_button, self.plus_button,
-            self.diff_easy_button, self.diff_mid_button, self.diff_hard_button,
-            self.take_button
-        ]):
+        for i, button in enumerate(
+            [
+                self.minus_button,
+                self.plus_button,
+                self.diff_easy_button,
+                self.diff_mid_button,
+                self.diff_hard_button,
+                self.take_button,
+            ]
+        ):
             self.grid_bottom.add(child=button, column=i, row=0)
 
     def _toggle_input(self, enabled: bool) -> None:
@@ -205,7 +214,7 @@ class ChickengameView(WebsocketView):
     def show_multiplier(self, event: events.UpdateMultiplierResponse) -> None:
         self.multiplier = event.multiplier
         self.step_text = event.step_text
-        self.steps[self.step_text].text = f'x{event.multiplier}'
+        self.steps[self.step_text].text = f"x{event.multiplier}"
         self.refresh()
 
     @add_event_listener(events.DoStepResponse)
@@ -231,9 +240,9 @@ class ChickengameView(WebsocketView):
         self.refresh()
 
     def refresh(self) -> None:
-        self.stake_label.text = f'Stake: {self.stake}'
-        self.gamemode_label.text = f'Gamemode: {self.gamemode_list[self.gamemode]}'
-        self.total_label.text = f'Money: {int(self.total)}'
+        self.stake_label.text = f"Stake: {self.stake}"
+        self.gamemode_label.text = f"Gamemode: {self.gamemode_list[self.gamemode]}"
+        self.total_label.text = f"Money: {int(self.total)}"
         self.take_button.text = f"Take: {self.take}"
 
     def _show_alive_img(self) -> arcade.Texture:
@@ -244,12 +253,15 @@ class ChickengameView(WebsocketView):
     def can_pause(self) -> bool:
         return True
 
+    @typing.override
     def on_draw(self) -> None:
         super().on_draw()
         self.ui.draw()
 
+    @typing.override
     def on_show_view(self) -> None:
         self.ui.enable()
 
+    @typing.override
     def on_hide_view(self) -> None:
         self.ui.disable()
