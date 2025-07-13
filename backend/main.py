@@ -20,13 +20,13 @@ from backend.internal.errors import InternalServerError
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
 from backend.internal.ws import WebsocketEndpointsManager
+from backend.mines import Mines
 from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
 from shared.models import ErrorResponse
 from shared.models.responses import Success
 from shared.models.responses import Test
-from backend.mines import Mines
 
 if typing.TYPE_CHECKING:
     import asyncio

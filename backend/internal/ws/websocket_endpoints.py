@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from tkinter.font import names
 
 from backend.internal.ws.websocket_manager import WebsocketManager
 
@@ -21,7 +20,11 @@ class WebsocketEndpointsManager:
 
     def add_lobby(self, game_lobby_type: type[GameLobbyBase]) -> None:
         endpoint = WebsocketManager[game_lobby_type](game_lobby_type)
-        self._app.add_websocket_route(endpoint.handle_websocket, f"/{game_lobby_type.endpoint()}/<lobby_id:str>", name=game_lobby_type.endpoint()+"_ws")
+        self._app.add_websocket_route(
+            endpoint.handle_websocket,
+            f"/{game_lobby_type.endpoint()}/<lobby_id:str>",
+            name=game_lobby_type.endpoint() + "_ws",
+        )
         self._app.add_route(
             handler=typing.cast("RouteHandler", endpoint.list_lobbys),
             uri=f"/{game_lobby_type.endpoint()}/",

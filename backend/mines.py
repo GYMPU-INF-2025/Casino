@@ -1,21 +1,25 @@
-import logging
+from __future__ import annotations
+
+import random
 import typing
-from backend.db.queries import Queries
+
 from backend.internal.ws import GameLobbyBase
 from backend.internal.ws import WebsocketClient
 from backend.internal.ws import add_event_listener
 from shared.models import events
-import random
+
+if typing.TYPE_CHECKING:
+    from backend.db.queries import Queries
 
 
 class Mines(GameLobbyBase):
-    '''
+    """
     Backend implementation of the Mines game.
     This class handles the game logic, including starting the game, handling mine clicks,
     calculating multipliers, and managing the player's money and stakes.
 
     Author: Quirin
-    '''
+    """
 
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
@@ -27,7 +31,7 @@ class Mines(GameLobbyBase):
 
     def calculate_multiplier(self) -> float:
         prob_safe_sequence = 1.0
-        for i in range(25-self.remaining_mines):
+        for i in range(25 - self.remaining_mines):
             safe_left = 25 - self.num_mines - i
             tiles_left = 25 - i
             prob_safe_sequence *= safe_left / tiles_left
@@ -39,43 +43,40 @@ class Mines(GameLobbyBase):
         self.money = event.user.money
         await self.send_event(events.UpdateMoney(money=self.money), _)
 
-
-    @add_event_listener(events.ChangeStake)
-    async def change_stake_callback(self, event: events.ChangeStake, _: WebsocketClient) -> None:
+    @add_event_listener(events.MinesChangeStake)
+    async def change_stake_callback(self, event: events.MinesChangeStake, _: WebsocketClient) -> None:
         self.stake += event.amount
         self.money -= event.amount
 
-    @add_event_listener(events.MineClicked)
-    async def mine_clicked_callback(self, event: events.MineClicked, _: WebsocketClient) -> None:
+    @add_event_listener(events.MinesMineClicked)
+    async def mine_clicked_callback(self, event: events.MinesMineClicked, _: WebsocketClient) -> None:
         rand = random.randint(0, self.remaining_mines)
         if rand < self.num_mines:
             # Mine is clicked
             self.stake = 0
-            await self.broadcast_event(events.GameOver(x=event.x, y=event.y))
+            await self.broadcast_event(events.MinesGameOver(x=event.x, y=event.y))
             return
 
         self.remaining_mines -= 1
         self.multiplier = self.calculate_multiplier()
-        await self.broadcast_event(events.MineClickedResponse(x=event.x, y=event.y, multiplier=self.multiplier))
+        await self.broadcast_event(events.MinesMineClickedResponse(x=event.x, y=event.y, multiplier=self.multiplier))
 
-    @add_event_listener(events.StartGame)
-    async def start_game_callback(self, _: events.StartGame, ws: WebsocketClient) -> None:
+    @add_event_listener(events.MinesStartGame)
+    async def start_game_callback(self, _: events.MinesStartGame, ws: WebsocketClient) -> None:
         self.remaining_mines = 25
         self.num_mines = 4
         self.multiplier = self.calculate_multiplier()
         await self.send_event(events.UpdateMoney(money=self.money), ws)
 
-    @add_event_listener(events.Chashout)
-    async def chashout_callback(self, event: events.Chashout, ws: WebsocketClient) -> None:
+    @add_event_listener(events.MinesChashout)
+    async def chashout_callback(self, _: events.MinesChashout, ws: WebsocketClient) -> None:
         self.money += int(self.stake * self.multiplier)
         await self.queries.update_user_money(money=self.money, id_=ws.user_id)
-        await self.send_event(events.ChashoutResponse(balance=self.money), ws)
+        await self.send_event(events.MinesChashoutResponse(balance=self.money), ws)
         self.stake = 0
         self.remaining_mines = 25
         self.num_mines = 4
         self.multiplier = self.calculate_multiplier()
-
-
 
     @property
     @typing.override
