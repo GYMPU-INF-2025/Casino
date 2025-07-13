@@ -74,7 +74,6 @@ class MinesView(WebsocketView):
     def create_stake_controls(self) -> None:
         self.head_line = arcade.gui.UILabel(text="Mines", width=SCREEN_WIDTH, align="center", font_size=25)
 
-
         self.stake_anchor = self.ui.add(UIAnchorLayout(width=SCREEN_WIDTH, height=SCREEN_HEIGHT))
 
         stake_container = arcade.gui.UIBoxLayout(align=Alignment.CENTER, space_between=10, vertical=True)
