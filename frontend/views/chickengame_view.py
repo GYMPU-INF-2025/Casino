@@ -25,7 +25,6 @@ ALIVE_IMG_PATH = 'assets/chickengame/alive_img.png'
 BUTTON_IMG_PATH = 'assets/chickengame/button.png'
 STREET_IMG_PATH = 'assets/chickengame/street.png'
 STEP_IMG_PATH = 'assets/chickengame/img.png'
-ALIVE_IMG_PATH = 'assets/chickengame/alive_img.png'
 
 
 class ChickengameView(WebsocketView):
