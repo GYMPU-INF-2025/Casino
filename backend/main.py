@@ -1,4 +1,4 @@
-"""Entrypoint for our application."""
+
 
 from __future__ import annotations
 
@@ -90,7 +90,7 @@ class slot(GameLobbyBase):
 
     @add_event_listener(events.Moneyq)
     def Moneyq(self):
-        return self.money
+        self.send_event(events.Money_now(self.money))
 
     @add_event_listener(events.StartSpin)
     async def on_spin(self, event: events.StartSpin, _: WebsocketClient):

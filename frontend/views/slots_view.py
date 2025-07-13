@@ -10,7 +10,7 @@ from frontend.internal.websocket_view import WebsocketView
 from frontend.ui import Button
 from frontend.ui import ButtonStyle
 from shared.models import events
-from shared.models.events import kein_Geld, Spin_Animation, Slots_Win
+from shared.models.events import kein_Geld, Spin_Animation, Money_now, Moneyq
 from functools import partial
 
 if typing.TYPE_CHECKING:
@@ -33,7 +33,7 @@ class SlotsView(WebsocketView):
 
         self.box = arcade.gui.UIBoxLayout(height=100, width=1000)
         main_layout.add(self.box)
-
+        einsatz = 5
         # Lade Symbole
         self.symbol_textures = {
             "a": arcade.load_texture("assets/slots_symbols/cherry.png"),
@@ -47,14 +47,17 @@ class SlotsView(WebsocketView):
         self.animation_running = False
         self.animation_step = 0
         self.max_animation_steps = 10
-        money = self.send_event(events.Moneyq)
+
 
         self.money_label = arcade.gui.UILabel(
-            text= self.send_event(events.Moneyq),
+            text= "0 Geld",
             text_color=arcade.color.GREEN,
             font_size=40
         )
-        self.send_event(events.moneyq)
+        self.money_money()
+
+
+
         self.box.add(self.money_label)
 
         # Symbole mit Rahmen simulieren (kein border support, daher Rahmen selbst zeichnen)
@@ -88,6 +91,9 @@ class SlotsView(WebsocketView):
             height=40,
         )
         main_layout.add(self.message_label)
+
+    async def money_money(self):
+        await self.send_event(events.Moneyq())
 
     def on_button_press(self, _: arcade.gui.UIOnClickEvent) -> None:
         self.send_event(events.StartSpin(einsatz=20))
@@ -125,7 +131,7 @@ class SlotsView(WebsocketView):
     def update_animation_wrapper(self, final_symbols: list[str], delta_time: float) -> None:
         self.update_animation(final_symbols, delta_time)
 
-    @add_event_listener(Slots_Win)
+    @add_event_listener(Money_now)
     def Money_now(self, now_money: int) -> None:
         self.money_label.text = f"Geld: {now_money}"
 

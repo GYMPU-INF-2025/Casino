@@ -37,8 +37,8 @@ class kein_Geld(BaseEvent):
 class Spin_Animation(BaseEvent):
     final_symbols: list[str]
 
-class Slots_Win(BaseEvent):
-    now_money: int
+class Money_now(BaseEvent):
+     money: int
 
 class Moneyq(BaseEvent):
-    money: int
+    einsatz: int
