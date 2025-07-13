@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-import copy
 import logging
 import typing
 
 import arcade.gui
-from frontend.internal.decorator import add_event_listener
 
-from frontend.internal.websocket_view import WebsocketView
-from frontend.ui import Button, ButtonStyle, BoxLayout, InputText, Label
-from shared.models import events
 from frontend import constants as c
+from frontend.internal.decorator import add_event_listener
+from frontend.internal.websocket_view import WebsocketView
+from frontend.ui import BoxLayout
+from frontend.ui import Button
+from frontend.ui import ButtonStyle
+from frontend.ui import InputText
+from frontend.ui import Label
+from shared.models import events
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
@@ -24,12 +27,12 @@ TOTAL_PILES = 6
 
 
 PILES_POSITIONS = (
-    (c.CENTER_X,850),
-    (c.CENTER_X,350),
-    (c.CENTER_X - 600,350),
-    (c.CENTER_X - 300,350),
-    (c.CENTER_X + 300,350),
-    (c.CENTER_X + 600,350),
+    (c.CENTER_X, 850),
+    (c.CENTER_X, 350),
+    (c.CENTER_X - 600, 350),
+    (c.CENTER_X - 300, 350),
+    (c.CENTER_X + 300, 350),
+    (c.CENTER_X + 600, 350),
 )
 
 CARD_SCALE = 1
@@ -43,15 +46,15 @@ CARD_OFFSET = 50 * CARD_SCALE
 
 UNKNOWN_CARD_NAME = "cardBack_red4"
 
+
 class CardSprite(arcade.Sprite):
     """Class that draws a card to the screen by loading the texture and subclassing `arcade.Sprite`
 
     Authors: Nina
     """
 
-
-    def __init__(self, card: str, scale: float = CARD_SCALE):
-        """ Card constructor """
+    def __init__(self, card: str, scale: float = CARD_SCALE) -> None:
+        """Card constructor"""
 
         self.card = card
 
@@ -59,12 +62,12 @@ class CardSprite(arcade.Sprite):
 
         super().__init__(self.image_file_name, scale, hit_box_algorithm="None")
 
+
 class BlackjackView(WebsocketView):
     """Blackjack View class displaying the game and handling user interactions.
 
     Authors: Nina
     """
-
 
     def __init__(self, window: MainWindow, game_mode: c.GameModes, lobby_id: str) -> None:
         super().__init__(window, game_mode, lobby_id)
@@ -76,14 +79,29 @@ class BlackjackView(WebsocketView):
 
         ### Setup smaller gui items like money display and start game button
 
-        self.start_button = self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=Button(text="Start Game", style=ButtonStyle(), width=300, height=80))
+        self.start_button = self.anchor.add(
+            anchor_y=c.Alignment.CENTER,
+            anchor_x=c.Alignment.CENTER,
+            child=Button(text="Start Game", style=ButtonStyle(), width=300, height=80),
+        )
         self.start_button.set_handler("on_click", self.on_start_button)
-        self.own_money_text = self.anchor.add(anchor_x=c.Alignment.CENTER, anchor_y=c.Alignment.TOP, child=arcade.gui.UILabel(text="Current Money: 0$", font_size=28))
-        self.win_text = self.anchor.add(anchor_x=c.Alignment.CENTER, anchor_y=c.Alignment.CENTER, child=arcade.gui.UILabel(text="", font_size=48))
+        self.own_money_text = self.anchor.add(
+            anchor_x=c.Alignment.CENTER,
+            anchor_y=c.Alignment.TOP,
+            child=arcade.gui.UILabel(text="Current Money: 0$", font_size=28),
+        )
+        self.win_text = self.anchor.add(
+            anchor_x=c.Alignment.CENTER, anchor_y=c.Alignment.CENTER, child=arcade.gui.UILabel(text="", font_size=48)
+        )
 
         ### Setup menu at the bottom to control the game
 
-        self.box = self.anchor.add(anchor_y=c.Alignment.BOTTOM, child=BoxLayout(space_between=50, align=c.Alignment.RIGHT, vertical=False, size_hint_min=(c.SCREEN_WIDTH, 80)))
+        self.box = self.anchor.add(
+            anchor_y=c.Alignment.BOTTOM,
+            child=BoxLayout(
+                space_between=50, align=c.Alignment.RIGHT, vertical=False, size_hint_min=(c.SCREEN_WIDTH, 80)
+            ),
+        )
         self.box.add(Label(text="Bet:", width=150, font_size=40))
         self.bet_input = self.box.add(InputText(ui_manager=self.ui, width=150, height=80, font_size=40))
         self.bet_input.set_handler("on_change", self.on_bet_change)
@@ -120,13 +138,13 @@ class BlackjackView(WebsocketView):
 
         for i, pos in enumerate(PILES_POSITIONS):
             t = arcade.Text(
-                x = pos[0],
+                x=pos[0],
                 y=pos[1] - USERNAME_OFFSET,
                 align=c.Alignment.CENTER,
                 anchor_x=c.Alignment.CENTER,
                 anchor_y=c.Alignment.CENTER,
                 font_size=24,
-                text=""
+                text="",
             )
             if i == 0:
                 t.text = "Dealer"
@@ -138,7 +156,7 @@ class BlackjackView(WebsocketView):
                 anchor_x=c.Alignment.CENTER,
                 anchor_y=c.Alignment.CENTER,
                 font_size=24,
-                text=""
+                text="",
             )
             self._money_texts.append(t)
             t = arcade.Text(
@@ -148,7 +166,7 @@ class BlackjackView(WebsocketView):
                 anchor_x=c.Alignment.CENTER,
                 anchor_y=c.Alignment.CENTER,
                 font_size=24,
-                text=""
+                text="",
             )
             self._card_value_texts.append(t)
 
@@ -182,7 +200,9 @@ class BlackjackView(WebsocketView):
         self.send_event(events.BlackjackDrawCard())
 
     def on_set_bet_button(self, _: arcade.gui.UIOnClickEvent) -> None:
-        """Callback when the set bet button is pressed. If there is a valid text in the input field, it sends the bet to the server."""
+        """Callback when the set bet button is pressed.
+        If there is a valid text in the input field, it sends the bet to the server.
+        """
         if self.bet_input.text == "" or int(self.bet_input.text) == 0:
             return
         self.send_event(events.BlackjackSetBet(bet=int(self.bet_input.text)))
@@ -193,7 +213,7 @@ class BlackjackView(WebsocketView):
     def on_player_action_event(self, event: events.BlackjackPlayerAction) -> None:
         """Listener function that is called when a player has to do their action.
 
-        If this player is the player playing on this view, the required inputs are enabled, if not they will be disabled.
+        If this player is the player playing on this view, the required inputs are enabled, if not they are be disabled.
         """
         if event.username == self.own_username:
             self.draw_card_button.disabled = False
@@ -203,24 +223,24 @@ class BlackjackView(WebsocketView):
             self.hold_card_button.disabled = True
 
     @add_event_listener(events.ReadyEvent)
-    def on_ready_event(self, event: events.ReadyEvent):
-        """Listener function that is called once when the player joins the lobby. This sets the money and the username."""
+    def on_ready_event(self, event: events.ReadyEvent) -> None:
+        """Listener function that is called when the player joins the lobby. This sets the money and the username."""
         self.own_username = event.user.username
         self.set_own_money(event.user.money)
         self._username_texts[OWN_PILE].text = event.user.username
 
     @add_event_listener(events.BlackjackDraw)
-    def on_draw_event(self, _: events.BlackjackDraw):
+    def on_draw_event(self, _: events.BlackjackDraw) -> None:
         """Listener function that updates if the player has a draw."""
         self.win_text.text = "Draw! You get your bet amount back!"
 
     @add_event_listener(events.BlackjackWin)
-    def on_win_event(self, _: events.BlackjackWin):
+    def on_win_event(self, _: events.BlackjackWin) -> None:
         """Listener function that updates if the player has won."""
         self.win_text.text = "You have won!"
 
     @add_event_listener(events.BlackjackDefeat)
-    def on_defeat_event(self, _: events.BlackjackDefeat):
+    def on_defeat_event(self, _: events.BlackjackDefeat) -> None:
         """Listener function that updates if the player has lost."""
         self.win_text.text = "You have lost!"
 
@@ -247,8 +267,8 @@ class BlackjackView(WebsocketView):
         game to start. If the game is already started, it goes through every players data and sets their cards, their
         total card value (if they have any cards) and their current bidding amount (if they have already bid).
 
-        If the current user is not in the active players (that means he joined into an ongoing game) his controls will be
-        disabled, and he can watch the other players until a new round starts.
+        If the current user is not in the active players (that means he joined into an ongoing game) his controls will
+        bedisabled, and he can watch the other players until a new round starts.
         """
         self.set_started(event.started)
         self.reset_cards()
@@ -281,7 +301,7 @@ class BlackjackView(WebsocketView):
                 if card_name == "":
                     card_name = UNKNOWN_CARD_NAME
                 card = CardSprite(card_name)
-                self.add_card_to_pile(card,pile_index)
+                self.add_card_to_pile(card, pile_index)
                 self._card_list.append(card)
             if total_card_value != 0:
                 self._card_value_texts[pile_index].text = str(total_card_value)
@@ -294,7 +314,7 @@ class BlackjackView(WebsocketView):
                     self.bet_input.disabled = True
                     self.bet_input.text = ""
 
-            if pile_index != OWN_PILE and pile_index != DEALER_PILE:
+            if pile_index not in {OWN_PILE, DEALER_PILE}:
                 player_index += 1
 
         if not own_playing:
@@ -305,10 +325,9 @@ class BlackjackView(WebsocketView):
             self.draw_card_button.disabled = True
             self.hold_card_button.disabled = True
 
-
     ### Utility Functions
 
-    def add_card_to_pile(self, card: CardSprite, pile: int):
+    def add_card_to_pile(self, new_card: CardSprite, pile: int) -> None:
         """Function that adds a card sprite to a pile.
 
         Each pile has a position and when adding a card to a pile, the position of the card is being set.
@@ -316,9 +335,9 @@ class BlackjackView(WebsocketView):
         This is being achieved by applying an offset to the position of the cards, which is smaller than the width
         of the cards.
         """
-        self._piles[pile].append(card)
+        self._piles[pile].append(new_card)
         total_pile_width = 0
-        for i, card in enumerate(self._piles[pile]):
+        for i in range(len(self._piles[pile])):
             if i == 0:
                 total_pile_width += CARD_WIDTH
             else:
@@ -339,18 +358,19 @@ class BlackjackView(WebsocketView):
         """Helper function to reset all the texts. This function is used before updating the current game state."""
         self.win_text.text = ""
         for i, t in enumerate(self._username_texts):
-            if i < 2:
+            if i < 2:  # noqa: PLR2004
                 continue
             t.text = ""
-        for i, t in enumerate(self._money_texts):
+        for t in self._money_texts:
             t.text = ""
-        for i, t in enumerate(self._card_value_texts):
+        for t in self._card_value_texts:
             t.text = ""
 
     def set_started(self, started: bool) -> None:
         """Helper function to change game state depending on the game_started value sent by the server.
 
-        If the game is not started, we don't want to show the controls at the bottom, but we want to show the start game button.
+        If the game is not started, we don't want to show the controls at the bottom,
+        but we want to show the start game button.
         """
         self.started = started
         self.box.visible = started
@@ -358,7 +378,9 @@ class BlackjackView(WebsocketView):
         self.start_button.visible = not started
 
     def set_own_money(self, money: int) -> None:
-        """Helper function used to set the money. This also updates the text at the top displaying the current amount of money."""
+        """Helper function used to set the money.
+        This also updates the text at the top displaying the current amount of money.
+        """
         self.own_money = money
         self.own_money_text.text = f"Current Money: {money}$"
 
@@ -377,7 +399,6 @@ class BlackjackView(WebsocketView):
             t.draw()
         self.ui.draw()
 
-
     @typing.override
     def on_show_view(self) -> None:
         self.ui.enable()
@@ -385,6 +406,3 @@ class BlackjackView(WebsocketView):
     @typing.override
     def on_hide_view(self) -> None:
         self.ui.disable()
-
-
-    

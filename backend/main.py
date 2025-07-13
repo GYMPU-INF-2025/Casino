@@ -11,8 +11,8 @@ import msgspec.json
 import sanic
 from sanic.log import logger
 
-from backend.blackjack import Blackjack
 from backend.authentication import router as auth_router
+from backend.blackjack import Blackjack
 from backend.db import models
 from backend.db.queries import Queries
 from backend.dependencys import get_current_user
