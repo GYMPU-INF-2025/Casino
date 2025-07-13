@@ -6,14 +6,12 @@ import typing
 import arcade
 import arcade.gui
 from arcade.gui import UIAnchorLayout
-from pycparser.ply.yacc import restart
 
 from frontend.ui import Button
 from frontend.internal.decorator import add_event_listener
 from frontend.constants import SCREEN_HEIGHT, SCREEN_WIDTH, Alignment, GameModes
 from frontend.internal.websocket_view import WebsocketView
 from shared.models import events
-from shared.models.events import GameOver
 
 if typing.TYPE_CHECKING:
     from frontend.window import MainWindow
@@ -71,7 +69,7 @@ class MinesView(WebsocketView):
         self.stake += amount
         self._update_text_displays()
 
-        stake_event = events.ChangeStake(amount=amount)
+        stake_event = events.MinesChangeStake(amount=amount)
         self.send_event(stake_event)
 
     def on_increase_stake(self, button) -> None:
@@ -190,8 +188,8 @@ class MinesView(WebsocketView):
 
         self.ui.enable()
 
-    @add_event_listener(events.ChashoutResponse)
-    def new_game(self, event: events.ChashoutResponse) -> None:
+    @add_event_listener(events.MinesChashoutResponse)
+    def new_game(self, event: events.MinesChashoutResponse) -> None:
         self.is_game_started = False
         self.start_game.text = "Start Game"
         self._toggle_stake_buttons(True)
@@ -214,7 +212,7 @@ class MinesView(WebsocketView):
             self.head_line.text = "Multiplier: 1.0"
             self._toggle_stake_buttons(False)
         else:
-            self.send_event(events.Chashout())
+            self.send_event(events.MinesChashout())
 
 
     @add_event_listener(events.UpdateMoney)
@@ -231,17 +229,17 @@ class MinesView(WebsocketView):
         for i in range(5):
             for j in range(5):
                 if self.mines_field[i][j] == button.source:
-                    mine_event = events.MineClicked(x=j, y=i)
+                    mine_event = events.MinesMineClicked(x=j, y=i)
                     self.send_event(mine_event)
 
-    @add_event_listener(events.MineClickedResponse)
-    def on_mine_clicked_response(self, event: events.MineClickedResponse) -> None:
+    @add_event_listener(events.MinesMineClickedResponse)
+    def on_mine_clicked_response(self, event: events.MinesMineClickedResponse) -> None:
         self.mines_field[event.y][event.x].text = "X"
         self.mines_field[event.y][event.x].disabled = True
         self.head_line.text = f"Multiplier: {event.multiplier:.1f}"
 
-    @add_event_listener(events.GameOver)
-    def on_game_over(self, event: GameOver) -> None:
+    @add_event_listener(events.MinesGameOver)
+    def on_game_over(self, event: events.MinesGameOver) -> None:
         self.start_game.text = "Start Game"
         self.mines_field[event.y][event.x].text = "!"
         self.head_line.text = f"Game Over!"
