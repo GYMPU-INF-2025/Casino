@@ -33,6 +33,7 @@ class _WebsocketTransport:
 
     Authors: Christopher
     """
+
     def __init__(self, *, ws: websocket.WebSocket) -> None:
         self._ws = ws
         self._decoder = msgspec.json.Decoder(type=internal_models.WebSocketPayload)
@@ -90,6 +91,7 @@ class WebsocketThread(threading.Thread):
 
     Authors: Christopher
     """
+
     def __init__(
         self,
         token: str,

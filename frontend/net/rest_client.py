@@ -17,6 +17,7 @@ class RestClient(RestClientBase):
 
     Authors: Christopher, Quirin
     """
+
     @typing.override
     def login(self, username: str, password: str) -> responses.LoginResponse:
         """Rest method to login.

@@ -33,6 +33,7 @@ class _WebsocketViewMeta(abc.ABCMeta):
 
     Authors: Christopher
     """
+
     @typing.override
     def __call__(
         cls: type[WebsocketViewT], window: MainWindow, game_mode: c.GameModes, lobby_id: str

@@ -35,6 +35,7 @@ class MainWindow(arcade.Window):
 
     Authors: Christopher
     """
+
     def __init__(self, root_path: pathlib.Path) -> None:
         logger.debug("Initializing Main Window")
         logger.debug("Screen size: %sx%s", c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
@@ -100,7 +101,9 @@ class MainWindow(arcade.Window):
             self._show_view(self._login_menu)
 
     def show_game(self, game_mode: c.GameModes, lobby_id: str) -> None:
-        """Function called to show a view for a game. It takes the game mode and the lobby id to create the game view."""
+        """Function called to show a view for a game.
+        It takes the game mode and the lobby id to create the game view.
+        """
         match game_mode:
             case c.GameModes.BLACKJACK:
                 self._show_view(BlackjackView(window=self, game_mode=game_mode, lobby_id=lobby_id))

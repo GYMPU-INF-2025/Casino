@@ -20,6 +20,7 @@ def add_event_listener(
 
     Authors: Christopher
     """
+
     def wrapper(func: DecoratorCallbackT[WebsocketViewT, EventT]) -> DecoratorCallbackT[WebsocketViewT, EventT]:
         func.__event_type__ = event  # type: ignore[reportFunctionMemberAccess]
         return func

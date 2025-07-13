@@ -19,6 +19,7 @@ class MainMenu(BaseGUI):
 
     Authors: Christopher
     """
+
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
 

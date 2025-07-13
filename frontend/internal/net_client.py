@@ -27,6 +27,7 @@ class NetClient(typing.Generic[RestClientT]):
 
     Authors: Christopher
     """
+
     def __init__(self, rest_client: type[RestClientT], base_address: str) -> None:
         self._rest_client: RestClientT = rest_client(base_url=f"http://{base_address}/")
         self._token: str | None = None

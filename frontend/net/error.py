@@ -19,6 +19,7 @@ __all__ = ("ClientHTTPError", "HTTPError", "HTTPResponseError", "InternalServerE
 Authors: Christopher
 """
 
+
 class HTTPError(RuntimeError):
     """"""
 
