@@ -15,6 +15,7 @@ from frontend.views import MainMenu
 from frontend.views import PauseMenu
 from frontend.views import TitleView
 from frontend.views.black_jack import BlackjackView
+from frontend.views.game_selection import GameSelectionView
 from frontend.views.game_view import GameView
 from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
@@ -46,6 +47,7 @@ class MainWindow(arcade.Window):
         self._main_menu = MainMenu(window=self)
         self._pause_menu = PauseMenu(window=self)
         self._login_menu = LoginMenu(window=self)
+        self._game_selection = GameSelectionView(window=self)
 
         self._blackjack_lobby_view = LobbysView(window=self, game_mode=c.GameModes.BLACKJACK)
 
@@ -86,8 +88,14 @@ class MainWindow(arcade.Window):
             self._show_view(self._login_menu)
 
     def show_game(self, game_mode: c.GameModes, lobby_id: str) -> None:
-        game_view = BlackjackView(window=self, game_mode=game_mode, lobby_id=lobby_id)
-        self._show_view(view=game_view)
+        match game_mode:
+            case c.GameModes.BLACKJACK:
+                self._show_view(BlackjackView(window=self, game_mode=game_mode, lobby_id=lobby_id))
+            case _:
+                raise TypeError(f"No lobbys view for game mode: {game_mode}")
+
+    def show_game_selection(self) -> None:
+        self._show_view(view=self._game_selection)
 
     def show_lobbys(self, game_mode: c.GameModes) -> None:
         match game_mode:
