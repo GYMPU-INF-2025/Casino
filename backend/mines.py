@@ -9,6 +9,14 @@ import random
 
 
 class Mines(GameLobbyBase):
+    '''
+    Backend implementation of the Mines game.
+    This class handles the game logic, including starting the game, handling mine clicks,
+    calculating multipliers, and managing the player's money and stakes.
+
+    Author: Quirin
+    '''
+
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
         self.money = 1000

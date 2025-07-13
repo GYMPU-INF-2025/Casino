@@ -21,6 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 class MinesView(WebsocketView):
+    '''
+    Frontend view for the Mines game mode.
+    Authors: Quirin
+    '''
+
+
     def __init__(self, window: MainWindow, game_mode: GameModes, lobby_id: str) -> None:
         super().__init__(window=window, game_mode=game_mode, lobby_id=lobby_id)
         self.ui = arcade.gui.UIManager()
