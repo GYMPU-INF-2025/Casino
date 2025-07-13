@@ -10,7 +10,7 @@ from frontend.internal.websocket_view import WebsocketView
 from frontend.ui import Button
 from frontend.ui import ButtonStyle
 from shared.models import events
-from shared.models.events import kein_Geld, Spin_Animation
+from shared.models.events import kein_Geld, Spin_Animation, Slots_Win
 from functools import partial
 
 if typing.TYPE_CHECKING:
@@ -32,13 +32,12 @@ class SlotsView(WebsocketView):
 
         self.placeholder_label = arcade.gui.UILabel(
             text="?  ?  ?",
-            text_color=arcade.color.BLACK,
+            text_color=arcade.color.RED,
             font_size=40
         )
         self.box.add(self.placeholder_label)
 
-        button = self.box.add(Button(text="Test", style=ButtonStyle()))
-        button.set_handler("on_click", self.on_button_press)
+
         button = self.box.add(Button(text="turn", style=ButtonStyle()))
         button.set_handler("on_click", self.on_button_press)
 
@@ -70,7 +69,18 @@ class SlotsView(WebsocketView):
             return
 
         self.animation_step += 1
-        SlotSymbols = ["a", "b", "c", "d", "e", "f"]
+        SlotSymbols = ["🍒", "🍋", "🔔", "💎", "⭐", "7️⃣"]
+
+        '''SYMBOL_MAP = {
+    "a": "🍒",  # Kirsche
+    "b": "🍋",  # Zitrone
+    "c": "🔔",  # Glocke
+    "d": "💎",  # Diamant
+    "e": "⭐",  # Stern
+    "f": "7️⃣", # Glückszahl 7
+}
+'''
+
         numbers = [random.choice(SlotSymbols) for _ in range(3)]
         self.placeholder_label.text = " ".join(numbers)
 
@@ -82,6 +92,17 @@ class SlotsView(WebsocketView):
 
     def update_animation_wrapper(self, final_symbols: list[str], delta_time: float) -> None:
         self.update_animation(final_symbols, delta_time)
+
+    @add_event_listener(Slots_Win)
+    def Money_now(self, now_money: int) -> None:
+        self.money_label = arcade.gui.UILabel(
+            text=now_money,
+            text_color=arcade.color,
+            font_size=40
+        )
+        self.box.add(self.money_label)
+
+
 
     @add_event_listener(Spin_Animation)
     def Spin_Animation(self, event: events.Spin_Animation) -> None:

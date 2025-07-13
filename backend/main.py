@@ -60,15 +60,25 @@ class Blackjack(GameLobbyBase):
     def endpoint() -> str:
         return "blackjack"
 
-SlotSymbols = ["a", "b", "c", "d", "e", "f"]
+SlotSymbols = ["🍒", "🍋", "🔔", "💎", "⭐", "7️⃣"]
 Prizes = {
-    "a" : 10,
-    "b" : 20,
-    "c" : 50,
-    "d" : 100,
-    "e" : 200,
-    "f" : 500,
+    "🍒" : 10,
+    "🍋" : 20,
+    "🔔" : 50,
+    "💎" : 100,
+    "⭐" : 200,
+    "7️⃣" : 500,
 }
+
+''' SYMBOL_MAP = {
+    "a": "🍒",  # Kirsche
+    "b": "🍋",  # Zitrone
+    "c": "🔔",  # Glocke
+    "d": "💎",  # Diamant
+    "e": "⭐",  # Stern
+    "f": "7️⃣", # Glückszahl 7
+}
+'''
 
 class slot(GameLobbyBase):
 
@@ -95,7 +105,8 @@ class slot(GameLobbyBase):
         elif outcome[0] == outcome[1] or outcome[1] == outcome[2] or outcome[0] == outcome[2]:
             win = 2
             self.money += win
-            #return outcome, win, None
+            self.broadcast_event(events.Slots_Win(self.money))
+            return outcome, win, None
 
     @property
     @typing.override
