@@ -45,4 +45,12 @@ class GameOver(BaseEvent):
     x: int
     y: int
 
+class RestartGame(BaseEvent):
+    pass
+
+class Chashout(BaseEvent):
+    pass
+
+class ChashoutResponse(BaseEvent):
+    balance: int
 

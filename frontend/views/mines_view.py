@@ -29,6 +29,8 @@ class MinesView(WebsocketView):
         self.balance = 1000
         self.balance_text = None
         self.start_game = Button()
+        self.increase_stake = Button()
+        self.decrease_stake = Button()
         self.mines_field = [[] for _ in range(5)]
         self.is_game_started = False
 
@@ -80,21 +82,21 @@ class MinesView(WebsocketView):
 
         stake_container.add(text_container)
 
-        increase_stake = Button(
+        self.increase_stake = Button(
             text="+ Stake",
             width=150,
             height=40
         )
-        increase_stake.on_click = self.on_increase_stake
-        stake_container.add(increase_stake)
+        self.increase_stake.on_click = self.on_increase_stake
+        stake_container.add(self.increase_stake)
 
-        decrease_stake = Button(
+        self.decrease_stake = Button(
             text="- Stake",
             width=150,
             height=40
         )
-        decrease_stake.on_click = self.on_decrease_stake
-        stake_container.add(decrease_stake)
+        self.decrease_stake.on_click = self.on_decrease_stake
+        stake_container.add(self.decrease_stake)
         
         self.start_game = Button(
             text="Start Game",
@@ -172,11 +174,39 @@ class MinesView(WebsocketView):
         self.send_event(stake_event)
 
     def on_start_game(self, button) -> None:
-        if self.stake <= 0 or self.is_game_started:
-            return
-        self.is_game_started = True
-        self.start_game.text = "Game Started"
-        self.head_line.text = "Multiplier: 1.0"
+        if not self.is_game_started:
+            if self.stake <= 0:
+                return
+            self.is_game_started = True
+            self.start_game.text = "Cash out"
+            self.head_line.text = "Multiplier: 1.0"
+            self.increase_stake.text = "---"
+            self.decrease_stake.text = "---"
+            self.increase_stake.disabled = True
+            self.decrease_stake.disabled = True
+        else:
+            self.send_event(events.Chashout())
+
+    @add_event_listener(events.ChashoutResponse)
+    def new_game(self, event: events.ChashoutResponse) -> None:
+        self.is_game_started = False
+        self.start_game.text = "Start Game"
+        self.increase_stake.text = "+ Stake"
+        self.decrease_stake.text = "- Stake"
+        self.increase_stake.disabled = False
+        self.decrease_stake.disabled = False
+        self.stake = 0
+        self.balance = event.balance
+        self.balance_text.text = f"Balance: {self.balance}"
+        self.stake_text.text = f"Stake: {self.stake}"
+        self.head_line.text = "Mines"
+
+        # Reset mines field
+        for row in self.mines_field:
+            for button in row:
+                button.text = "?"
+                button.disabled = False
+
 
     def on_mine_clicked(self, button) -> None:
         if not self.is_game_started:
@@ -197,10 +227,8 @@ class MinesView(WebsocketView):
 
     @add_event_listener(events.GameOver)
     def on_game_over(self, event: GameOver) -> None:
-        self.is_game_started = False
         self.start_game.text = "Start Game"
         self.mines_field[event.y][event.x].text = "!"
-        self.stake = 0
         self.head_line.text = f"Game Over!"
 
     @property
