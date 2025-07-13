@@ -16,7 +16,6 @@ from frontend.views import PauseMenu
 from frontend.views import TitleView
 from frontend.views.black_jack import BlackjackView
 from frontend.views.game_selection import GameSelectionView
-from frontend.views.game_view import GameView
 from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
 

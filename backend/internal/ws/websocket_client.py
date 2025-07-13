@@ -68,20 +68,20 @@ class WebsocketClient:
     async def handle_ws(
         self,
         dispatch_handler: Callable[[WebSocketPayload, WebsocketClient], Coroutine[typing.Any, typing.Any, None]],
-        remove_client: Callable[[Snowflake], None],
+        remove_client: Callable[[Snowflake], Coroutine[typing.Any, typing.Any, None]],
     ) -> None:
         while True:
             try:
                 payload = await self._ws.recieve_payload()
             except errors.WebsocketConnectionError as exc:
                 logger.debug(f"Client {self.client_id} closed the connection with reason {exc.reason}")
-                remove_client(self._user_id)
+                await remove_client(self._user_id)
                 break
             except errors.WebsocketClientClosedConnectionError as exc:
                 logger.debug(
                     f"Client {self.client_id} closed the connection with code {exc.code} and reason {exc.reason}"
                 )
-                remove_client(self._user_id)
+                await remove_client(self._user_id)
                 break
             else:
                 if payload.op == DISPATCH:
