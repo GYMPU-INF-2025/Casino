@@ -129,6 +129,9 @@ class MinesView(WebsocketView):
 
     @add_event_listener(events.MinesChashoutResponse)
     def new_game(self, event: events.MinesChashoutResponse) -> None:
+        '''
+        Chashout was clicked, reset the game state and prepare for a new game.
+        '''
         self.is_game_started = False
         self.start_game.text = "Start Game"
         self._toggle_stake_buttons(True)
@@ -171,12 +174,19 @@ class MinesView(WebsocketView):
 
     @add_event_listener(events.MinesMineClickedResponse)
     def on_mine_clicked_response(self, event: events.MinesMineClickedResponse) -> None:
+        '''
+        Handle mine click and user survived
+        '''
+
         self.mines_field[event.y][event.x].text = "X"
         self.mines_field[event.y][event.x].disabled = True
         self.head_line.text = f"Multiplier: {event.multiplier:.1f}"
 
     @add_event_listener(events.MinesGameOver)
     def on_game_over(self, event: events.MinesGameOver) -> None:
+        '''
+        Handle mine click and user lost
+        '''
         self.start_game.text = "Start Game"
         self.mines_field[event.y][event.x].text = "!"
         self.head_line.text = "Game Over!"
