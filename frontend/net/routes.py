@@ -11,6 +11,8 @@ DELETE: typing.Final[str] = "DELETE"
 PUT: typing.Final[str] = "PUT"
 
 
+"""A collection of different Routes that our backend provides. This is used in the rest client."""
+
 # Authors: Quirin
 POST_LOGIN: typing.Final[Route] = Route(POST, "/login")
 POST_REGISTER: typing.Final[Route] = Route(POST, "/users")

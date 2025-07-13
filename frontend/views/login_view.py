@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 class LoginMenu(BaseGUI):
+    """Login view used to log in / register.
+
+    Authors: Christopher, Quirin
+    """
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
 
@@ -59,11 +63,17 @@ class LoginMenu(BaseGUI):
         self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
 
     def reset(self) -> None:
+        """Function that resets all the texts."""
         self.error_text.text = ""
         self.username_field.text = ""
         self.password_field.text = ""
 
     def on_register_click(self, _: arcade.gui.UIOnClickEvent) -> None:
+        """Callback when the register button got pressed.
+
+        It first checks if username/password is empty and if not it creates a user and then logs in with
+        the credentials. If any request fails, it shows an error text. Otherwise, it continues to the main menu.
+        """
         if not self.textfield_check():
             return
 
@@ -82,6 +92,11 @@ class LoginMenu(BaseGUI):
             self.reset()
 
     def on_login_click(self, _: arcade.gui.UIOnClickEvent) -> None:
+        """Callback when the login button got pressed.
+
+        It first checks if username/password is empty and if not it trys to log in with the given credentials.
+        If the requests fails it displays an error text. Otherwise, it continues to the main menu.
+        """
         if not self.textfield_check():
             return
 
@@ -94,6 +109,7 @@ class LoginMenu(BaseGUI):
             self.reset()
 
     def textfield_check(self) -> bool:
+        """Helper function to check if any of the text inputs are emtpy."""
         if not self.username_field.text or not self.password_field.text:
             self.error_text.text = "Username and password cannot be empty."
             return False

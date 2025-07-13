@@ -15,6 +15,10 @@ if typing.TYPE_CHECKING:
 
 
 class MainMenu(BaseGUI):
+    """Main menu that displays a play, logout and quit game button.
+
+    Authors: Christopher
+    """
     def __init__(self, window: MainWindow) -> None:
         super().__init__(window=window)
 
@@ -28,8 +32,6 @@ class MainMenu(BaseGUI):
         play_button = arcade.gui.UIFlatButton(text="Play", width=c.MENU_WIDTH)
         close_game_button = arcade.gui.UIFlatButton(text="Quit Game", width=self._button_width)
         logout_button = arcade.gui.UIFlatButton(text="Logout", width=self._button_width)
-        profile_button = arcade.gui.UIFlatButton(text="Profile", width=self._button_width)
-        options_button = arcade.gui.UIFlatButton(text="Options", width=self._button_width)
 
         @play_button.event("on_click")
         def on_play_button(_: arcade.gui.UIOnClickEvent) -> None:
@@ -45,9 +47,7 @@ class MainMenu(BaseGUI):
 
         self.grid.add(child=play_button, column=0, row=0, column_span=2)
         self.grid.add(child=logout_button, column=0, row=1)
-        self.grid.add(child=profile_button, column=1, row=1)
-        self.grid.add(child=options_button, column=0, row=2)
-        self.grid.add(child=close_game_button, column=1, row=2)
+        self.grid.add(child=close_game_button, column=1, row=1)
         self.anchor.add(anchor_y=c.Alignment.CENTER, anchor_x=c.Alignment.CENTER, child=self.grid)
 
     @property

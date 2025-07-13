@@ -21,6 +21,8 @@ class TitleView(BaseGameView):
     This is just a black screen that shows a text, which slowly fades in.
     When pressing any button (mouse or keyboard) the view is skipped and
     the MainMenu is shown.
+
+    Authors: Christopher
     """
 
     def __init__(self, window: MainWindow) -> None:

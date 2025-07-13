@@ -29,6 +29,10 @@ WebsocketViewT = typing.TypeVar("WebsocketViewT")
 
 
 class _WebsocketViewMeta(abc.ABCMeta):
+    """Metaclass for the websocket view to allow the `__post__init__` function to be called.
+
+    Authors: Christopher
+    """
     @typing.override
     def __call__(
         cls: type[WebsocketViewT], window: MainWindow, game_mode: c.GameModes, lobby_id: str

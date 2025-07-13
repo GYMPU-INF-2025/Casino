@@ -31,6 +31,10 @@ logger = logging.getLogger(__name__)
 
 
 class MainWindow(arcade.Window):
+    """Main windows class storing the different views and managing what is beeing shown.
+
+    Authors: Christopher
+    """
     def __init__(self, root_path: pathlib.Path) -> None:
         logger.debug("Initializing Main Window")
         logger.debug("Screen size: %sx%s", c.SCREEN_WIDTH, c.SCREEN_HEIGHT)
@@ -55,6 +59,9 @@ class MainWindow(arcade.Window):
         self._show_view(self._title_view)
 
     def set_fps(self, fps: int) -> None:
+        """Helper function to set the fps. If you try to set the fps higher than the update rate, it caps the fps
+        to the update rate.
+        """
         if fps > c.UPDATES_PER_SECOND:
             logger.debug(
                 "Tried setting fps to %s, faster then the update rate of %s, capping fps to %s",
@@ -66,14 +73,18 @@ class MainWindow(arcade.Window):
         self.set_draw_rate(1 / fps)
 
     def get_shader_path(self, shader_name: str) -> pathlib.Path:
+        """Helper method to get the shader path."""
         return self.shader_path / f"{shader_name}.glsl"
 
     @typing.override
     def show_view(self, new_view: View) -> None:
+        """Debug function that overrides the normal show_view function and adds debug logging."""
         logger.debug("Showing view %s", new_view)
         super().show_view(new_view)
 
     def _show_view(self, view: BaseView) -> None:
+        """Helper function that calls activate/deactivate on views before showing/hiding them and stores the current
+        view in `_current_selected_view`. This is used to draw the background when opening the pause menu."""
         if self.current_view == view:
             return
         self._current_selected_view.deactivate()
@@ -82,24 +93,28 @@ class MainWindow(arcade.Window):
         self._current_selected_view.activate()
 
     def show_main_menu(self) -> None:
+        """Function that shows the main menu, if the user is authenticated, if not it shows the login menu."""
         if self.net_client.authorized:
             self._show_view(self._main_menu)
         else:
             self._show_view(self._login_menu)
 
     def show_game(self, game_mode: c.GameModes, lobby_id: str) -> None:
+        """Function called to show a view for a game. It takes the game mode and the lobby id to create the game view."""
         match game_mode:
             case c.GameModes.BLACKJACK:
                 self._show_view(BlackjackView(window=self, game_mode=game_mode, lobby_id=lobby_id))
             case c.GameModes.MINES:
                 self._show_view(MinesView(window=self, game_mode=game_mode, lobby_id=lobby_id))
             case _:
-                raise TypeError(f"No lobbys view for game mode: {game_mode}")
+                raise TypeError(f"No game view for game mode: {game_mode}")
 
     def show_game_selection(self) -> None:
+        """Function that shows the game selection view."""
         self._show_view(view=self._game_selection)
 
     def show_lobbys(self, game_mode: c.GameModes) -> None:
+        """Function that shows the lobby selection view for different games."""
         match game_mode:
             case c.GameModes.BLACKJACK:
                 self._show_view(self._blackjack_lobby_view)
@@ -107,6 +122,7 @@ class MainWindow(arcade.Window):
                 raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
     def toggle_pause_menu(self) -> None:
+        """Function that toggles the pause menu."""
         if self.current_view == self._pause_menu:
             self.show_view(self._current_selected_view)
         else:
@@ -114,6 +130,9 @@ class MainWindow(arcade.Window):
 
     @typing.override
     def on_key_press(self, symbol: int, modifiers: int) -> EVENT_HANDLE_STATE:
+        """Listener to key presses, if the user presses escape and the current view allows pausing, it shows the
+        pause menu.
+        """
         if symbol == arcade.key.ESCAPE and self._current_selected_view.can_pause:
             self.toggle_pause_menu()
 
@@ -123,5 +142,6 @@ class MainWindow(arcade.Window):
 
     @typing.override
     def on_update(self, delta_time: float) -> bool | None:
+        """On update function that checks if the user is logged in and if not it shows the login screen."""
         if not self.net_client.authorized and self.current_selected_view != self._title_view:
             self._show_view(self._login_menu)

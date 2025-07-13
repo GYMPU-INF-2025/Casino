@@ -11,6 +11,12 @@ from shared.models import responses
 
 
 class RestClient(RestClientBase):
+    """Implementation of `RestClientBase`.
+
+    This holds all of our rest methods.
+
+    Authors: Christopher, Quirin
+    """
     @typing.override
     def login(self, username: str, password: str) -> responses.LoginResponse:
         """Rest method to login.

@@ -18,6 +18,15 @@ RestClientT = typing.TypeVar("RestClientT", bound=RestClientBase)
 
 
 class NetClient(typing.Generic[RestClientT]):
+    """The net client is a network client which is designed to handle all of our network communication.
+
+    It stores our rest client and also handles websocket connections by providing a helper method that returns
+    the thread needed for the websocket connection.
+
+    This class also manages authorization by storing the jwt token used for auth and providing a login method.
+
+    Authors: Christopher
+    """
     def __init__(self, rest_client: type[RestClientT], base_address: str) -> None:
         self._rest_client: RestClientT = rest_client(base_url=f"http://{base_address}/")
         self._token: str | None = None
