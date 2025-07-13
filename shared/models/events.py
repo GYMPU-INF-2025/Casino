@@ -34,7 +34,23 @@ class PrintText(BaseEvent):
 class UpdateMoney(BaseEvent):
     money: int
 
+class StartSpin(BaseEvent):
+    einsatz: int
 
+class kein_Geld(BaseEvent):
+    einsatz: int
+
+class Spin_Animation(BaseEvent):
+    final_symbols: list[str]
+
+class Money_now(BaseEvent):
+     money: int
+
+class Moneyq(BaseEvent):
+    einsatz: int
+
+class Slots_Win(BaseEvent):
+    money: int
 
 class MinesChangeStake(BaseEvent):
     amount: int
