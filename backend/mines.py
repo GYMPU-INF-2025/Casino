@@ -30,6 +30,9 @@ class Mines(GameLobbyBase):
         self.multiplier = self.calculate_multiplier()
 
     def calculate_multiplier(self) -> float:
+        """
+        Calculate the multiplier based on the number of remaining mines.
+        """
         prob_safe_sequence = 1.0
         for i in range(25 - self.remaining_mines):
             safe_left = 25 - self.num_mines - i
@@ -40,6 +43,9 @@ class Mines(GameLobbyBase):
 
     @add_event_listener(events.ReadyEvent)
     async def start_game(self, event: events.ReadyEvent, _: WebsocketClient) -> None:
+        """
+        Loads money from db
+        """
         self.money = event.user.money
         await self.send_event(events.UpdateMoney(money=self.money), _)
 
@@ -54,15 +60,18 @@ class Mines(GameLobbyBase):
         if rand < self.num_mines:
             # Mine is clicked
             self.stake = 0
-            await self.broadcast_event(events.MinesGameOver(x=event.x, y=event.y))
+            await self.send_event(events.MinesGameOver(x=event.x, y=event.y), _)
             return
 
         self.remaining_mines -= 1
         self.multiplier = self.calculate_multiplier()
-        await self.broadcast_event(events.MinesMineClickedResponse(x=event.x, y=event.y, multiplier=self.multiplier))
+        await self.send_event(events.MinesMineClickedResponse(x=event.x, y=event.y, multiplier=self.multiplier), _)
 
     @add_event_listener(events.MinesStartGame)
     async def start_game_callback(self, _: events.MinesStartGame, ws: WebsocketClient) -> None:
+        """
+        new Game
+        """
         self.remaining_mines = 25
         self.num_mines = 4
         self.multiplier = self.calculate_multiplier()
