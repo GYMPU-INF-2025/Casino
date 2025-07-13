@@ -40,7 +40,11 @@ class GameSelectionView(BaseGUI):
         """Callback function that shows the lobby view for the wanted game mode."""
 
         def inner_callback(_: arcade.gui.UIOnClickEvent) -> None:
-            self.window.show_lobbys(game_mode)
+            if game_mode.singleplayer:
+                lobby = self.window.net_client.rest.create_lobby(game_mode.value)
+                self.window.show_game(game_mode, lobby_id=lobby.id)
+            else:
+                self.window.show_lobbys(game_mode)
 
         return inner_callback
 

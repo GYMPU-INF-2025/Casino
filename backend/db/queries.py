@@ -20,7 +20,7 @@ from backend.db import models
 
 CREATE_USER: typing.Final[str] = """-- name: CreateUser :execrows
 INSERT INTO users(id, username, password, money)
-VALUES (?,?,?,?)
+VALUES (?, ?, ?, ?)
 """
 
 GET_USER_BY_ID: typing.Final[str] = """-- name: GetUserById :one
@@ -33,6 +33,12 @@ GET_USER_BY_USERNAME: typing.Final[str] = """-- name: GetUserByUsername :one
 SELECT id, username, password, money
 FROM users
 WHERE users.username = ?
+"""
+
+UPDATE_USER_MONEY: typing.Final[str] = """-- name: UpdateUserMoney :exec
+UPDATE users
+SET money = ?
+WHERE id = ?
 """
 
 
@@ -64,7 +70,7 @@ class Queries:
 
         ```sql
         INSERT INTO users(id, username, password, money)
-        VALUES (?,?,?,?)
+        VALUES (?, ?, ?, ?)
         ```
 
         Args:
@@ -117,3 +123,18 @@ class Queries:
         if row is None:
             return None
         return models.User(id=Snowflake(row[0]), username=row[1], password=row[2], money=row[3])
+
+    async def update_user_money(self, *, money: int, id_: Snowflake) -> None:
+        """Execute SQL query with `name: UpdateUserMoney :exec`.
+
+        ```sql
+        UPDATE users
+        SET money = ?
+        WHERE id = ?
+        ```
+
+        Args:
+            money: int.
+            id_: Snowflake.
+        """
+        await self._conn.execute(UPDATE_USER_MONEY, (money, int(id_)))
