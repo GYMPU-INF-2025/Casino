@@ -11,6 +11,7 @@ import msgspec.json
 import sanic
 from sanic.log import logger
 
+from backend.cards import CardStack
 from backend.authentication import router as auth_router
 from backend.db import models
 from backend.db.queries import Queries
@@ -38,6 +39,7 @@ class Blackjack(GameLobbyBase):
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
         super().__init__(lobby_id=lobby_id, queries=queries)
         self.money = 100
+        self.cards = CardStack()
 
     @add_event_listener(events.UpdateMoney)
     async def update_money_callback(self, event: events.UpdateMoney, _: WebsocketClient) -> None:
