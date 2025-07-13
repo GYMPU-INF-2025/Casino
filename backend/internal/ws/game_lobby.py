@@ -49,9 +49,10 @@ class _GameLobbyMeta(type(abc.ABC)):
 class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
     """Base class for every game lobby, handling all the websocket logic.
 
-    To handle all the websocket logic this base class stores all the different connected clients,
+    To handle all the websocket logic this base class stores all the different connected clients, and every
+    registered event callback.
 
-
+    Authors: Christopher
     """
 
     def __init__(self, *, lobby_id: str, queries: Queries) -> None:
@@ -61,6 +62,10 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
         self._events: ListenerMapT[events.BaseEvent] = {}
 
     async def get_user_by_client(self, client: Snowflake | WebsocketClient) -> User:
+        """Gets a user from the db by their websocket client.
+
+        Authors: Christopher
+        """
         if isinstance(client, Snowflake):
             user = await self.queries.get_user_by_id(id_=self._clients[client].user_id)
         else:
@@ -70,6 +75,12 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
         return user
 
     def __post__init__(self) -> None:
+        """Function called after an instance of this object was created.
+
+        This is used to scan for event callbacks that are registered with the `add_event_callback` decorator.
+
+        Authors: Christopher
+        """
         for attr_name in dir(self):
             maybe_listener = getattr(self, attr_name)
 
@@ -77,17 +88,29 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
                 self.add_event_callback(maybe_listener.__event_type__, maybe_listener)  # type: ignore[reportArgumentType]
 
     async def broadcast_event(self, event: events.BaseEvent) -> None:
+        """Function that sends an event to every connected client.
+
+        Authors: Christopher
+        """
         event_name = event.event_name()
         data = msgspec.to_builtins(event, enc_hook=encode_hook)
         for client in self._clients.values():
             await client.dispatch_event(data, event_name)
 
     async def send_event(self, event: events.BaseEvent, ws: WebsocketClient) -> None:
+        """Function that sends an event to one specified client.
+
+        Authors: Christopher
+        """
         event_name = event.event_name()
         data = msgspec.to_builtins(event, enc_hook=encode_hook)
         await ws.dispatch_event(data, event_name)
 
     def add_event_callback(self, event_type: type[typing.Any], callback: CallbackT[typing.Any]) -> None:
+        """Function that adds a function as a callback for a specific event.
+
+        Authors: Christopher
+        """
         origin_type = event_type
         if (_origin_type := typing.get_origin(event_type)) is not None:
             origin_type = _origin_type
@@ -116,6 +139,10 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
             self._events[event_type.event_name()] = (event_type, [callback])
 
     def set_client(self, user_id: Snowflake, client: WebsocketClient) -> WebsocketClient:
+        """Adds a client to the lobby and if the lobby is full it errors.
+
+        Authors: Christopher
+        """
         if not self._clients.get(user_id) and self.is_full:
             raise OverflowError("Lobby is full!")
         logger.debug(f"Added client with user id {user_id} and client_id {client.client_id} to lobby {self._lobby_id}")
@@ -126,6 +153,10 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
         return self._clients.get(user_id)
 
     async def _remove_client(self, user_id: Snowflake) -> None:
+        """Removes a client from the lobby and dispatches a LeaveEvent for the client.
+
+        Authors: Christopher
+        """
         client = self._clients.pop(user_id, None)
         if client is not None:
             logger.debug(
@@ -164,6 +195,10 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
         return self.num_clients >= self.max_num_clients
 
     async def __handle_dispatch(self, payload: WebSocketPayload, client: WebsocketClient) -> None:
+        """Internal function that handles event dispatches.
+
+        Authors: Christopher
+        """
         if not payload.t or not (event := self._events.get(payload.t)):
             return
         event_obj = msgspec.convert(payload.d, type=event[0], dec_hook=decode_hook)
@@ -174,6 +209,7 @@ class GameLobbyBase(abc.ABC, metaclass=_GameLobbyMeta):
                 logger.exception(f"Exception occurred when handling event {payload.t}", exc_info=exc)
 
     async def send_ready(self, user: User) -> None:
+        """Function that sends the ready event for a specific user."""
         client = self.get_client(user.id)
         if client is None:
             return
