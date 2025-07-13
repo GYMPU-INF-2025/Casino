@@ -282,7 +282,10 @@ class Blackjack(GameLobbyBase):
         asyncio.create_task(self.start_giving_cards())
 
     @add_event_listener(events.BlackjackStartGame)
-    async def on_start(self, _: events.BlackjackStartGame, ws: WebsocketClient) -> None:
+    async def on_start(self, _: events.BlackjackStartGame, __: WebsocketClient) -> None:
+        for ws, data in self.waiting_players.items():
+            self.active_players[ws] = data
+        self.waiting_players = {}
         self.game_started = True
 
         await self.broadcast_update()
