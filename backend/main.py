@@ -20,6 +20,7 @@ from backend.internal.errors import InternalServerError
 from backend.internal.serialization import deserialize
 from backend.internal.serialization import serialize
 from backend.internal.ws import WebsocketEndpointsManager
+from backend.mines import Mines
 from backend.users import router as users_router
 from shared.internal.hooks import encode_hook
 from shared.internal.snowflakes import Snowflake
@@ -60,6 +61,7 @@ async def teardown_db(__: sanic.Sanic, _: asyncio.AbstractEventLoop) -> None:
 
 ws_endpoints = WebsocketEndpointsManager(app=app)
 ws_endpoints.add_lobby(game_lobby_type=Blackjack)
+ws_endpoints.add_lobby(game_lobby_type=Mines)
 
 error_encoder = msgspec.json.Encoder(enc_hook=encode_hook)
 

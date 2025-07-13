@@ -34,6 +34,36 @@ class PrintText(BaseEvent):
 class UpdateMoney(BaseEvent):
     money: int
 
+
+
+class MinesChangeStake(BaseEvent):
+    amount: int
+
+class MinesMineClicked(BaseEvent):
+    x: int
+    y: int
+
+class MinesMineClickedResponse(BaseEvent):
+    x: int
+    y: int
+    multiplier: float
+
+class MinesGameOver(BaseEvent):
+    x: int
+    y: int
+
+class MinesRestartGame(BaseEvent):
+    pass
+
+class MinesChashout(BaseEvent):
+    pass
+
+class MinesChashoutResponse(BaseEvent):
+    balance: int
+
+class MinesStartGame(BaseEvent):
+    pass
+
 class BlackjackCardData(msgspec.Struct):
     name: str
     value: int
@@ -79,3 +109,4 @@ class BlackjackWin(BaseEvent):
 
 class BlackjackPlayerAction(BaseEvent):
     username: str
+

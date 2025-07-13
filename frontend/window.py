@@ -18,6 +18,7 @@ from frontend.views.blackjack_view import BlackjackView
 from frontend.views.game_selection import GameSelectionView
 from frontend.views.lobbys_view import LobbysView
 from frontend.views.login_view import LoginMenu
+from frontend.views.mines_view import MinesView
 
 if typing.TYPE_CHECKING:
     import pathlib
@@ -90,6 +91,8 @@ class MainWindow(arcade.Window):
         match game_mode:
             case c.GameModes.BLACKJACK:
                 self._show_view(BlackjackView(window=self, game_mode=game_mode, lobby_id=lobby_id))
+            case c.GameModes.MINES:
+                self._show_view(MinesView(window=self, game_mode=game_mode, lobby_id=lobby_id))
             case _:
                 raise TypeError(f"No lobbys view for game mode: {game_mode}")
 
