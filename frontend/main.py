@@ -12,11 +12,11 @@ ROOT_PATH = pathlib.Path(__file__).parent
 
 
 def main() -> None:
+    with (ROOT_PATH / "logging.json").open() as f:
+        logging.config.dictConfig(json.load(f))
     MainWindow(ROOT_PATH)
     arcade.run()
 
 
 if __name__ == "__main__":
-    with (ROOT_PATH / "logging.json").open() as f:
-        logging.config.dictConfig(json.load(f))
     main()
